@@ -14,7 +14,7 @@ import microblog.kitsch.business.domain.Member;
 import microblog.kitsch.business.domain.Posting;
 import microblog.kitsch.business.domain.PostingContent;
 import microblog.kitsch.business.service.PostingDao;
-import microblog.kitsch.helper.ConvertDateType;
+import microblog.kitsch.helper.KitschUtil;
 
 public class PostingDaoImpl implements PostingDao {
 	
@@ -139,7 +139,7 @@ public class PostingDaoImpl implements PostingDao {
 			pstmt.setString(2, posting.getTitle());
 			pstmt.setString(3, posting.getWriter());
 			pstmt.setInt(4, posting.getContentType());
-			pstmt.setDate(5, ConvertDateType.ConvertDateUtilToSql(new java.util.Date()));
+			pstmt.setDate(5, KitschUtil.ConvertDateUtilToSql(new java.util.Date()));
 			pstmt.setInt(6, posting.getExposure());
 			pstmt.setString(7, posting.getTags());
 			pstmt.setInt(8, seqNum);
@@ -319,7 +319,7 @@ public class PostingDaoImpl implements PostingDao {
 				String writer = rs.getString("writer");
 				int contentType = rs.getInt("content_type");
 				int readCount = rs.getInt("read_count");
-				java.util.Date regDate = ConvertDateType.ConvertDateSqlToUtil(rs.getDate("reg_date"));
+				java.util.Date regDate = KitschUtil.ConvertDateSqlToUtil(rs.getDate("reg_date"));
 				int likes = rs.getInt("likes");
 				int exposure = rs.getInt("exposure");
 				String tags = rs.getString("tags");
@@ -422,7 +422,7 @@ public class PostingDaoImpl implements PostingDao {
 				String writer = rs.getString("writer");
 				int contentType = rs.getInt("content_type");
 				int readCount = rs.getInt("read_count");
-				java.util.Date regDate = ConvertDateType.ConvertDateSqlToUtil(rs.getDate("reg_date"));
+				java.util.Date regDate = KitschUtil.ConvertDateSqlToUtil(rs.getDate("reg_date"));
 				int likes = rs.getInt("likes");
 				int exposure = rs.getInt("exposure");
 				String tags = rs.getString("tags");
@@ -537,7 +537,7 @@ public class PostingDaoImpl implements PostingDao {
 					String writer = rs2.getString("writer");
 					int contentType = rs2.getInt("content_type");
 					int readCount = rs2.getInt("read_count");
-					java.util.Date regDate = ConvertDateType.ConvertDateSqlToUtil(rs2.getDate("reg_date"));
+					java.util.Date regDate = KitschUtil.ConvertDateSqlToUtil(rs2.getDate("reg_date"));
 					int likes = rs2.getInt("likes");
 					int exposure = rs2.getInt("exposure");
 					String tags = rs2.getString("tags");
@@ -783,7 +783,7 @@ public class PostingDaoImpl implements PostingDao {
 					String writer = rs2.getString("writer");
 					int contentType = rs2.getInt("content_type");
 					int readCount = rs2.getInt("read_count");
-					java.util.Date regDate = ConvertDateType.ConvertDateSqlToUtil(rs2.getDate("reg_date"));
+					java.util.Date regDate = KitschUtil.ConvertDateSqlToUtil(rs2.getDate("reg_date"));
 					int likes = rs2.getInt("likes");
 					int exposure = rs2.getInt("exposure");
 					String tags = rs2.getString("tags");
@@ -1243,7 +1243,7 @@ public class PostingDaoImpl implements PostingDao {
 		originPosting.setWriter(originPosting.getWriter() + " >> " + member.getName());
 		this.insertPosting(targetBlogName, originPosting);
 		
-		String sql = "INSERT INTO reblog (member_eamil, origin_blog_name, target_blog_name, origin_posting_num) VALUES (?, ?, ?, ?)";
+		String sql = "INSERT INTO reblog (member_email, origin_blog_id, target_blog_id, origin_posting_num) VALUES (?, ?, ?, ?)";
 		System.out.println("PostingDaoImpl reblog() : " + sql);
 		
 		Connection connection = null;
@@ -1320,7 +1320,7 @@ public class PostingDaoImpl implements PostingDao {
 					String writer = rs2.getString("writer");
 					int contentType = rs2.getInt("content_type");
 					int readCount = rs2.getInt("read_count");
-					java.util.Date regDate = ConvertDateType.ConvertDateSqlToUtil(rs2.getDate("reg_date"));
+					java.util.Date regDate = KitschUtil.ConvertDateSqlToUtil(rs2.getDate("reg_date"));
 					int likes = rs2.getInt("likes");
 					int exposure = rs2.getInt("exposure");
 					String tags = rs2.getString("tags");
@@ -1427,7 +1427,7 @@ public class PostingDaoImpl implements PostingDao {
 				String writer = rs.getString("writer");
 				int contentType = rs.getInt("content_type");
 				int readCount = rs.getInt("read_count");
-				java.util.Date regDate = ConvertDateType.ConvertDateSqlToUtil(rs.getDate("reg_date"));
+				java.util.Date regDate = KitschUtil.ConvertDateSqlToUtil(rs.getDate("reg_date"));
 				int likes = rs.getInt("likes");
 				int exposure = rs.getInt("exposure");
 				String tags = rs.getString("tags");
@@ -1548,7 +1548,7 @@ public class PostingDaoImpl implements PostingDao {
 			pstmt.setInt(1, seqNum);
 			pstmt.setString(2, posting.getTitle());
 			pstmt.setInt(3, posting.getContentType());
-			pstmt.setDate(4, ConvertDateType.ConvertDateUtilToSql(new java.util.Date()));
+			pstmt.setDate(4, KitschUtil.ConvertDateUtilToSql(new java.util.Date()));
 			pstmt.setInt(5, posting.getExposure());
 			pstmt.setInt(6, posting.getRef());
 			pstmt.setInt(7, posting.getReplyStep() + 1);

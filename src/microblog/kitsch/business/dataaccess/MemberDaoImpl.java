@@ -11,23 +11,22 @@ import java.util.Map;
 
 import microblog.kitsch.business.domain.Member;
 import microblog.kitsch.business.service.MemberDao;
-import microblog.kitsch.helper.ConvertDateType;
+import microblog.kitsch.helper.KitschUtil;
 
 public class MemberDaoImpl implements MemberDao{
 
 	private Connection obtainConnection() throws SQLException {
-		return DatabaseUtil.getConnection();
-    	//return DatabaseUtil_old.getConnection();
+		//return DatabaseUtil.getConnection();
+    	return DatabaseUtil_old.getConnection();
     }
 	
 	private void closeResources(Connection connection, Statement stmt, ResultSet rs){
-		DatabaseUtil.close(connection, stmt, rs);
-		//DatabaseUtil_old.close(connection, stmt, rs);
+		//DatabaseUtil.close(connection, stmt, rs);
+		DatabaseUtil_old.close(connection, stmt, rs);
 	}
 	
 	private void closeResources(Connection connection, Statement stmt){
 		this.closeResources(connection, stmt, null);
-		//DatabaseUtil.close(connection, stmt);
 	}
 	
 	@Override
@@ -47,9 +46,7 @@ public class MemberDaoImpl implements MemberDao{
 			pstmt.setString(1, email);
 			rs = pstmt.executeQuery();
 			
-			if (rs.next()) {
-				result = true;
-			}
+			result = rs.next();
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -77,9 +74,7 @@ public class MemberDaoImpl implements MemberDao{
 			pstmt.setString(1, name);
 			rs = pstmt.executeQuery();
 			
-			if (rs.next()) {
-				result = true;
-			}
+			result = rs.next();
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -91,8 +86,8 @@ public class MemberDaoImpl implements MemberDao{
 
 	@Override
 	public void insertMember(Member member) {
-		String sql = "INSERT INTO member (email, name, password, reg_date, role) "
-				+ "VALUES (?, ?, ?, ?, ?)";
+		String sql = "INSERT INTO member (email, name, password, role, profile_image, reg_date) "
+				+ "VALUES (?, ?, ?, ?, ?, ?)";
 		System.out.println("MemberDaoImpl insertMember() query : " + sql);
 		
 		Connection connection = null;
@@ -104,8 +99,9 @@ public class MemberDaoImpl implements MemberDao{
 			pstmt.setString(1, member.getEmail());
 			pstmt.setString(2, member.getName());
 			pstmt.setString(3, member.getPassword());
-			pstmt.setDate(4, ConvertDateType.ConvertDateUtilToSql(new java.util.Date()));
-			pstmt.setInt(5, member.getRole());
+			pstmt.setInt(4, member.getRole());
+			pstmt.setString(5, member.getProfileImage());
+			pstmt.setDate(6, KitschUtil.convertDateUtilToSql(new java.util.Date()));
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -116,7 +112,7 @@ public class MemberDaoImpl implements MemberDao{
 
 	@Override
 	public void updateMember(Member member) {
-		String sql = "UPDATE member SET password=?, role=? WHERE email=?";
+		String sql = "UPDATE member SET name=?, password=?, profile_image=? WHERE email=?";
 		System.out.println("MemberDaoImpl updateMember() query : " + sql);
 		
 		Connection connection = null;
@@ -125,9 +121,10 @@ public class MemberDaoImpl implements MemberDao{
 		try {
 			connection = this.obtainConnection();
 			pstmt = connection.prepareStatement(sql);
-			pstmt.setString(1, member.getPassword());
-			pstmt.setInt(2, member.getRole());
-			pstmt.setString(3, member.getEmail());
+			pstmt.setString(1, member.getName());
+			pstmt.setString(2, member.getPassword());
+			pstmt.setString(3, member.getProfileImage());
+			pstmt.setString(4, member.getEmail());
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -175,7 +172,39 @@ public class MemberDaoImpl implements MemberDao{
 			
 			if (rs.next()) {
 				member = new Member(rs.getString("email"), rs.getString("name"), rs.getString("password"), 
-						ConvertDateType.ConvertDateSqlToUtil(rs.getDate("reg_date")), rs.getInt("role"));
+						rs.getInt("role"), rs.getString("profile_image"),
+						KitschUtil.convertDateSqlToUtil(rs.getDate("reg_date")), rs.getInt("total_follower_count"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			this.closeResources(connection, pstmt, rs);
+		}
+		
+		return member;
+	}
+
+	@Override
+	public Member selectMemberAsEmail(String email) {
+		Member member = null;
+		
+		String sql = "SELECT * FROM member WHERE email=?";
+		System.out.println("MemberDaoImpl selectMemberAsEmail() query : " + sql);
+		
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		try {
+			connection = this.obtainConnection();
+			pstmt = connection.prepareStatement(sql);
+			pstmt.setString(1, email);
+			rs = pstmt.executeQuery();
+			
+			if (rs.next()) {
+				member = new Member(rs.getString("email"), rs.getString("name"), rs.getString("password"), 
+						rs.getInt("role"), rs.getString("profile_image"),
+						KitschUtil.convertDateSqlToUtil(rs.getDate("reg_date")), rs.getInt("total_follower_count"));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -204,8 +233,9 @@ public class MemberDaoImpl implements MemberDao{
 			rs = pstmt.executeQuery();
 			
 			while (rs.next()) {
-				member = new Member(rs.getString("email"), rs.getString("name"), rs.getString("password"), 
-						ConvertDateType.ConvertDateSqlToUtil(rs.getDate("reg_date")), rs.getInt("role"));
+				member = new Member(rs.getString("email"), rs.getString("name"), rs.getString("password"),
+						rs.getInt("role"), rs.getString("profile_image"),
+						KitschUtil.convertDateSqlToUtil(rs.getDate("reg_date")), rs.getInt("total_follower_count"));
 				
 				mList.add(member);
 			}
@@ -239,9 +269,10 @@ public class MemberDaoImpl implements MemberDao{
 				String pw = rs.getString("password");
 				if (pw.equals(password)) {
 					member.setName(rs.getString("name"));
-					//member.setRegDate(ConvertDateType.ConvertDateSqlToUtil(rs.getDate("reg_Date")));
-					member.setRegDate(rs.getDate("reg_date"));
 					member.setRole(rs.getInt("role"));
+					member.setProfileImage(rs.getString("profile_image"));
+					member.setRegDate(KitschUtil.convertDateSqlToUtil(rs.getDate("reg_Date")));
+					member.setTotalFollowerCount(rs.getInt("total_follower_count"));
 					member.setCheck(Member.VALID_MEMBER);
 				} else {
                     member.setCheck(Member.INVALID_PASSWORD);
@@ -271,37 +302,35 @@ public class MemberDaoImpl implements MemberDao{
 		
 		String whereSyntax = "";
 		
-		if (searchInfo != null) {
-			if (!(searchInfo.isEmpty())) {
-				String target = (String) searchInfo.get("target");
-				if (target.equals("member") || target.equals("all")) {
-					searchType = (String) searchInfo.get("searchType");
-					searchText = (String) searchInfo.get("searchText");
-					searchTextKeyword = null;
-					startRow = (Integer) searchInfo.get("startRow");
-					endRow = (Integer) searchInfo.get("endRow");
-					
-					if (searchType.equals("all")) {
-						whereSyntax = " WHERE name LIKE ? OR email LIKE ? ESCAPE '@'";
-					} else if (searchType.equals("memberName")) {
-						whereSyntax = " WHERE name LIKE ? ESCAPE '@'";
-					} else if (searchType.equals("memberEmail")) {
-						whereSyntax = " WHERE email LIKE ? ESCAPE '@'";
-					}
-					
-					if (searchText != null) {
-						searchText.trim();
-						String searchTextTemp1 = searchText.replace("@", "@@");
-						String searchTextTemp2 = searchTextTemp1.replace("_", "@_");
-						String searchTextTemp3 = searchTextTemp2.replace("%", "@%");
-						searchTextKeyword = "%" + searchTextTemp3.replace(' ', '%') + "%";
-					}
+		if (!(searchInfo.isEmpty())) {
+			String target = (String) searchInfo.get("target");
+			if (target.equals("member") || target.equals("all")) {
+				searchType = (String) searchInfo.get("searchType");
+				searchText = (String) searchInfo.get("searchText");
+				searchTextKeyword = null;
+				startRow = (Integer) searchInfo.get("startRow");
+				endRow = (Integer) searchInfo.get("endRow");
+				
+				if (searchType.equals("all")) {
+					whereSyntax = " WHERE name LIKE ? OR email LIKE ? ESCAPE '@'";
+				} else if (searchType.equals("memberName")) {
+					whereSyntax = " WHERE name LIKE ? ESCAPE '@'";
+				} else if (searchType.equals("memberEmail")) {
+					whereSyntax = " WHERE email LIKE ? ESCAPE '@'";
+				}
+				
+				if (searchText != null) {
+					searchText.trim();
+					String searchTextTemp1 = searchText.replace("@", "@@");
+					String searchTextTemp2 = searchTextTemp1.replace("_", "@_");
+					String searchTextTemp3 = searchTextTemp2.replace("%", "@%");
+					searchTextKeyword = "%" + searchTextTemp3.replace(' ', '%') + "%";
 				}
 			}
 		}
 		
 		String sql = "SELECT * FROM "
-				+ "(SELECT ROWNUM AS row_num, email, name, password, reg_date, role FROM "
+				+ "(SELECT ROWNUM AS row_num, email, name, password, role, profile_image, reg_date, total_follower_count FROM "
 				+ "(SELECT * FROM member " + whereSyntax + ")) WHERE row_num BETWEEN ? AND ?";
 		System.out.println("MemberDaoImpl selectMemberList() query : " + sql);
 		
@@ -335,7 +364,8 @@ public class MemberDaoImpl implements MemberDao{
 			
 			while (rs.next()) {
 				member = new Member(rs.getString("email"), rs.getString("name"), rs.getString("password"), 
-						ConvertDateType.ConvertDateSqlToUtil(rs.getDate("reg_date")), rs.getInt("role"));
+						rs.getInt("role"), rs.getString("profile_image"),
+						KitschUtil.convertDateSqlToUtil(rs.getDate("reg_date")), rs.getInt("total_follower_count"));
 				mList.add(member);
 			}
 		} catch (SQLException e) {
@@ -357,29 +387,27 @@ public class MemberDaoImpl implements MemberDao{
 		
 		String whereSyntax = "";
 		
-		if (searchInfo != null) {
-			if (!(searchInfo.isEmpty())) {
-				String target = (String) searchInfo.get("target");
-				if (target.equals("member") || target.equals("all")) {
-					searchType = (String) searchInfo.get("searchType");
-					searchText = (String) searchInfo.get("searchText");
-					searchTextKeyword = null;
-					
-					if (searchType.equals("all")) {
-						whereSyntax = " WHERE name LIKE ? OR email LIKE ? ESCAPE '@'";
-					} else if (searchType.equals("memberName")) {
-						whereSyntax = " WHERE name LIKE ? ESCAPE '@'";
-					} else if (searchType.equals("memberEmail")) {
-						whereSyntax = " WHERE email LIKE ? ESCAPE '@'";
-					}
-					
-					if (searchText != null) {
-						searchText.trim();
-						String searchTextTemp1 = searchText.replace("@", "@@");
-						String searchTextTemp2 = searchTextTemp1.replace("_", "@_");
-						String searchTextTemp3 = searchTextTemp2.replace("%", "@%");
-						searchTextKeyword = "%" + searchTextTemp3.replace(' ', '%') + "%";
-					}
+		if (!(searchInfo.isEmpty())) {
+			String target = (String) searchInfo.get("target");
+			if (target.equals("member") || target.equals("all")) {
+				searchType = (String) searchInfo.get("searchType");
+				searchText = (String) searchInfo.get("searchText");
+				searchTextKeyword = null;
+				
+				if (searchType.equals("all")) {
+					whereSyntax = " WHERE name LIKE ? OR email LIKE ? ESCAPE '@'";
+				} else if (searchType.equals("memberName")) {
+					whereSyntax = " WHERE name LIKE ? ESCAPE '@'";
+				} else if (searchType.equals("memberEmail")) {
+					whereSyntax = " WHERE email LIKE ? ESCAPE '@'";
+				}
+				
+				if (searchText != null) {
+					searchText.trim();
+					String searchTextTemp1 = searchText.replace("@", "@@");
+					String searchTextTemp2 = searchTextTemp1.replace("_", "@_");
+					String searchTextTemp3 = searchTextTemp2.replace("%", "@%");
+					searchTextKeyword = "%" + searchTextTemp3.replace(' ', '%') + "%";
 				}
 			}
 		}
@@ -420,36 +448,6 @@ public class MemberDaoImpl implements MemberDao{
 	}
 
 	@Override
-	public Member selectMemberAsEmail(String email) {
-		Member member = null;
-		
-		String sql = "SELECT * FROM member WHERE email=?";
-		System.out.println("MemberDaoImpl selectMemberAsEmail() query : " + sql);
-		
-		Connection connection = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		
-		try {
-			connection = this.obtainConnection();
-			pstmt = connection.prepareStatement(sql);
-			pstmt.setString(1, email);
-			rs = pstmt.executeQuery();
-			
-			if (rs.next()) {
-				member = new Member(rs.getString("email"), rs.getString("name"), rs.getString("password"), 
-						ConvertDateType.ConvertDateSqlToUtil(rs.getDate("reg_date")), rs.getInt("role"));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			this.closeResources(connection, pstmt, rs);
-		}
-		
-		return member;
-	}
-
-	@Override
 	public Member[] selectMemberAsRole(int role) {
 		List<Member> mList = new ArrayList<Member>();
 		Member member = null;
@@ -469,7 +467,8 @@ public class MemberDaoImpl implements MemberDao{
 			
 			while (rs.next()) {
 				member = new Member(rs.getString("email"), rs.getString("name"), rs.getString("password"), 
-						ConvertDateType.ConvertDateSqlToUtil(rs.getDate("reg_date")), rs.getInt("role"));
+						rs.getInt("role"), rs.getString("profile_image"),
+						KitschUtil.convertDateSqlToUtil(rs.getDate("reg_date")), rs.getInt("total_follower_count"));
 				
 				mList.add(member);
 			}
@@ -480,6 +479,27 @@ public class MemberDaoImpl implements MemberDao{
 		}
 		
 		return mList.toArray(new Member[0]);
+	}
+
+	@Override
+	public void updateRole(String email, int role) {
+		String sql = "UPDATE member SET role=? WHERE email=?";
+		System.out.println("MemberDaoImpl updateRole() query : " + sql);
+		
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		
+		try {
+			connection = this.obtainConnection();
+			pstmt = connection.prepareStatement(sql);
+			pstmt.setInt(1, role);
+			pstmt.setString(2, email);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			this.closeResources(connection, pstmt);
+		}
 	}
 
 }

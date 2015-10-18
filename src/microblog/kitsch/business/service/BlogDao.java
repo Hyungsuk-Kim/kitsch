@@ -10,7 +10,9 @@ public interface BlogDao {
 	public abstract void insertBlog(Blog blog);
 	public abstract void updateBlog(Blog blog);
 	public abstract void deleteBlog(Blog blog);
-	public abstract Blog selectBlog(String blogName);
+	public abstract Blog selectBlogByName(String blogName);
+	public abstract Blog selectBlogById(String blogId);
+	public abstract Blog selectBlogByEmail(String email);
 	public abstract Blog[] selectFollowedBlogs(Member member);
 	public abstract void addFollowing(Member member, String blogName);
 	public abstract void cancelFollowing(Member member, String blogName);

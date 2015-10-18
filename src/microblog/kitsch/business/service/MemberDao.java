@@ -18,4 +18,5 @@ public interface MemberDao {
 	public abstract Member checkMember(String email, String password);
 	public abstract List<Member> getMemberList(Map<String, Object> searchInfo);
 	public abstract int getMemberCount(Map<String, Object> searchInfo);
+	public abstract void updateRole(String email, int role);
 }

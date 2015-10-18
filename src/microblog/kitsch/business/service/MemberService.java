@@ -40,7 +40,15 @@ public interface MemberService {
 	 * @param name 검색하고자하는 회원의 name
 	 * @return 매개변수로 들어온 문자열과 일치하는 이름을 가진 회원 정보가 포함된 Member 객체
 	 */
-	public abstract Member findMember(String name) throws DataNotFoundException;
+	public abstract Member findMemberByName(String name) throws DataNotFoundException;
+	
+	/**
+	 * 매개변수로 들어온 이메일과 같은 회원을 검색한다.일
+	 * @param email 검색하고자하는 회원의 email
+	 * @return 매개변수로 들어온 문자열과 일치하는 이메일을 가진 회원 정보가 포함된 Member 객체
+	 */
+	public abstract Member findMemberByEmail(String email) throws DataNotFoundException;
+	
 	/** 
 	 * 모든 User를 검색한다.
 	 * @return 저장소에 저장된 모든 Member 객체 배열
@@ -66,7 +74,16 @@ public interface MemberService {
 	 * @param 사용하고자하는 회원의 이름의 문자열 값
 	 * @return 사용가능한 이름일 경우 true, 이미 존재하는 이름일 경우 false를 리턴
 	 */
-	public abstract boolean availableName(String name);
+	public abstract boolean checkName(String name);
+	
+	/**
+	 * 인자로 받은 회원 이름의 사용 가능 여부를 리턴한다.
+	 * @param 사용하고자하는 회원의 이름의 문자열 값
+	 * @return 사용가능한 이름일 경우 true, 이미 존재하는 이름일 경우 false를 리턴
+	 */
+	public abstract boolean checkEmail(String email);
+	
+	public abstract Member[] getMembersAsRole(int role);
 	
 	public abstract void giveRole(Member administrator, String targetMemberName, int role) throws DataNotFoundException, IllegalDataException;
 }

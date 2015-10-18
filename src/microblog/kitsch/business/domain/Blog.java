@@ -2,6 +2,9 @@ package microblog.kitsch.business.domain;
 
 import java.io.Serializable;
 
+import microblog.kitsch.KitschSystem;
+import microblog.kitsch.helper.KitschUtil;
+
 /**
  * 
  */
@@ -10,15 +13,15 @@ public class Blog implements Serializable {
 	// Instance Variables
 	private static final long serialVersionUID = 1900033617868843759L;
 	
-	private String memberName; //블로그 소유자의 이름
+	private String blogId; // 실제 데이터베이스에서 생성되어질 블로그의 테이블 이름
+	private String email; //블로그 소유자의 이메일
 	private String blogName; // 블로그의 이름(URL로 사용됨)
-	private int followerCount; // 해당 블로그를 팔로잉한 사람의 수
+	private int followCount; // 해당 블로그를 팔로잉한 사람의 수
 	private int visitCount; // 누적 방문자수
 	private int backgroundColor; // 블로그의 배경색
 	private String headerImage; // 블로그 헤더 이미지 파일의 URL(Built-in / custom img)
-	private String profileImage; // 블로그의 사용자 프로필 이미지 파일의 URL(Built-in / custom img)
 	private int blogLayout; // 블로그의 레이아웃
-	private String tableName; // 실제 데이터베이스에서 생성되어질 블로그의 테이블 이름
+	private java.util.Date regDate;
 	
 	// Class Variables
 	/** 포스팅의 전체 정보를 포함한 포스팅들이 목록화 되어 보여지는 레이아웃 */
@@ -28,82 +31,78 @@ public class Blog implements Serializable {
 	/** 포스팅의 전체 정보를 포함한 포스팅들이 행렬과 유사한 형식으로 보여지는 레이아웃 */
 	public static final int GRID_LAYOUT = 2;
 	
-	public static final String DEFAULT_TABLE_NAME_PREFIX = "blog_table_";
+	public static final String DEFAULT_TABLE_NAME_PREFIX = "blog_id_";
 	
 	public static final int[] DEFAULT_BACKGROUND_COLORS = {0xffffff, 0x000000};
-	public static final String[] DEFAULT_HEADER_IMAGES = {"header1.jpg", "header2.jpg"};
-	public static final String[] DEFAULT_PROFILE_IMAGES = {"profile1.jpg", "profile2.jpg"};
+	public static final String[] DEFAULT_HEADER_IMAGES = {
+			KitschSystem.BUILT_IN_HEADER_IMAGES_DIR + "header1.jpg",
+			KitschSystem.BUILT_IN_HEADER_IMAGES_DIR + "header2.jpg"
+			};
 	
 	// Constructors
 	// 기본 블로그 생성
-	public Blog(String blogName, String memberName) {
+	public Blog(String email, String blogName) {
+		this.email = email;
 		this.blogName = blogName;
-		this.memberName = memberName;
 		this.blogLayout = LISTED_LAYOUT;
-		this.backgroundColor = DEFAULT_BACKGROUND_COLORS[this.getRandomIndex(DEFAULT_BACKGROUND_COLORS.length)];
-		this.headerImage = DEFAULT_HEADER_IMAGES[this.getRandomIndex(DEFAULT_HEADER_IMAGES.length)];
-		this.profileImage = DEFAULT_PROFILE_IMAGES[this.getRandomIndex(DEFAULT_PROFILE_IMAGES.length)];
+		this.backgroundColor = DEFAULT_BACKGROUND_COLORS[KitschUtil.makeRandomIndex(DEFAULT_BACKGROUND_COLORS.length)];
+		//this.headerImage = DEFAULT_HEADER_IMAGES[KitschUtil.makeRandomIndex(DEFAULT_HEADER_IMAGES.length)];
 	}
 	
-	// 블로그 생성용
-	public Blog(String memberName, String blogName, int backgroundColor, String headerImage, String profileImage, int blogLayout) {
-		this.memberName = memberName;
+/*	// 블로그 생성용
+	public Blog(String email, String blogName, String headerImage, int blogLayout) {
+		this.email = email;
 		this.blogName = blogName;
-		this.backgroundColor = backgroundColor;
 		this.headerImage = headerImage;
-		this.profileImage = profileImage;
 		this.blogLayout = blogLayout;
 	}
 	
-	// 팔로워 조회용
-	public Blog(String memberName, String blogName, int followerCount) {
-		this(memberName, blogName);
-		this.followerCount = followerCount;
-	}
+	public Blog(String email, String blogName, int backgroundColor, int blogLayout) {
+		this.email = email;
+		this.blogName = blogName;
+		this.backgroundColor = backgroundColor;
+		this.blogLayout = blogLayout;
+	}*/
 	
 	// 조회용
-	public Blog(String blogName, String memberName, int followerCount, int visitCount, int backgroundColor, String headerImage, String profileImage, int blogLayout, String tableName) {
+	public Blog(String blogId, String email, String blogName, int followCount, int visitCount, int backgroundColor, String headerImage, int blogLayout, java.util.Date regDate) {
+		this.blogId = blogId;
+		this.email = email;
 		this.blogName = blogName;
-		this.memberName = memberName;
 		this.blogName = blogName;
-		this.followerCount = followerCount;
+		this.followCount = followCount;
 		this.visitCount = visitCount;
 		this.backgroundColor = backgroundColor;
 		this.headerImage = headerImage;
-		this.profileImage = profileImage;
 		this.blogLayout = blogLayout;
-		this.tableName = tableName;
+		this.regDate = regDate;
 	}
 
 	// Methods
-	private int getRandomIndex(int length) {
-		return (int) (Math.random() * (length));
-	}
-	
 	@Override
 	public String toString() {
-		return "Blog [memberName=" + memberName + ", blogName=" + blogName + ", followerCount=" + followerCount
+		return "Blog [blogId=" + blogId + ", email=" + email + ", blogName=" + blogName + ", followCount=" + followCount
 				+ ", visitCount=" + visitCount + ", backgroundColor=" + backgroundColor + ", headerImage=" + headerImage
-				+ ", profileImage=" + profileImage + ", blogLayout=" + blogLayout + ", tableName=" + tableName + "]";
+				+ ", blogLayout=" + blogLayout + ", regDate=" + regDate + "]";
 	}
 
 	// Getters
-	public static long getSerialversionuid() {
-		return serialVersionUID;
+	public String getBlogId() {
+		return blogId;
 	}
 
-	public String getMemberName() {
-		return memberName;
+	public String getEmail() {
+		return email;
 	}
 
 	public String getBlogName() {
 		return blogName;
 	}
 
-	public int getFollowerCount() {
-		return followerCount;
+	public int getFollowCount() {
+		return followCount;
 	}
-	
+
 	public int getVisitCount() {
 		return visitCount;
 	}
@@ -116,29 +115,29 @@ public class Blog implements Serializable {
 		return headerImage;
 	}
 
-	public String getProfileImage() {
-		return profileImage;
-	}
-
 	public int getBlogLayout() {
 		return blogLayout;
 	}
-	
-	public String getTableName() {
-		return tableName;
+
+	public java.util.Date getRegDate() {
+		return regDate;
 	}
 
 	// Setters
-	public void setMemberName(String memberName) {
-		this.memberName = memberName;
+	public void setBlogId(String blogId) {
+		this.blogId = blogId;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public void setBlogName(String blogName) {
 		this.blogName = blogName;
 	}
 
-	public void setFollowerCount(int followerCount) {
-		this.followerCount = followerCount;
+	public void setFollowCount(int followCount) {
+		this.followCount = followCount;
 	}
 
 	public void setVisitCount(int visitCount) {
@@ -153,16 +152,12 @@ public class Blog implements Serializable {
 		this.headerImage = headerImage;
 	}
 
-	public void setProfileImage(String profileImage) {
-		this.profileImage = profileImage;
-	}
-
 	public void setBlogLayout(int blogLayout) {
 		this.blogLayout = blogLayout;
 	}
-	
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
-	}
 
+	public void setRegDate(java.util.Date regDate) {
+		this.regDate = regDate;
+	}
+	
 }

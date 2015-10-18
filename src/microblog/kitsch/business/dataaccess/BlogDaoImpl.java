@@ -14,17 +14,18 @@ import microblog.kitsch.business.domain.Member;
 import microblog.kitsch.business.domain.Posting;
 import microblog.kitsch.business.domain.PostingContent;
 import microblog.kitsch.business.service.BlogDao;
+import microblog.kitsch.helper.KitschUtil;
 
 public class BlogDaoImpl implements BlogDao{
 
 	private Connection obtainConnection() throws SQLException{
-		//return DatabaseUtil_old.getConnection();
-		return DatabaseUtil.getConnection();
+		return DatabaseUtil_old.getConnection();
+		//return DatabaseUtil.getConnection();
 	}
 	
 	private void closeResources(Connection connection, Statement stmt, ResultSet rs){
-		//DatabaseUtil_old.close(connection, stmt, rs);
-		DatabaseUtil.close(connection, stmt, rs);
+		DatabaseUtil_old.close(connection, stmt, rs);
+		//DatabaseUtil.close(connection, stmt, rs);
 	}
 	
 	private void closeResources(Connection connection, Statement stmt){
@@ -33,9 +34,10 @@ public class BlogDaoImpl implements BlogDao{
 	
 	@Override
 	public void insertBlog(Blog blog) {
-		String tableName = Blog.DEFAULT_TABLE_NAME_PREFIX;
+		String blogId = Blog.DEFAULT_TABLE_NAME_PREFIX;
 		
-		String query = "SELECT blog_num_seq.NEXTVAL FROM dual";
+		String query = "SELECT blog_id_seq.NEXTVAL FROM dual";
+		System.out.println("BlogDaoImpl insertBlog() first query : " + query);
 		
 		Connection connection = null;
 		PreparedStatement pstmt = null;
@@ -47,29 +49,37 @@ public class BlogDaoImpl implements BlogDao{
 			pstmt = connection.prepareStatement(query);
 			rs = pstmt.executeQuery();
 			if (rs.next()) {
-				tableName += rs.getString(1);
+				blogId += rs.getString(1);
 			}
 			rs.close();
 			pstmt.close();
 			
-			String sql = "INSERT INTO blog (blog_name, member_name, background_color, header_image, profile_image, blog_layout, table_name) "
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?)";
-			String sql2 = "CREATE TABLE " + tableName + "("
-							+ "num NUMBER(5),"
+			String sql;
+			if (blog.getHeaderImage() == null) {
+				sql = "INSERT INTO blog (blog_id, email, blog_name, background_color, blog_layout, reg_date) "
+						+ " VALUES (?, ?, ?, ?, ?, ?)";
+			} else {
+				sql = "INSERT INTO blog (blog_id, email, blog_name, header_image, blog_layout, reg_date) "
+						+ " VALUES (?, ?, ?, ?, ?, ?)";
+			}
+			System.out.println("BlogDaoImpl insertBlog() second query : " + sql);
+			
+			String sql2 = "CREATE TABLE " + blogId + "("
+							+ "num INTEGER,"
 							+ "title VARCHAR2(420),"
 							+ "writer VARCHAR2(60) NOT NULL,"
 							+ "content_type NUMBER(3) NOT NULL,"
 							+ "read_count NUMBER(10) DEFAULT 0,"
 							+ "reg_date DATE,"
-							+ "likes NUMBER(10) DEFAULT 0,"
+							+ "likes INTEGER DEFAULT 0,"
 							+ "exposure NUMBER(1),"
 							+ "tags VARCHAR2(4000),"
-							+ "ref NUMBER(5) NOT NULL,"
-							+ "reply_step NUMBER(5) DEFAULT 0,"
-							+ "reply_depth NUMBER(5) DEFAULT 0,"
-							+ "reply_count NUMBER(5) DEFAULT 0,"
+							+ "ref INTEGER NOT NULL,"
+							+ "reply_step INTEGER DEFAULT 0,"
+							+ "reply_depth INTEGER DEFAULT 0,"
+							+ "reply_count INTEGER DEFAULT 0,"
 							+ "posting_type NUMBER(1),"
-							+ "reblog_count NUMBER(5) DEFAULT 0,"
+							+ "reblog_count INTEGER DEFAULT 0,"
 							+ "reblog_option NUMBER(1),"
 							+ "PRIMARY KEY(num),"
 							+ "CHECK(content_type IN("
@@ -103,25 +113,28 @@ public class BlogDaoImpl implements BlogDao{
 							+ Posting.ON_UPDATE_AND_DELETE_CASCADE + "))"
 						+")";
 			
-			String sql3 = "CREATE SEQUENCE " + tableName + "_num_seq START with 1 INCREMENT BY 1";
-					  
-			System.out.println("BlogDaoImpl insertBlog() query : " + sql);
+			String sql3 = "CREATE SEQUENCE " + blogId + "_num_seq START with 1 INCREMENT BY 1";
 			
 			pstmt = connection.prepareStatement(sql);
-			pstmt.setString(1, blog.getBlogName());
-			pstmt.setString(2, blog.getMemberName());
-			pstmt.setInt(3, blog.getBackgroundColor());
-			pstmt.setString(4, blog.getHeaderImage());
-			pstmt.setString(5, blog.getProfileImage());
-			pstmt.setInt(6, blog.getBlogLayout());
-			pstmt.setString(7, tableName);
+			pstmt.setString(1, blogId);
+			pstmt.setString(2, blog.getEmail());
+			pstmt.setString(3, blog.getBlogName());
+			if (blog.getHeaderImage() == null) {
+				pstmt.setInt(4, blog.getBackgroundColor());
+			} else {
+				pstmt.setString(4, blog.getHeaderImage());
+			}
+			pstmt.setInt(5, blog.getBlogLayout());
+			pstmt.setDate(6, KitschUtil.convertDateUtilToSql(new java.util.Date()));
 			pstmt.executeUpdate();
 			pstmt.close();
 			
+			System.out.println("BlogDaoImpl insertBlog() third query : " + sql2);
 			pstmt = connection.prepareStatement(sql2);
 			pstmt.executeUpdate();
 			pstmt.close();
 			
+			System.out.println("BlogDaoImpl insertBlog() fourth query : " + sql3);
 			pstmt = connection.prepareStatement(sql3);
 			pstmt.executeUpdate();
 			
@@ -145,7 +158,7 @@ public class BlogDaoImpl implements BlogDao{
 	@Override
 	public void updateBlog(Blog blog) {
 		//String sql = "UPDATE blog SET blog_name=?, follower_count=?, visit_count=?, background_color=?, header_image, profile_image=?, blog_layout=? WHERE member_name=?";
-		String sql = "UPDATE blog SET background_color=?, header_image=?, profile_image=?, blog_layout=? WHERE blog_name=?";
+		String sql = "UPDATE blog SET blog_name=?, background_color=?, header_image=?, blog_layout=? WHERE blog_id=?";
 		System.out.println("BlogDaoImpl updateBlog() query : " + sql);
 		
 		Connection connection = null;
@@ -154,13 +167,11 @@ public class BlogDaoImpl implements BlogDao{
 		try {
 			connection = this.obtainConnection();
 			pstmt = connection.prepareStatement(sql);
-			/*pstmt.setInt(2, blog.getFollowerCount());
-			pstmt.setInt(3, blog.getVisitCount());*/
-			pstmt.setInt(1, blog.getBackgroundColor());
-			pstmt.setString(2, blog.getHeaderImage());
-			pstmt.setString(3, blog.getProfileImage());
+			pstmt.setString(1, blog.getBlogName());
+			pstmt.setInt(2, blog.getBackgroundColor());
+			pstmt.setString(3, blog.getHeaderImage());
 			pstmt.setInt(4, blog.getBlogLayout());
-			pstmt.setString(5, blog.getBlogName());
+			pstmt.setString(5, blog.getBlogId());
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -297,7 +308,7 @@ public class BlogDaoImpl implements BlogDao{
 
 	@Override
 	public void addFollowing(Member member, String blogName) {
-		String sql = "INSERT INTO follow (member_name, origin_blog_name) VALUES (?, ?)";
+		String sql = "INSERT INTO follow (member_email, origin_blog_name) VALUES (?, ?)";
 		String sql2 = "UPDATE blog SET follower_count = follower_count + 1 WHERE blog_name=?";
 		System.out.println("BlogDaoImpl addFollowing() query : " + sql);
 		
