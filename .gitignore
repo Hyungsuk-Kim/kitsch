@@ -1,5 +1,7 @@
+KitschSystem.java
 *.class
 .classpath
 .settings/*
 .DS_Store/*
 .project
+/build/
