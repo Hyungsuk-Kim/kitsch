@@ -1,4 +1,4 @@
-KitschSystem.java
+src/microblog/kitsch/KitschSystem.java
 *.class
 .classpath
 .settings/*
