@@ -16,7 +16,7 @@ public class DatabaseUtil {
 	static {
 		try {
 			Context ctx = new InitialContext();
-			dataSource = (DataSource) ctx.lookup("java:comp/env/jdbc/microblog");
+			dataSource = (DataSource) ctx.lookup("java:comp/env/jdbc/kitsch");
 		} catch (NamingException e) {
 			System.out.println("JNDI error occurred.");
 			e.printStackTrace();

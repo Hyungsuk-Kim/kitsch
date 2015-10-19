@@ -134,5 +134,16 @@ public class MemberServiceImpl implements MemberService {
 	public Member[] getMembersAsRole(int role) {
 		return this.getMemberDaoImplementation().selectMemberAsRole(role);
 	}
+
+	@Override
+	public boolean memberExistsByEmail(String email) throws DataNotFoundException {
+		System.out.println("MemberServiceImpl memberExistsByEmail()");
+		boolean result = false;
+		MemberDao memberDao = this.getMemberDaoImplementation();
+		if (!(result = memberDao.memberEmailExists(email))) {
+			throw new DataNotFoundException("존재하지 않는 이메일 입니다. [" + email + "]");
+		}
+		return result;
+	}
 	
 }

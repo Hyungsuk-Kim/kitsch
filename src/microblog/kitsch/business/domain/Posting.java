@@ -40,10 +40,11 @@ public class Posting implements Serializable {
 	public static final int REPLY_TYPE_POSTING = 1; // 댓글
 	public static final int QNA_TYPE_POSTING = 2; // QnA
 	
-	public static final int ON_UPDATE_AND_DELETE_CASCADE = 0;
-	public static final int ON_UPDATE_CASCADE = 1;
-	public static final int ON_DELETE_CASCADE = 2;
-	public static final int SET_NULL = 3;
+	public static final int NOTHING = 0;
+	public static final int ON_UPDATE_AND_DELETE_CASCADE = 1;
+	public static final int ON_UPDATE_CASCADE = 2;
+	public static final int ON_DELETE_CASCADE = 3;
+	public static final int SET_NULL = 4;
 	
 	// Constructors
 	// 조회용 - all instance variables

@@ -107,6 +107,7 @@ public class BlogDaoImpl implements BlogDao{
 							+ Posting.REPLY_TYPE_POSTING + ", "
 							+ Posting.QNA_TYPE_POSTING + ")),"
 							+ "CHECK(reblog_option IN("
+							+ Posting.NOTHING + ", "
 							+ Posting.ON_DELETE_CASCADE + ", "
 							+ Posting.ON_UPDATE_CASCADE + ", "
 							+ Posting.SET_NULL + ", "
@@ -183,7 +184,7 @@ public class BlogDaoImpl implements BlogDao{
 	@Override
 	public void deleteBlog(Blog blog) {
 		String sql = "DELETE FROM blog WHERE blog_name=?";
-		String sql2 ="DROP TABLE " + blog.getTableName();
+		String sql2 ="DROP TABLE " + blog.getBlogId();
 		System.out.println("BlogDaoImpl deleteBlog() first query : " + sql);
 		
 		Connection connection = null;
@@ -218,7 +219,7 @@ public class BlogDaoImpl implements BlogDao{
 	}
 
 	@Override
-	public Blog selectBlog(String blogName) {
+	public Blog selectBlogByName(String blogName) {
 		Blog blog = null;
 		
 		String sql = "SELECT * FROM blog WHERE blog_name=?";
@@ -235,12 +236,12 @@ public class BlogDaoImpl implements BlogDao{
 			rs = pstmt.executeQuery();
 			
 			if (rs.next()) {
-				blog = new Blog(rs.getString("blog_name"), rs.getString("member_name"), rs.getInt("follower_count"), 
-						rs.getInt("visit_count"), rs.getInt("background_color"), rs.getString("header_image"), 
-						rs.getString("profile_image"), rs.getInt("blog_layout"), rs.getString("table_name"));
+				blog = new Blog(rs.getString("blog_id"), rs.getString("email"), rs.getString("blog_name"), 
+						rs.getInt("follow_count"), rs.getInt("visit_count"), rs.getInt("background_color"), 
+						rs.getString("header_image"), rs.getInt("blog_layout"), KitschUtil.convertDateSqlToUtil(rs.getDate("reg_date")));
 			}
 		} catch(SQLException e) {
-			
+			e.printStackTrace();
 		} finally {
 			this.closeResources(connection, pstmt, rs);
 		}
@@ -253,8 +254,8 @@ public class BlogDaoImpl implements BlogDao{
 		List<Blog> bList = new ArrayList<Blog>();
 		Blog blog = null;
 		
-		String sql ="SELECT * FROM follow WHERE member_name=?";
-		String sql2 = "SELECT * FROM blog WHERE blog_name=?";
+		String sql ="SELECT * FROM follow WHERE email=?";
+		String sql2 = "SELECT * FROM blog WHERE blog_id=?";
 		System.out.println("BlogDaoImpl selectFollowedBlogs() first query : " + sql);
 		
 		Connection connection = null;
@@ -267,21 +268,21 @@ public class BlogDaoImpl implements BlogDao{
 			connection = this.obtainConnection();
 			connection.setAutoCommit(false);
 			pstmt = connection.prepareStatement(sql);
-			pstmt.setString(1, member.getName());
+			pstmt.setString(1, member.getEmail());
 			rs = pstmt.executeQuery();
 			
 			while (rs.next()) {
-				String blogName = rs.getString("origin_blog_name");
+				String blogId = rs.getString("origin_blog_id");
 				
 				System.out.println("BlogDaoImpl selectFollowedBlogs() second query : " + sql2);
 				pstmt2 = connection.prepareStatement(sql2);
-				pstmt2.setString(1, blogName);
+				pstmt2.setString(1, blogId);
 				rs2 = pstmt2.executeQuery();
 				
 				while (rs2.next()) {
-					blog = new Blog(rs2.getString("blog_name"), rs2.getString("member_name"), rs2.getInt("follower_count"), 
-							rs2.getInt("visit_count"), rs2.getInt("background_color"), rs2.getString("header_image"), 
-							rs2.getString("profile_image"), rs2.getInt("blog_layout"), rs2.getString("table_name"));
+					blog = new Blog(rs2.getString("blog_id"), rs2.getString("email"), rs2.getString("blog_name"), 
+							rs2.getInt("follow_count"), rs2.getInt("visit_count"), rs2.getInt("background_color"), 
+							rs2.getString("header_image"), rs2.getInt("blog_layout"), KitschUtil.convertDateSqlToUtil(rs2.getDate("reg_date")));
 					
 					bList.add(blog);
 				}
@@ -307,27 +308,46 @@ public class BlogDaoImpl implements BlogDao{
 	}
 
 	@Override
-	public void addFollowing(Member member, String blogName) {
-		String sql = "INSERT INTO follow (member_email, origin_blog_name) VALUES (?, ?)";
-		String sql2 = "UPDATE blog SET follower_count = follower_count + 1 WHERE blog_name=?";
-		System.out.println("BlogDaoImpl addFollowing() query : " + sql);
+	public void addFollowing(Member member, String blogId) {
+		String sql = "INSERT INTO follow (email, origin_blog_id) VALUES (?, ?)";
+		String sql2 = "UPDATE blog SET follow_count = follow_count + 1 WHERE blog_id=?";
+		String sql3 = "SELECT email FROM blog WHERE blog_id=?";
+		String sql4 = "UPDATE member SET total_follower_count=total_follower_count+1 WHERE email=?";
+		System.out.println("BlogDaoImpl addFollowing() first query : " + sql);
 		
 		Connection connection = null;
 		PreparedStatement pstmt = null;
+		PreparedStatement pstmt2 = null;
+		ResultSet rs = null;
 		
 		try {
 			connection = this.obtainConnection();
 			connection.setAutoCommit(false);
 			pstmt = connection.prepareStatement(sql);
-			pstmt.setString(1, member.getName());
-			pstmt.setString(2, blogName);
+			pstmt.setString(1, member.getEmail());
+			pstmt.setString(2, blogId);
 			pstmt.executeUpdate();
 			pstmt.close();
 			
-			System.out.println("BlogDaoImpl addFollowing() query : " + sql2);
+			System.out.println("BlogDaoImpl addFollowing() second query : " + sql2);
 			pstmt = connection.prepareStatement(sql2);
-			pstmt.setString(1, blogName);
+			pstmt.setString(1, blogId);
 			pstmt.executeUpdate();
+			pstmt.close();
+			
+			System.out.println("BlogDaoImpl addFollowing() third query : " + sql3);
+			pstmt = connection.prepareStatement(sql3);
+			pstmt.setString(1, blogId);
+			rs = pstmt.executeQuery();
+			
+			String email;
+			while (rs.next()) {
+				email = rs.getString("email");
+				System.out.println("BlogDaoImpl addFollowing() fourth query : " + sql4);
+				pstmt2 = connection.prepareStatement(sql4);
+				pstmt2.setString(1, email);
+				pstmt2.executeUpdate();
+			}
 			
 		} catch (SQLException e) {
 			try {
@@ -342,32 +362,52 @@ public class BlogDaoImpl implements BlogDao{
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-			this.closeResources(connection, pstmt);
+			this.closeResources(null, pstmt2);
+			this.closeResources(connection, pstmt, rs);
 		}
 	}
 
 	@Override
-	public void cancelFollowing(Member member, String blogName) {
-		String sql = "DELETE FROM follow WHERE member_name=? AND origin_blog_name=?";
-		String sql2 = "UPDATE blog SET follower_count = follower_count-1 WHERE blog_name=?";
+	public void cancelFollowing(Member member, String blogId) {
+		String sql = "DELETE FROM follow WHERE email=? AND origin_blog_id=?";
+		String sql2 = "UPDATE blog SET follow_count = follow_count-1 WHERE email=?";
+		String sql3 = "SELECT email FROM blog WHERE blog_id=?";
+		String sql4 = "UPDATE member SET total_follower_count=total_follower_count-1 WHERE email=?";
 		System.out.println("BlogDaoImpl cancelFollowing() first query : " + sql);
 		
 		Connection connection = null;
 		PreparedStatement pstmt = null;
+		PreparedStatement pstmt2 = null;
+		ResultSet rs = null;
 		
 		try {
 			connection = this.obtainConnection();
 			connection.setAutoCommit(false);
 			pstmt = connection.prepareStatement(sql);
-			pstmt.setString(1, member.getName());
-			pstmt.setString(2, blogName);
+			pstmt.setString(1, member.getEmail());
+			pstmt.setString(2, blogId);
 			pstmt.executeUpdate();
 			pstmt.close();
 			
 			System.out.println("BlogDaoImpl cancelFollowing() second query : " + sql2);
 			pstmt = connection.prepareStatement(sql2);
-			pstmt.setString(1, blogName);
+			pstmt.setString(1, blogId);
 			pstmt.executeUpdate();
+			pstmt.close();
+			
+			System.out.println("BlogDaoImpl cancelFollowing() third query : " + sql3);
+			pstmt = connection.prepareStatement(sql3);
+			pstmt.setString(1, blogId);
+			rs = pstmt.executeQuery();
+			
+			String email;
+			while (rs.next()) {
+				email = rs.getString("email");
+				System.out.println("BlogDaoImpl cancelFollowing() fourth query : " + sql4);
+				pstmt2 = connection.prepareStatement(sql4);
+				pstmt2.setString(1, email);
+				pstmt2.executeUpdate();
+			}
 			
 		} catch (SQLException e) {
 			try {
@@ -382,7 +422,8 @@ public class BlogDaoImpl implements BlogDao{
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-			this.closeResources(connection, pstmt);
+			this.closeResources(null, pstmt2);
+			this.closeResources(connection, pstmt, rs);
 		}
 	}
 
@@ -399,37 +440,35 @@ public class BlogDaoImpl implements BlogDao{
 		
 		String whereSyntax ="";
 		
-		if (searchInfo != null) {
-			if (!(searchInfo.isEmpty())) {
-				String target = (String) searchInfo.get("target");
-				if (target.equals("blog") || target.equals("all")) {
-					searchType = (String) searchInfo.get("searchType");
-					searchText = (String) searchInfo.get("searchText");
-					searchTextKeyword = null;
-					startRow = (Integer) searchInfo.get("startRow");
-					endRow = (Integer) searchInfo.get("endRow");
-					
-					if (searchType.equals("all")) {
-						whereSyntax = " WHERE member_name LIKE ? OR blog_name LIKE ? ESCAPE '@'";
-					} else if (searchType.equals("memberName")) {
-						whereSyntax = " WHERE member_name LIKE ? ESCAPE '@'";
-					} else if (searchType.equals("blogName")) {
-						whereSyntax = " WHERE blog_name LIKE ? ESCAPE '@'";
-					}
-					
-					if (searchText != null) {
-						searchText.trim();
-						String searchTextTemp1 = searchText.replace("@", "@@");
-						String searchTextTemp2 = searchTextTemp1.replace("_", "@_");
-						String searchTextTemp3 = searchTextTemp2.replace("%", "@%");
-						searchTextKeyword = "%" + searchTextTemp3.replace(' ', '%') + "%";
-					}
+		if (!(searchInfo.isEmpty())) {
+			String target = (String) searchInfo.get("target");
+			if (target.equals("blog") || target.equals("all")) {
+				searchType = (String) searchInfo.get("searchType");
+				searchText = (String) searchInfo.get("searchText");
+				searchTextKeyword = null;
+				startRow = (Integer) searchInfo.get("startRow");
+				endRow = (Integer) searchInfo.get("endRow");
+				
+				if (searchType.equals("all")) {
+					whereSyntax = " WHERE email LIKE ? OR blog_name LIKE ? ESCAPE '@'";
+				} else if (searchType.equals("email")) {
+					whereSyntax = " WHERE email LIKE ? ESCAPE '@'";
+				} else if (searchType.equals("blogName")) {
+					whereSyntax = " WHERE blog_name LIKE ? ESCAPE '@'";
+				}
+				
+				if (searchText != null) {
+					searchText.trim();
+					String searchTextTemp1 = searchText.replace("@", "@@");
+					String searchTextTemp2 = searchTextTemp1.replace("_", "@_");
+					String searchTextTemp3 = searchTextTemp2.replace("%", "@%");
+					searchTextKeyword = "%" + searchTextTemp3.replace(' ', '%') + "%";
 				}
 			}
 		}
 		
 		String sql = "SELECT * FROM "
-				+ "(SELECT ROWNUM AS row_num, blog_name, member_name, follower_count, visit_count, background_color, header_image, profile_image, blog_layout, table_name "
+				+ "(SELECT ROWNUM AS row_num, blog_id, email, blog_name, follow_count, visit_count, background_color, header_image, blog_layout, reg_date "
 				+ "FROM (SELECT * FROM blog " + whereSyntax + ")) WHERE row_num BETWEEN ? AND ?";
 		System.out.println("BlogDaoImpl selectBlogList() query: " + sql);
 		
@@ -449,7 +488,7 @@ public class BlogDaoImpl implements BlogDao{
 				pstmt.setString(2, searchTextKeyword);
 				pstmt.setInt(3, startRow);
 				pstmt.setInt(4, endRow);
-			} else if (searchType.equals("memberName")) {
+			} else if (searchType.equals("email")) {
 				pstmt.setString(1, searchTextKeyword);
 				pstmt.setInt(2, startRow);
 				pstmt.setInt(3, endRow);
@@ -462,9 +501,9 @@ public class BlogDaoImpl implements BlogDao{
 			rs = pstmt.executeQuery();
 			
 			while (rs.next()) {
-				blog = new Blog(rs.getString("blog_name"), rs.getString("member_name"), rs.getInt("follower_count"), 
-						rs.getInt("visit_count"), rs.getInt("background_color"), rs.getString("header_image"), 
-						rs.getString("profile_image"), rs.getInt("blog_layout"), rs.getString("table_name"));
+				blog = new Blog(rs.getString("blog_id"), rs.getString("email"), rs.getString("blog_name"), 
+						rs.getInt("follow_count"), rs.getInt("visit_count"), rs.getInt("background_color"), 
+						rs.getString("header_image"), rs.getInt("blog_layout"), KitschUtil.convertDateSqlToUtil(rs.getDate("reg_date")));
 				bList.add(blog);
 			}
 		} catch (SQLException e) {
@@ -495,9 +534,9 @@ public class BlogDaoImpl implements BlogDao{
 					searchTextKeyword = null;
 					
 					if (searchType.equals("all")) {
-						whereSyntax = " WHERE member_name LIKE ? OR blog_name LIKE ? ESCAPE '@'";
-					} else if (searchType.equals("memberName")) {
-						whereSyntax = " WHERE member_name LIKE ? ESCAPE '@'";
+						whereSyntax = " WHERE email LIKE ? OR blog_name LIKE ? ESCAPE '@'";
+					} else if (searchType.equals("email")) {
+						whereSyntax = " WHERE email LIKE ? ESCAPE '@'";
 					} else if (searchType.equals("blogName")) {
 						whereSyntax = " WHERE blog_name LIKE ? ESCAPE '@'";
 					}
@@ -529,7 +568,7 @@ public class BlogDaoImpl implements BlogDao{
             } else if (searchType.equals("all")) {
 				pstmt.setString(1, searchTextKeyword);
 				pstmt.setString(2, searchTextKeyword);
-			} else if (searchType.equals("memberName")) {
+			} else if (searchType.equals("email")) {
 				pstmt.setString(1, searchTextKeyword);
 			} else if (searchType.equals("blogName")) {
 				pstmt.setString(1, searchTextKeyword);
@@ -550,7 +589,7 @@ public class BlogDaoImpl implements BlogDao{
 	}
 
 	@Override
-	public boolean blogExists(String blogName) {
+	public boolean blogExistsByName(String blogName) {
 		boolean result = false;
 		
 		String sql = "SELECT * FROM blog WHERE blog_name=?";
@@ -578,8 +617,8 @@ public class BlogDaoImpl implements BlogDao{
 	}
 
 	@Override
-	public void addVisitCount(String blogName) {
-		String sql = "UPDATE blog SET visit_count = visit_count + 1 WHERE blog_name=?";
+	public void addVisitCount(String blogId) {
+		String sql = "UPDATE blog SET visit_count = visit_count + 1 WHERE blog_id=?";
 		System.out.println("BlogDaoImpl addVisitCount() query : " + sql);
 		
 		Connection connection = null;
@@ -588,7 +627,7 @@ public class BlogDaoImpl implements BlogDao{
 		try {
 			connection = this.obtainConnection();
 			pstmt = connection.prepareStatement(sql);
-			pstmt.setString(1, blogName);
+			pstmt.setString(1, blogId);
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -624,7 +663,7 @@ public class BlogDaoImpl implements BlogDao{
 		List<Blog> bList = new ArrayList<Blog>();
 		Blog memberBlog = null;
 		
-		String sql = "SELECT * FROM blog WHERE member_name=?";
+		String sql = "SELECT * FROM blog WHERE email=?";
 		System.out.println("BlogDaoImpl selectMemberBlogs() query : " + sql);
 		
 		Connection connection = null;
@@ -634,11 +673,13 @@ public class BlogDaoImpl implements BlogDao{
 		try {
 			connection = this.obtainConnection();
 			pstmt = connection.prepareStatement(sql);
-			pstmt.setString(1, member.getName());
+			pstmt.setString(1, member.getEmail());
 			rs = pstmt.executeQuery();
 			
 			while (rs.next()) {
-				memberBlog = new Blog(rs.getString("blog_name"), rs.getString("member_name"), rs.getInt("follower_count"), rs.getInt("visit_count"), rs.getInt("background_color"), rs.getString("header_image"), rs.getString("profile_image"), rs.getInt("blog_layout"), rs.getString("table_name"));
+				memberBlog = new Blog(rs.getString("blog_id"), rs.getString("email"), rs.getString("blog_name"), 
+						rs.getInt("follow_count"), rs.getInt("visit_count"), rs.getInt("background_color"), 
+						rs.getString("header_image"), rs.getInt("blog_layout"), KitschUtil.convertDateSqlToUtil(rs.getDate("reg_date")));
 				bList.add(memberBlog);
 			}
 		} catch (SQLException e) {
@@ -648,6 +689,63 @@ public class BlogDaoImpl implements BlogDao{
 		}
 		
 		return bList;
+	}
+
+	@Override
+	public Blog selectBlogById(String blogId) {
+		String sql = "SELECT * FROM blog WHERE blog_id=?";
+		System.out.println("BlogDaoImpl selectBlogById() : query : " + sql);
+		
+		Blog blog = null;
+		
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		try {
+			connection = this.obtainConnection();
+			pstmt = connection.prepareStatement(sql);
+			pstmt.setString(1, blogId);
+			rs = pstmt.executeQuery();
+			
+			if (rs.next()) {
+				blog = new Blog(rs.getString("blog_id"), rs.getString("email"), rs.getString("blog_name"), 
+						rs.getInt("follow_count"), rs.getInt("visit_count"), rs.getInt("background_color"), 
+						rs.getString("header_image"), rs.getInt("blog_layout"), KitschUtil.convertDateSqlToUtil(rs.getDate("reg_date")));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			this.closeResources(connection, pstmt, rs);
+		}
+		return blog;
+	}
+
+	@Override
+	public boolean blogExistsById(String blogId) {
+		String sql = "SELECT blog_id FROM blog WHERE blog_id = ?";
+		System.out.println("BlogDaoImpl blogExistsById() : query : " + sql);
+		
+		boolean result = false;
+		
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		try {
+			connection = this.obtainConnection();
+			pstmt = connection.prepareStatement(sql);
+			pstmt.setString(1, blogId);
+			rs = pstmt.executeQuery();
+			
+			result = rs.next();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			this.closeResources(connection, pstmt, rs);
+		}
+		
+		return result;
 	}
 	
 }

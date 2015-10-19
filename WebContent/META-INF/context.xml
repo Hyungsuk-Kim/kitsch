@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context path="/kitsch">
+  <Resource name="jdbc/kitsch"
+        type="javax.sql.DataSource"
+        url="jdbc:oracle:thin:@203.90.55.23:1521:xe"
+        driverClassName="oracle.jdbc.OracleDriver"
+        username="kitsch" password="kitsch"
+        maxActive="10" maxIdle="5" maxWait="5000" />
+</Context>
