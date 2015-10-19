@@ -32,39 +32,30 @@ public class PostingDaoImpl implements PostingDao {
 		this.closeResources(connection, stmt, null);
 	}
 	
-	private String getContentTable(Posting posting){
+	private String getContentTable(Posting posting, String blogId){
 		String contentTable = null;
 		
 		int contentType = posting.getContentType();
 		if (contentType / 100 == PostingContent.MIXED_TYPE_CONTENT) {
-			contentTable = "mixed_contents";
+			contentTable = "_mixed";
 		} else if (contentType / 100 == PostingContent.SINGLE_TYPE_CONTENT) {
-			contentTable = "single_type_contents";
+			contentTable = "_single";
 		} else if (contentType == PostingContent.TEXT_CONTENT) {
-			contentTable = "text_contents";
+			contentTable = "_text";
 		}
-		return contentTable;
+		return blogId + contentTable;
 	}
 	
-	private String getContentTable(int contentType){
+	private String getContentTable(int contentType, String blogId){
 		String contentTable = null;
 		if (contentType / 100 == PostingContent.MIXED_TYPE_CONTENT) {
-			contentTable = "mixed_contents";
+			contentTable = "_mixed";
 		} else if (contentType / 100 == PostingContent.SINGLE_TYPE_CONTENT) {
-			contentTable = "single_type_contents";
+			contentTable = "_single";
 		} else if (contentType == PostingContent.TEXT_CONTENT) {
-			contentTable = "text_contents";
+			contentTable = "_text";
 		}
-		return contentTable;
-	}
-	
-	private String getFilePaths(PostingContent pContent) {
-		String filePaths = "";
-		String[] files = pContent.getFilePaths();
-		for (String file : files) {
-			filePaths += "@" + file;
-		}
-		return filePaths;
+		return blogId + contentTable;
 	}
 	
 	private boolean checkValidContentType(int typeOfContent) {
@@ -95,25 +86,27 @@ public class PostingDaoImpl implements PostingDao {
 	}
 
 	@Override
-	public int insertPosting(String blogName, Posting posting) {
+	public int insertPosting(String blogId, Posting posting) {
 		int affectedRow = 0;
-		String contentTable = this.getContentTable(posting);
-		String contents = "";
+		String contentTable = this.getContentTable(posting, blogId);
+		String columns = "";
 		PostingContent pContent = posting.getContents();
 		
-		if (contentTable.equals("mixed_contents")) {
-			contents = "?, ?";
-		} else if (contentTable.equals("single_type_contents")) {
-			contents = "?";
-		} else if (contentTable.equals("text_contents")) {
-			contents = "?";
+		if (contentTable.equals("_mixed")) {
+			columns = "?, ?";
+		} else if (contentTable.equals("_single")) {
+			columns = "?";
+		} else if (contentTable.equals("_text")) {
+			columns = "?";
 		}
+		
 		int seqNum = 0;
-		String query = "SELECT " + blogName + "_num_seq.NEXTVAL FROM dual";
-		String sql = "INSERT INTO " + blogName + " (num, title, writer, content_type, reg_date, exposure, tags, ref, posting_type, reblog_option) "
+		
+		String query = "SELECT " + blogId + "_num_seq.NEXTVAL FROM dual";
+		String sql = "INSERT INTO " + blogId + " (num, title, writer, content_type, reg_date, exposure, tags, ref, posting_type, reblog_option) "
 				+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-		String sql2= "INSERT INTO " + contentTable + " VALUES (?, ?, " + contents + ")";
-		System.out.println("PostingDaoImpl insertPosting() : " + sql);
+		String sql2= "INSERT INTO " + contentTable + " VALUES (?, " + columns + ")";
+		System.out.println("PostingDaoImpl insertPosting() first query : " + query);
 		
 		Connection connection = null;
 		PreparedStatement pstmt = null;
@@ -134,12 +127,13 @@ public class PostingDaoImpl implements PostingDao {
 			rs.close();
 			pstmt.close();
 			
+			System.out.println("PostingDaoImpl insertPosting() second query : " + sql);
 			pstmt = connection.prepareStatement(sql);
 			pstmt.setInt(1, seqNum);
 			pstmt.setString(2, posting.getTitle());
 			pstmt.setString(3, posting.getWriter());
 			pstmt.setInt(4, posting.getContentType());
-			pstmt.setDate(5, KitschUtil.ConvertDateUtilToSql(new java.util.Date()));
+			pstmt.setDate(5, KitschUtil.convertDateUtilToSql(new java.util.Date()));
 			pstmt.setInt(6, posting.getExposure());
 			pstmt.setString(7, posting.getTags());
 			pstmt.setInt(8, seqNum);
@@ -148,17 +142,16 @@ public class PostingDaoImpl implements PostingDao {
 			pstmt.executeUpdate();
 			pstmt.close();
 			
-			System.out.println("PostingDaoImpl insertPosting() : " + sql2);
+			System.out.println("PostingDaoImpl insertPosting() third query : " + sql2);
 			pstmt = connection.prepareStatement(sql2);
-			pstmt.setString(1, blogName);
-			pstmt.setInt(2, seqNum);
-			if (contentTable.equals("mixed_contents")) {
-				pstmt.setString(3, pContent.getTextContent());
-				pstmt.setString(4, this.getFilePaths(pContent));
-			} else if (contentTable.equals("single_type_contents")) {
-				pstmt.setString(3, this.getFilePaths(pContent));
-			} else if (contentTable.equals("text_contents")) {
-				pstmt.setString(3, pContent.getTextContent());
+			pstmt.setInt(1, seqNum);
+			if (contentTable.equals("_mixed")) {
+				pstmt.setString(2, pContent.getTextContent());
+				pstmt.setString(3, KitschUtil.convertToString(pContent.getFilePaths(), Posting.PATH_DELIMITER, true));
+			} else if (contentTable.equals("_single")) {
+				pstmt.setString(2, KitschUtil.convertToString(pContent.getFilePaths(), Posting.PATH_DELIMITER, true));
+			} else if (contentTable.equals("_text")) {
+				pstmt.setString(2, pContent.getTextContent());
 			}
 			affectedRow = pstmt.executeUpdate();
 			
@@ -182,23 +175,23 @@ public class PostingDaoImpl implements PostingDao {
 	}
 
 	@Override
-	public void updatePosting(String blogName, Posting posting) {
+	public void updatePosting(String blogId, Posting posting) {
 		PostingContent pContent = posting.getContents();
 		
-		String contentTable = this.getContentTable(posting);
+		String contentTable = this.getContentTable(posting, blogId);
 		String updateComponents = "";
 		
-		if (contentTable.equals("mixed_contents")) {
-			updateComponents = "text_contents=?, file_path=?";
-		} else if (contentTable.equals("single_type_contents")) {
-			updateComponents = "file_path=?";
-		} else if (contentTable.equals("text_contents")) {
-			updateComponents = "text_contents=?";
+		if (contentTable.equals("_mixed")) {
+			updateComponents = "text_content=?, file_paths=?";
+		} else if (contentTable.equals("_single")) {
+			updateComponents = "file_paths=?";
+		} else if (contentTable.equals("_text")) {
+			updateComponents = "text_content=?";
 		}
 		
-		String sql = "UPDATE " + blogName + " SET title=?, content_type=?, exposure=?, tags=? WHERE num=?";
-		String sql2 = "UPDATE " + contentTable + " SET " + updateComponents + " WHERE blog_name=? AND posting_num=?";
-		System.out.println("PostingDaoImpl updatePosting() : " + sql);
+		String sql = "UPDATE " + blogId + " SET title=?, content_type=?, exposure=?, tags=?, reblog_option=? WHERE num=?";
+		String sql2 = "UPDATE " + contentTable + " SET " + updateComponents + " WHERE num=?";
+		System.out.println("PostingDaoImpl updatePosting() first query : " + sql);
 		
 		Connection connection = null;
 		PreparedStatement pstmt = null;
@@ -212,25 +205,23 @@ public class PostingDaoImpl implements PostingDao {
 			pstmt.setInt(2, posting.getContentType());
 			pstmt.setInt(3, posting.getExposure());
 			pstmt.setString(4, posting.getTags());
-			pstmt.setInt(5, posting.getNum());
+			pstmt.setInt(5, posting.getReblogOption());
+			pstmt.setInt(6, posting.getNum());
 			pstmt.close();
 			
-			System.out.println("PostingDaoImpl updatePosting() : " + sql2);
+			System.out.println("PostingDaoImpl updatePosting() second query : " + sql2);
 			pstmt = connection.prepareStatement(sql2);
 		
-			if (contentTable.equals("mixed_contents")) {
+			if (contentTable.equals("_mixed")) {
 				pstmt.setString(1, pContent.getTextContent());
-				pstmt.setString(2, this.getFilePaths(pContent));
-				pstmt.setString(3, blogName);
-				pstmt.setInt(5, posting.getNum());
-			} else if (contentTable.equals("single_type_contents")) {
-				pstmt.setString(1, this.getFilePaths(pContent));
-				pstmt.setString(2, blogName);
+				pstmt.setString(2, KitschUtil.convertToString(pContent.getFilePaths(), Posting.PATH_DELIMITER, true));
 				pstmt.setInt(3, posting.getNum());
-			} else if (contentTable.equals("text_contents")) {
+			} else if (contentTable.equals("_single")) {
+				pstmt.setString(1, KitschUtil.convertToString(pContent.getFilePaths(), Posting.PATH_DELIMITER, true));
+				pstmt.setInt(2, posting.getNum());
+			} else if (contentTable.equals("_text")) {
 				pstmt.setString(1, pContent.getTextContent());
-				pstmt.setString(2, blogName);
-				pstmt.setInt(3, posting.getNum());
+				pstmt.setInt(2, posting.getNum());
 			}
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
@@ -251,12 +242,12 @@ public class PostingDaoImpl implements PostingDao {
 	}
 
 	@Override
-	public void deletePosting(String blogName, Posting posting) {
-		String contentTable = this.getContentTable(posting);
+	public void deletePosting(String blogId, Posting posting) {
+		String contentTable = this.getContentTable(posting, blogId);
 		
-		String sql = "DELETE FROM " + blogName + " WHERE num=?";
-		String sql2 = "DELETE FROM " + contentTable + " WHERE blog_name=? AND posting_num=?";
-		System.out.println("PostingDaoImpl deletePosting() : " + sql);
+		String sql = "DELETE FROM " + blogId + " WHERE num=?";
+		String sql2 = "DELETE FROM " + contentTable + " WHERE num=?";
+		System.out.println("PostingDaoImpl deletePosting() first query : " + sql);
 		
 		Connection connection = null;
 		PreparedStatement pstmt = null;
@@ -269,9 +260,9 @@ public class PostingDaoImpl implements PostingDao {
 			pstmt.executeUpdate();
 			pstmt.close();
 			
+			System.out.println("PostingDaoImpl deletePosting() second query : " + sql2);
 			pstmt = connection.prepareStatement(sql2);
-			pstmt.setString(1, blogName);
-			pstmt.setInt(2, posting.getContents().getPostingNum());
+			pstmt.setInt(1, posting.getContents().getNum());
 			pstmt.executeUpdate();
 			
 		} catch (SQLException e) {
@@ -292,13 +283,13 @@ public class PostingDaoImpl implements PostingDao {
 	}
 
 	@Override
-	public Posting selectPosting(String blogName, int postingNum) {
+	public Posting selectPosting(String blogId, int postingNum) {
 		Posting selectedPosting = null;
 		PostingContent pContent = null;
 		String contentTable = null;
 		
-		String sql = "SELECT * FROM " + blogName + " WHERE num=?";
-		System.out.println("PostingDaoImpl selectPosting() : " + sql);
+		String sql = "SELECT * FROM " + blogId + " WHERE num=?";
+		System.out.println("PostingDaoImpl selectPosting() first query : " + sql);
 		
 		Connection connection = null;
 		PreparedStatement pstmt = null;
@@ -319,7 +310,7 @@ public class PostingDaoImpl implements PostingDao {
 				String writer = rs.getString("writer");
 				int contentType = rs.getInt("content_type");
 				int readCount = rs.getInt("read_count");
-				java.util.Date regDate = KitschUtil.ConvertDateSqlToUtil(rs.getDate("reg_date"));
+				java.util.Date regDate = KitschUtil.convertDateSqlToUtil(rs.getDate("reg_date"));
 				int likes = rs.getInt("likes");
 				int exposure = rs.getInt("exposure");
 				String tags = rs.getString("tags");
@@ -331,43 +322,27 @@ public class PostingDaoImpl implements PostingDao {
 				int reblogCount = rs.getInt("reblog_count");
 				int reblogOption = rs.getInt("reblog_option");
 				
-				contentTable = this.getContentTable(contentType);
-				String sql2 = "SELECT * FROM " + contentTable + " WHERE blog_name=? AND posting_num=?";
-				System.out.println("PostingDaoImpl selectPosting() : " + sql2);
-				
+				contentTable = this.getContentTable(contentType, blogId);
+				String sql2 = "SELECT * FROM " + contentTable + " WHERE num=?";
+				System.out.println("PostingDaoImpl selectPosting() second query : " + sql2);
 				pstmt2 = connection.prepareStatement(sql2);
-				pstmt2.setString(1, blogName);
-				pstmt2.setInt(2, num);
+				pstmt2.setInt(1, num);
 				rs2 = pstmt2.executeQuery();
 				
 				if (rs2.next()) {
-					String bName = rs2.getString("blog_name");
-					int pNum = rs2.getInt("posting_num");
-					if (contentTable.equals("mixed_contents")) {
-						String textContents = rs2.getString("text_contents");
+					int pNum = rs2.getInt("num");
+					if (contentTable.equals("_mixed")) {
+						String textContents = rs2.getString("text_content");
+						String filePaths = rs2.getString("file_paths");
+						pContent = new PostingContent(pNum, textContents, KitschUtil.convertToStringArray(filePaths, Posting.PATH_DELIMITER, false));
+						
+					} else if (contentTable.equals("_single")) {
 						String filePaths = rs2.getString("file_path");
+						pContent = new PostingContent(pNum, KitschUtil.convertToStringArray(filePaths, Posting.PATH_DELIMITER, false));
 						
-						StringTokenizer tokenizer = new StringTokenizer(filePaths, "@");
-						List<String> paths = new ArrayList<String>();
-						while (tokenizer.hasMoreTokens()) {
-							paths.add("@" + tokenizer.nextToken());
-						}
-						pContent = new PostingContent(bName, pNum, textContents, paths.toArray(new String[0]));
-						
-					} else if (contentTable.equals("single_type_contents")) {
-						String filePaths = rs2.getString("file_path");
-						
-						StringTokenizer tokenizer = new StringTokenizer(filePaths, "@");
-						List<String> paths = new ArrayList<String>();
-						while (tokenizer.hasMoreTokens()) {
-							paths.add("@" + tokenizer.nextToken());
-						}
-						pContent = new PostingContent(bName, pNum, paths.toArray(new String[0]));
-						
-					} else if (contentTable.equals("text_contents")) {
+					} else if (contentTable.equals("_text")) {
 						String textContent = rs2.getString("text_contents");
-						
-						pContent = new PostingContent(bName, pNum, textContent);
+						pContent = new PostingContent(pNum, textContent);
 					}
 					selectedPosting = new Posting(num, title, writer, pContent, contentType,
 							readCount, regDate, likes, exposure, tags, ref, replyStep, 
@@ -395,14 +370,14 @@ public class PostingDaoImpl implements PostingDao {
 	}
 
 	@Override
-	public List<Posting> selectAllPostings(String blogName) {
+	public List<Posting> selectAllPostings(String blogId) {
 		List<Posting> pList = new ArrayList<Posting>();
 		Posting selectedPosting = null;
 		PostingContent pContent = null;
 		String contentTable = null;
 		
-		String sql = "SELECT * FROM " + blogName;
-		System.out.println("PostingDaoImpl selectAllPostings() : " + sql);
+		String sql = "SELECT * FROM " + blogId;
+		System.out.println("PostingDaoImpl selectAllPostings() first query : " + sql);
 		
 		Connection connection = null;
 		PreparedStatement pstmt = null;
@@ -422,7 +397,7 @@ public class PostingDaoImpl implements PostingDao {
 				String writer = rs.getString("writer");
 				int contentType = rs.getInt("content_type");
 				int readCount = rs.getInt("read_count");
-				java.util.Date regDate = KitschUtil.ConvertDateSqlToUtil(rs.getDate("reg_date"));
+				java.util.Date regDate = KitschUtil.convertDateSqlToUtil(rs.getDate("reg_date"));
 				int likes = rs.getInt("likes");
 				int exposure = rs.getInt("exposure");
 				String tags = rs.getString("tags");
@@ -434,44 +409,27 @@ public class PostingDaoImpl implements PostingDao {
 				int reblogCount = rs.getInt("reblog_count");
 				int reblogOption = rs.getInt("reblog_option");
 				
-				contentTable = this.getContentTable(contentType);
-				String sql2 = "SELECT * FROM " + contentTable + " WHERE blog_name=? AND posting_num=?";
-				System.out.println("PostingDaoImpl selectAllPostings() : " + sql2);
+				contentTable = this.getContentTable(contentType, blogId);
+				String sql2 = "SELECT * FROM " + contentTable + " WHERE num=?";
+				System.out.println("PostingDaoImpl selectAllPostings() second query : " + sql2);
 				pstmt2 = connection.prepareStatement(sql2);
-				pstmt2.setString(1, blogName);
-				pstmt2.setInt(2, num);
+				pstmt2.setInt(1, num);
 				rs2 = pstmt2.executeQuery();
 				
 				while (rs2.next()) {
-					String bName = rs2.getString("blog_name");
-					int pNum = rs2.getInt("posting_num");
-					if (contentTable.equals("mixed_contents")) {
-						String textContents = rs2.getString("text_contents");
-						String filePaths = rs2.getString("file_path");
+					int pNum = rs2.getInt("num");
+					if (contentTable.equals("_mixed")) {
+						String textContents = rs2.getString("text_content");
+						String filePaths = rs2.getString("file_paths");
+						pContent = new PostingContent(pNum, textContents, KitschUtil.convertToStringArray(filePaths, Posting.PATH_DELIMITER, false));
 						
-						StringTokenizer tokenizer = new StringTokenizer(filePaths, "@");
-						List<String> paths = new ArrayList<String>();
-						while (tokenizer.hasMoreTokens()) {
-							paths.add("@" + tokenizer.nextToken());
-						}
+					} else if (contentTable.equals("_single")) {
+						String filePaths = rs2.getString("file_paths");
+						pContent = new PostingContent(pNum, KitschUtil.convertToStringArray(filePaths, Posting.PATH_DELIMITER, false));
 						
-						pContent = new PostingContent(bName, pNum, textContents, paths.toArray(new String[0]));
-						
-					} else if (contentTable.equals("single_type_contents")) {
-						String filePaths = rs2.getString("file_path");
-						
-						StringTokenizer tokenizer = new StringTokenizer(filePaths, "@");
-						List<String> paths = new ArrayList<String>();
-						while (tokenizer.hasMoreTokens()) {
-							paths.add("@" + tokenizer.nextToken());
-						}
-						
-						pContent = new PostingContent(bName, pNum, paths.toArray(new String[0]));
-						
-					} else if (contentTable.equals("text_contents")) {
-						String textContent = rs2.getString("text_contents");
-						
-						pContent = new PostingContent(bName, pNum, textContent);
+					} else if (contentTable.equals("_text")) {
+						String textContent = rs2.getString("text_content");
+						pContent = new PostingContent(pNum, textContent);
 					}
 					selectedPosting = new Posting(num, title, writer, pContent, contentType,
 							readCount, regDate, likes, exposure, tags, ref, replyStep, 
@@ -502,12 +460,14 @@ public class PostingDaoImpl implements PostingDao {
 	@Override
 	public List<Posting> selectAllPostings() {
 		List<Posting> pList = new ArrayList<Posting>();
-		String blogName = null;
+		String blogId = null;
 		Posting selectedPosting = null;
 		PostingContent pContent = null;
 		String contentTable = null;
 		
-		String sql = "SELECT table_name FROM tabs WHERE table_name NOT IN ('BLOG', 'MEMBER', 'MIXED_CONTENTS', 'TEXT_CONTENTS', 'SINGLE_TYPE_CONTENTS', 'QNA', 'KITSCH', 'LIKES', 'LIKE', 'REBLOG', 'REBLOGS', 'FOLLOW')";
+		String sql = "SELECT table_name FROM tabs "
+				+ " WHERE table_name NOT IN ('BLOG', 'MEMBER', 'QNA', 'KITSCH', 'LIKES', 'REBLOG', 'FOLLOW', 'MESSAGE_BOX') "
+				+ " AND NOT LIKE '%_MIXED' AND NOT LIKE '%_SINGLE' AND NOT LIKE '%_TEXT'";
 		System.out.println("PostingDaoImpl selectAllPostings() : first query :" + sql);
 		
 		Connection connection = null;
@@ -525,19 +485,20 @@ public class PostingDaoImpl implements PostingDao {
 			rs = pstmt.executeQuery();
 			
 			while (rs.next()) {
-				blogName = rs.getString(1);
+				blogId = rs.getString(1);
 				
-				String sql2 = "SELECT * FROM " + blogName;
+				String sql2 = "SELECT * FROM " + blogId;
 				System.out.println("PostingDaoImpl selectAllPostings() second query : " + sql2);
 				pstmt2 = connection.prepareStatement(sql2);
 				rs2 = pstmt2.executeQuery();
+				
 				while (rs2.next()) {
 					int num = rs2.getInt("num");
 					String title = rs2.getString("title");
 					String writer = rs2.getString("writer");
 					int contentType = rs2.getInt("content_type");
 					int readCount = rs2.getInt("read_count");
-					java.util.Date regDate = KitschUtil.ConvertDateSqlToUtil(rs2.getDate("reg_date"));
+					java.util.Date regDate = KitschUtil.convertDateSqlToUtil(rs2.getDate("reg_date"));
 					int likes = rs2.getInt("likes");
 					int exposure = rs2.getInt("exposure");
 					String tags = rs2.getString("tags");
@@ -549,40 +510,25 @@ public class PostingDaoImpl implements PostingDao {
 					int reblogCount = rs2.getInt("reblog_count");
 					int reblogOption = rs2.getInt("reblog_option");
 					
-					contentTable = this.getContentTable(contentType);
-					String sql3 = "SELECT * FROM " + contentTable + " WHERE blog_name=? AND posting_num=?";
+					contentTable = this.getContentTable(contentType, blogId);
+					String sql3 = "SELECT * FROM " + contentTable + " WHERE num=?";
 					System.out.println("PostingDaoImpl selectAllPostings() third query : " + sql3);
 					pstmt3 = connection.prepareStatement(sql3);
-					pstmt3.setString(1, blogName.toLowerCase());
-					pstmt3.setInt(2, num);
+					pstmt3.setInt(1, num);
 					rs3 = pstmt3.executeQuery();
 					
 					while (rs3.next()) {
-						String bName = rs3.getString("blog_name");
-						int pNum = rs3.getInt("posting_num");
-						if (contentTable.equals("mixed_contents")) {
-							String textContents = rs3.getString("text_contents");
-							String filePaths = rs3.getString("file_path");
-							
-							StringTokenizer tokenizer = new StringTokenizer(filePaths, "@");
-							List<String> paths = new ArrayList<String>();
-							while (tokenizer.hasMoreTokens()) {
-								paths.add("@" + tokenizer.nextToken());
-							}
-							pContent = new PostingContent(bName, pNum, textContents, paths.toArray(new String[0]));
-						} else if (contentTable.equals("single_type_contents")) {
-							String filePaths = rs3.getString("file_path");
-							
-							StringTokenizer tokenizer = new StringTokenizer(filePaths, "@");
-							List<String> paths = new ArrayList<String>();
-							while (tokenizer.hasMoreTokens()) {
-								paths.add("@" + tokenizer.nextToken());
-							}
-							pContent = new PostingContent(bName, pNum, paths.toArray(new String[0]));
-						} else if (contentTable.equals("text_contents")) {
-							String textContent = rs3.getString("text_contents");
-							
-							pContent = new PostingContent(bName, pNum, textContent);
+						int pNum = rs3.getInt("num");
+						if (contentTable.equals("_mixed")) {
+							String textContents = rs3.getString("text_content");
+							String filePaths = rs3.getString("file_paths");
+							pContent = new PostingContent(pNum, textContents, KitschUtil.convertToStringArray(filePaths, Posting.PATH_DELIMITER, false));
+						} else if (contentTable.equals("_single")) {
+							String filePaths = rs3.getString("file_paths");
+							pContent = new PostingContent(pNum, KitschUtil.convertToStringArray(filePaths, Posting.PATH_DELIMITER, false));
+						} else if (contentTable.equals("_text")) {
+							String textContent = rs3.getString("text_content");
+							pContent = new PostingContent(pNum, textContent);
 						}
 						selectedPosting = new Posting(num, title, writer, pContent, contentType,
 								readCount, regDate, likes, exposure, tags, ref, replyStep, 
@@ -651,7 +597,7 @@ public class PostingDaoImpl implements PostingDao {
 					orderBySyntax = " ORDER BY reg_date DESC, reblog DESC, likes DESC, read_count DESC";
 				} else if (sortingOption.equals("correctly")) {
 					System.out.println("#################################################################");
-					System.out.println("This function is not implimented yet. PostingDaoImpl at 648 line.");
+					System.out.println("This function is not implimented yet. PostingDaoImpl at 600 line.");
 					System.out.println("#################################################################");
 					orderBySyntax = " ORDER BY reblog DESC, likes DESC, read_count DESC, reg_date DESC";
 				} else if (sortingOption.equals("popularity")) {

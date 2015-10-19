@@ -116,6 +116,22 @@ public class BlogDaoImpl implements BlogDao{
 			
 			String sql3 = "CREATE SEQUENCE " + blogId + "_num_seq START with 1 INCREMENT BY 1";
 			
+			String sql4 = "CREATE TABLE " + blogId + "_mixed ("
+					+ "num INTEGER,"
+					+ "text_content VARCHAR2(4000),"
+					+ "file_paths VARCHAR2(4000),"
+					+ "PRIMARY KEY(num))";
+			
+			String sql5 = "CREATE TABLE " + blogId + "_single ("
+					+ "num INTEGER,"
+					+ "file_paths VARCHAR2(4000),"
+					+ "PRIMARY KEY(num))";
+			
+			String sql6 = "CREATE TABLE " + blogId + "_text ("
+					+ "num INTEGER,"
+					+ "text_content VARCHAR2(4000),"
+					+ "PRIMARY KEY(num))";
+			
 			pstmt = connection.prepareStatement(sql);
 			pstmt.setString(1, blogId);
 			pstmt.setString(2, blog.getEmail());
@@ -139,6 +155,18 @@ public class BlogDaoImpl implements BlogDao{
 			pstmt = connection.prepareStatement(sql3);
 			pstmt.executeUpdate();
 			
+			System.out.println("BlogDaoImpl insertBlog() fifth query : " + sql4);
+			pstmt = connection.prepareStatement(sql4);
+			pstmt.executeUpdate();
+			
+			System.out.println("BlogDaoImpl insertBlog() sixth query : " + sql5);
+			pstmt = connection.prepareStatement(sql5);
+			pstmt.executeUpdate();
+			
+			System.out.println("BlogDaoImpl insertBlog() seventh query : " + sql6);
+			pstmt = connection.prepareStatement(sql6);
+			
+			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			try {
 				connection.rollback();
@@ -185,6 +213,10 @@ public class BlogDaoImpl implements BlogDao{
 	public void deleteBlog(Blog blog) {
 		String sql = "DELETE FROM blog WHERE blog_name=?";
 		String sql2 ="DROP TABLE " + blog.getBlogId();
+		String sql3 = "DROP SEQUENCE " + blog.getBlogId() + "_num_seq";
+		String sql4 = "DROP TABLE " + blog.getBlogId() + "_mixed";
+		String sql5 = "DROP TABLE " + blog.getBlogId() + "_single";
+		String sql6 = "DROP TABLE " + blog.getBlogId() + "_text";
 		System.out.println("BlogDaoImpl deleteBlog() first query : " + sql);
 		
 		Connection connection = null;
@@ -200,7 +232,24 @@ public class BlogDaoImpl implements BlogDao{
 			
 			System.out.println("BlogDaoImpl deleteBlog() second query : " + sql2);
 			pstmt = connection.prepareStatement(sql2);
-			pstmt.executeQuery();
+			pstmt.executeUpdate();
+			
+			System.out.println("BlogDaoImpl deleteBlog() third query : " + sql3);
+			pstmt = connection.prepareStatement(sql3);
+			pstmt.executeUpdate();
+			
+			System.out.println("BlogDaoImpl deleteBlog() fourth query : " + sql4);
+			pstmt = connection.prepareStatement(sql4);
+			pstmt.executeUpdate();
+			
+			System.out.println("BlogDaoImpl deleteBlog() fifth query : " + sql5);
+			pstmt = connection.prepareStatement(sql5);
+			pstmt.executeUpdate();
+			
+			System.out.println("BlogDaoImpl deleteBlog() sixth query : " + sql6);
+			pstmt = connection.prepareStatement(sql6);
+			pstmt.executeUpdate();
+			
 		} catch (SQLException e) {
 			try {
 				connection.rollback();

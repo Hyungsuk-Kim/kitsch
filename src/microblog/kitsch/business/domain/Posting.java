@@ -30,6 +30,9 @@ public class Posting implements Serializable {
 	private int reblogOption;
 	
 	// Class Variables
+	public static final String PATH_DELIMITER = "^";
+	public static final String TAG_DELIMITER = "#";
+	
 	public static final int PUBLIC_ALLOW_BOTH_REPLY_AND_REBLOG = 0; // 댓글과 리블로그를 허용한 공개 포스팅
 	public static final int PUBLIC_NO_REPLY_AND_ALLOW_REBLOG = 1; // 댓글은 허용하지 않고 리블로그는 허용한 공개 포스팅
 	public static final int PUBLIC_ALLOW_REPLY_AND_NO_REBLOG = 2; // 댓글은 허용하고 리블로그는 허용하지 않는 공개 포스팅

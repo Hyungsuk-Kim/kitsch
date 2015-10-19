@@ -11,8 +11,7 @@ public class PostingContent implements Serializable{
 	// Instance Variables
 	private static final long serialVersionUID = -3440708136003859673L;
 	
-	private String blogName;
-	private int postingNum;
+	private int num;
 	private String textContent;
 	private String[] filePaths;
 	
@@ -35,27 +34,23 @@ public class PostingContent implements Serializable{
 	public static final int MIXED_VIDEO_LINK_CONTENT = 241;
 	
 	// Constructors
-	public PostingContent(String blogName, int postingNum) {
-		this.blogName = blogName;
-		this.postingNum = postingNum;
-	}
-	
 	// for Text Contents
-	public PostingContent(String blogName, int postingNum, String textContent) {
-		this(blogName, postingNum);
+	public PostingContent(int num, String textContent) {
+		this.num = num;
 		this.textContent = textContent;
 	}
 	
 	// for Single Contents (Media content)
-	public PostingContent(String blogName, int postingNum, String[] filePaths) {
-		this(blogName, postingNum);
+	public PostingContent(int num, String[] filePaths) {
+		this.num = num;
 		this.filePaths = filePaths;
 	}
 	
 	// for Mixed Contents
-	public PostingContent(String blogName, int postingNum, String textContent, String[] filePath) {
-		this(blogName, postingNum, filePath);
+	public PostingContent(int num, String textContent, String[] filePaths) {
+		this.num = num;
 		this.textContent = textContent;
+		this.filePaths = filePaths;
 	}
 	
 	// for Text Contents when create
@@ -73,24 +68,21 @@ public class PostingContent implements Serializable{
 		this.textContent = textContent;
 		this.filePaths = filePath;
 	}*/
-	public PostingContent(String textContent, String... filePath) {
+	public PostingContent(String textContent, String[] filePaths) {
 		this.textContent = textContent;
-		this.filePaths = filePath;
+		this.filePaths = filePaths;
 	}
 	
 	// Methods
 	@Override
 	public String toString() {
-		return "PostingContent [blogName=" + blogName + ", postingNum=" + postingNum + ", textContent=" + textContent
-				+ ", filePaths=" + Arrays.toString(filePaths) + "]";
+		return "PostingContent [num=" + num + ", textContent=" + textContent + ", filePaths="
+				+ Arrays.toString(filePaths) + "]";
 	}
 
-	public String getBlogName() {
-		return blogName;
-	}
-
-	public int getPostingNum() {
-		return postingNum;
+	// Getters
+	public int getNum() {
+		return num;
 	}
 
 	public String getTextContent() {
@@ -101,12 +93,9 @@ public class PostingContent implements Serializable{
 		return filePaths;
 	}
 
-	public void setBlogName(String blogName) {
-		this.blogName = blogName;
-	}
-
-	public void setPostingNum(int postingNum) {
-		this.postingNum = postingNum;
+	// Setters
+	public void setNum(int num) {
+		this.num = num;
 	}
 
 	public void setTextContent(String textContent) {
