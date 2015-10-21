@@ -31,13 +31,11 @@ public class BlogServiceImpl implements BlogService {
 		if (memberService.memberExistsByEmail(member.getEmail())) {
 			blogDao = this.getBlogDaoImplimentation();
 			if (!blogDao.blogExistsByName(blogName)) {
-				blog = new Blog(blogName, member.getName());
+				blog = new Blog(member.getEmail(), blogName);
 				blogDao.insertBlog(blog);
 			} else {
 				throw new DataDuplicatedException("이미 존재하는 블로그 이름입니다. [" + blogName + "]");
 			}
-		} else {
-			throw new DataNotFoundException("존재하지 않는 회원정보입니다. [" + member.getEmail() + "]");
 		}
 	}
 

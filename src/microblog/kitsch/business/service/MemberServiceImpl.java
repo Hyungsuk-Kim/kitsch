@@ -140,7 +140,8 @@ public class MemberServiceImpl implements MemberService {
 		System.out.println("MemberServiceImpl memberExistsByEmail()");
 		boolean result = false;
 		MemberDao memberDao = this.getMemberDaoImplementation();
-		if (!(result = memberDao.memberEmailExists(email))) {
+		result = memberDao.memberEmailExists(email);
+		if (result == false) {
 			throw new DataNotFoundException("존재하지 않는 이메일 입니다. [" + email + "]");
 		}
 		return result;

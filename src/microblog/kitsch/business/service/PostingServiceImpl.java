@@ -29,14 +29,14 @@ public class PostingServiceImpl implements PostingService {
 		
 		PostingDao postingDao = this.getPosingDaoImplementation();
 		BlogService blogService = this.getBlogServiceImplementaion();
-		Blog blog = blogService.findBlog(blogName);
-		String tableName = blog.getTableName();
+		Blog blog = blogService.findBlogByName(blogName);
+		String blogId = blog.getBlogId();
 		
 		Posting posting = null;
 		
-		if (postingDao.addReadCount(tableName, postingNum) != 0) {
-			if (postingDao.postingExists(tableName, postingNum)) {
-				posting = postingDao.selectPosting(tableName, postingNum);
+		if (postingDao.addReadCount(blogId, postingNum) != 0) {
+			if (postingDao.postingExists(blogId, postingNum)) {
+				posting = postingDao.selectPosting(blogId, postingNum);
 			} else {
 				throw new DataNotFoundException("해당 포스팅이 존재하지 않습니다.");
 			}
@@ -52,13 +52,13 @@ public class PostingServiceImpl implements PostingService {
 		
 		PostingDao postingDao = this.getPosingDaoImplementation();
 		BlogService blogService = this.getBlogServiceImplementaion();
-		Blog blog = blogService.findBlog(blogName);
-		String tableName = blog.getTableName();
+		Blog blog = blogService.findBlogByName(blogName);
+		String blogId = blog.getBlogId();
 		
 		Posting selectedPosting = null;
 		
-		if (postingDao.postingExists(tableName, postingNum)) {
-			selectedPosting = postingDao.selectPosting(tableName, postingNum);
+		if (postingDao.postingExists(blogId, postingNum)) {
+			selectedPosting = postingDao.selectPosting(blogId, postingNum);
 		} else {
 			throw new DataNotFoundException("해당 포스팅이 존재하지 않습니다.");
 		}
@@ -73,12 +73,12 @@ public class PostingServiceImpl implements PostingService {
 		
 		PostingDao postingDao = this.getPosingDaoImplementation();
 		BlogService blogService = this.getBlogServiceImplementaion();
-		Blog blog = blogService.findBlog(blogName);
-		String tableName = blog.getTableName();
+		Blog blog = blogService.findBlogByName(blogName);
+		String blogId = blog.getBlogId();
 		
 		try {
-			Posting posting = this.findPosting(blogName, postingNum);
-			postingDao.deletePosting(tableName, posting);
+			Posting posting = this.findPosting(blogId, postingNum);
+			postingDao.deletePosting(blogId, posting);
 		} catch (DataNotFoundException e) {
 			throw new DataNotFoundException("해당 포스팅이 존재하지 않습니다.", e);
 		}
@@ -91,16 +91,10 @@ public class PostingServiceImpl implements PostingService {
 		
 		PostingDao postingDao = this.getPosingDaoImplementation();
 		BlogService blogService = this.getBlogServiceImplementaion();
-		Blog blog = blogService.findBlog(blogName);
-		String tableName = blog.getTableName();
+		Blog blog = blogService.findBlogByName(blogName);
+		String blogId = blog.getBlogId();
 		
-		postingDao.insertPosting(tableName, posting);
-
-	}
-
-	@Override
-	public void writePosting(Map<String, Object> contentsInfo) {
-		// TODO Auto-generated method stub
+		postingDao.insertPosting(blogId, posting);
 
 	}
 
@@ -111,10 +105,10 @@ public class PostingServiceImpl implements PostingService {
 		
 		PostingDao postingDao = this.getPosingDaoImplementation();
 		BlogService blogService = this.getBlogServiceImplementaion();
-		Blog blog = blogService.findBlog(blogName);
-		String tableName = blog.getTableName();
+		Blog blog = blogService.findBlogByName(blogName);
+		String blogId = blog.getBlogId();
 		
-		postingDao.updatePosting(tableName, posting);
+		postingDao.updatePosting(blogId, posting);
 	}
 
 	@Override
@@ -124,44 +118,22 @@ public class PostingServiceImpl implements PostingService {
 		
 		PostingDao postingDao = this.getPosingDaoImplementation();
 		BlogService blogService = this.getBlogServiceImplementaion();
-		Blog blog = blogService.findBlog(blogName);
-		String tableName = blog.getTableName();
+		Blog blog = blogService.findBlogByName(blogName);
+		String blogId = blog.getBlogId();
 		
-		postingDao.insertPosting(tableName, posting);
+		postingDao.insertPosting(blogId, posting);
 	}
 
 	@Override
 	public int getPostingCount(Map<String, Object> searchInfo) throws DataNotFoundException {
 		System.out.println("PostingService getPostingCount()");
-		
-		PostingDao postingDao = this.getPosingDaoImplementation();
-		BlogService blogService = this.getBlogServiceImplementaion();
-		
-		if (searchInfo.containsKey("blogName")) {
-			String blogName = (String) searchInfo.get("blogName");
-			Blog blog = blogService.findBlog(blogName);
-			String tableName = blog.getTableName();
-			searchInfo.replace("blogName", tableName);
-		}
-		
-		return postingDao.selectPostingCount(searchInfo);
+		return this.getPosingDaoImplementation().selectPostingCount(searchInfo);
 	}
 
 	@Override
 	public Posting[] getPostingList(Map<String, Object> searchInfo) throws DataNotFoundException {
 		System.out.println("PostingService ");
-		
-		PostingDao postingDao = this.getPosingDaoImplementation();
-		BlogService blogService = this.getBlogServiceImplementaion();
-		
-		if (searchInfo.containsKey("blogName")) {
-			String blogName = (String) searchInfo.get("blogName");
-			Blog blog = blogService.findBlog(blogName);
-			String tableName = blog.getTableName();
-			searchInfo.replace("blogName", tableName);
-		}
-		
-		return postingDao.selectPostingList(searchInfo).toArray(new Posting[0]);
+		return this.getPosingDaoImplementation().selectPostingList(searchInfo).toArray(new Posting[0]);
 	}
 
 	@Override
@@ -171,13 +143,13 @@ public class PostingServiceImpl implements PostingService {
 		
 		PostingDao postingDao = this.getPosingDaoImplementation();
 		BlogService blogService = this.getBlogServiceImplementaion();
-		Blog blog = blogService.findBlog(blogName);
-		String tableName = blog.getTableName();
+		Blog blog = blogService.findBlogByName(blogName);
+		String blogId = blog.getBlogId();
 		MemberService memberService = this.getMemberServiceImplementation();
-		Member validMember = memberService.findMember(member.getName());
+		Member validMember = memberService.findMemberByName(member.getName());
 		
-		if (postingDao.postingExists(tableName, postingNum)) {
-			postingDao.addLikes(validMember, tableName, postingNum);
+		if (postingDao.postingExists(blogId, postingNum)) {
+			postingDao.addLikes(validMember, blogId, postingNum);
 		} else {
 			throw new DataNotFoundException("해당 포스팅이 존재하지 않습니다.");
 		}
@@ -190,13 +162,13 @@ public class PostingServiceImpl implements PostingService {
 		
 		PostingDao postingDao = this.getPosingDaoImplementation();
 		BlogService blogService = this.getBlogServiceImplementaion();
-		Blog blog = blogService.findBlog(blogName);
-		String tableName = blog.getTableName();
+		Blog blog = blogService.findBlogByName(blogName);
+		String blogId = blog.getBlogId();
 		MemberService memberService = this.getMemberServiceImplementation();
-		Member validMember = memberService.findMember(member.getName());
+		Member validMember = memberService.findMemberByName(member.getName());
 		
-		if (postingDao.postingExists(tableName, postingNum)) {
-			postingDao.cancelLikes(validMember, tableName, postingNum);
+		if (postingDao.postingExists(blogId, postingNum)) {
+			postingDao.cancelLikes(validMember, blogId, postingNum);
 		} else {
 			throw new DataNotFoundException("해당 포스팅이 존재하지 않습니다.");
 		}
@@ -209,15 +181,15 @@ public class PostingServiceImpl implements PostingService {
 		
 		PostingDao postingDao = this.getPosingDaoImplementation();
 		BlogService blogService = this.getBlogServiceImplementaion();
-		Blog originBlog = blogService.findBlog(originBlogName);
-		String originTableName = originBlog.getTableName();
-		Blog targetBlog = blogService.findBlog(targetBlogName);
-		String targetTableName = targetBlog.getTableName();
+		Blog originBlog = blogService.findBlogByName(originBlogName);
+		String originBlogId = originBlog.getBlogId();
+		Blog targetBlog = blogService.findBlogByName(targetBlogName);
+		String targetBlogId = targetBlog.getBlogId();
 		MemberService memberService = this.getMemberServiceImplementation();
-		Member validMember = memberService.findMember(member.getName());
+		Member validMember = memberService.findMemberByName(member.getName());
 		
-		if (postingDao.postingExists(originTableName, postingNum)) {
-			postingDao.reblog(validMember, originTableName, postingNum, targetTableName);
+		if (postingDao.postingExists(originBlogId, postingNum)) {
+			postingDao.reblog(validMember, originBlogId, postingNum, targetBlogId);
 		} else {
 			throw new DataNotFoundException("해당 포스팅이 존재하지 않습니다.");
 		}
@@ -242,11 +214,11 @@ public class PostingServiceImpl implements PostingService {
 
 	@Override
 	public Posting[] getLikedPostings(Member member) throws DataNotFoundException {
-		System.out.println("PostingService get");
+		System.out.println("PostingService getLikedPostings()");
 		
 		PostingDao postingDao = this.getPosingDaoImplementation();
 		MemberService memberService = this.getMemberServiceImplementation();
-		Member validMember = memberService.findMember(member.getName());
+		Member validMember = memberService.findMemberByName(member.getName());
 		
 		return postingDao.selectLikedPostings(validMember).toArray(new Posting[0]);
 	}

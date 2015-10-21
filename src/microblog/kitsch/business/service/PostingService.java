@@ -43,12 +43,6 @@ public interface PostingService {
 	public abstract void writePosting(String blogName, Posting posting) throws DataNotFoundException;
 	
 	/**
-	 * 인자로 받은 Map 객체에 저장된 properties 정보에 해당하는 블로그와 포스팅을 등록한다.
-	 * @param contentsInfo 블로그 정보와 포스팅 정보가 담겨 있는 Map 객체
-	 */
-	public abstract void writePosting(Map<String, Object> contentsInfo);
-	
-	/**
 	 * 저장소에서 blogName에 해당하는 블로그의 postingNum와 일치하는 포스팅을 갱신한다.
 	 * @param blogName 갱신할 포스팅이 등록된 블로그 명
 	 * @param posting 갱신할 포스팅 객체

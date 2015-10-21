@@ -53,9 +53,9 @@ public class TestMemberDaoImpl {
 		
 		Member[] selectedMembers = memberDao.selectMemberAsRole(Member.ADMINISTRATOR);
 		
-		assertEquals("admin", selectedMembers[0].getEmail());
-		assertEquals("admin", selectedMembers[0].getName());
-		assertEquals("admin", selectedMembers[0].getPassword());
+		assertEquals("admin@kitsch.com", selectedMembers[0].getEmail());
+		assertEquals("Administrator", selectedMembers[0].getName());
+		assertEquals("admin1234", selectedMembers[0].getPassword());
 		assertEquals(Member.ADMINISTRATOR, selectedMembers[0].getRole());
 		
 		/*for (Member member : selectedMembers) {

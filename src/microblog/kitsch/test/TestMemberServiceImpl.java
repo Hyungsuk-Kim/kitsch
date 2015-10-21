@@ -22,6 +22,7 @@ public class TestMemberServiceImpl {
 	
 	@Before
 	public void init() throws DataDuplicatedException {
+		System.out.println("******* init() *******");
 		memberService = new MemberServiceImpl();
 		testMember = new Member("testing@testing.com", "testing member", "test1234");
 		memberService.registerMember(testMember);
@@ -29,6 +30,7 @@ public class TestMemberServiceImpl {
 	
 	@Test
 	public void testLogin() {
+		System.out.println("******* testLogin() *******");
 		Member checkedMember = memberService.loginCheck("testing@testing.com", "test1234");
 		Member checkedMember1 = memberService.loginCheck("testing@test.com", "test1234");
 		Member checkedMember2 = memberService.loginCheck("testing@testing.com", "test");
@@ -42,9 +44,10 @@ public class TestMemberServiceImpl {
 	
 	@Test
 	public void testRegistMember() throws DataDuplicatedException, DataNotFoundException {
+		System.out.println("******* testRegistMember() *******");
 		Member member = new Member("Thomas@kitsch.com", "Tom", "tom123");
 		memberService.registerMember(member);
-		Member searchedMember = memberService.findMember("Tom");
+		Member searchedMember = memberService.findMemberByName("Tom");
 		
 		assertEquals(searchedMember.getName(), member.getName());
 		assertEquals(searchedMember.getEmail(), member.getEmail());
@@ -56,28 +59,32 @@ public class TestMemberServiceImpl {
 	
 	@Test (expected=DataNotFoundException.class)
 	public void testRemoveMember() throws DataNotFoundException, DataDuplicatedException {
+		System.out.println("******* testRemoveMember() *******");
 		Member member = new Member("Thomas@kitsch.com", "Tom", "tom123");
 		memberService.registerMember(member);
 		memberService.removeMember(member);
-		Member selectedMember = memberService.findMember(member.getName());
+		Member selectedMember = memberService.findMemberByName(member.getName());
 		assertSame(null, selectedMember);
 	}
 	
 	@Test
 	public void testUpdateMember() throws DataNotFoundException {
+		System.out.println("******* testUpdateMember() *******");
 		testMember.setPassword("123123123");
-		testMember.setRole(Member.SUPER_USER);
+		testMember.setName("테스트1");
+		testMember.setProfileImage("testProfile_image.jpg");
 		memberService.updateMember(testMember);
 		
-		Member selectedMember = memberService.findMember(testMember.getName());
+		Member selectedMember = memberService.findMemberByName(testMember.getName());
 		assertEquals(selectedMember.getEmail(), testMember.getEmail());
 		assertEquals(selectedMember.getName(), testMember.getName());
 		assertEquals(selectedMember.getPassword(), testMember.getPassword());
-		assertEquals(selectedMember.getRole(), testMember.getRole());
+		assertEquals(selectedMember.getProfileImage(), testMember.getProfileImage());
 	}
 	
 	@Test
 	public void testSearchMember() throws DataDuplicatedException, DataNotFoundException {
+		System.out.println("******* testSearchMember() *******");
 		Member member1 = new Member("john123@kitsch.com", "John", "1234");
 		Member member2 = new Member("susan123@kitsch.com", "Susan", "1234");
 		Member member3 = new Member("samuel@kitsch.com", "Samuel", "1234");
@@ -96,6 +103,7 @@ public class TestMemberServiceImpl {
 		memberService.registerMember(member4);
 		
 		Member[] searchedMembers = memberService.getMemberList(searchInfo);
+		System.out.println("################### selected rows : " + searchedMembers.length);
 		for (int i = 0; i < searchedMembers.length; i++) {
 			assertTrue(searchedMembers[i].getEmail().equals(member3.getEmail()) || searchedMembers[i].getEmail().equals(member4.getEmail()));
 			assertTrue(searchedMembers[i].getName().equals(member3.getName()) || searchedMembers[i].getName().equals(member4.getName()));
@@ -114,14 +122,16 @@ public class TestMemberServiceImpl {
 
 	@Test
 	public void testAvailableMemberName() {
-		System.out.println(memberService.availableName("admin"));
-		System.out.println(memberService.availableName("new member"));
-		assertFalse(memberService.availableName("admin"));
-		assertTrue(memberService.availableName("new member"));
+		System.out.println("******* testAvailableMemberName() *******");
+		System.out.println(memberService.checkName("admin"));
+		System.out.println(memberService.checkName("new member"));
+		assertFalse(memberService.checkName("Administrator"));
+		assertTrue(memberService.checkName("new member"));
 	}
 	
 	@After
 	public void end() throws DataNotFoundException {
+		System.out.println("******* end() *******");
 		memberService.removeMember(testMember);
 	}
 }
