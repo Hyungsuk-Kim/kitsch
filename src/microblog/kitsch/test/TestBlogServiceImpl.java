@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import microblog.kitsch.business.domain.Blog;
 import microblog.kitsch.business.domain.Member;
+import microblog.kitsch.business.service.BlogDao;
 import microblog.kitsch.business.service.BlogService;
 import microblog.kitsch.business.service.BlogServiceImpl;
 import microblog.kitsch.helper.DataDuplicatedException;
@@ -18,7 +19,7 @@ import java.util.Map;
 
 import org.junit.After;
 
-public class TestBlogService {
+public class TestBlogServiceImpl {
 	private BlogService blogService;
 	private Member testMember1 = new Member("admin@kitsch.com", "administrator", "admin1234");
 	private Member testMember2 = new Member("kitsch@kitsch.com" ,"kitsch", "kitsch1234");
@@ -32,7 +33,7 @@ public class TestBlogService {
 	public void init() throws DataDuplicatedException, DataNotFoundException {
 		blogService = new BlogServiceImpl();
 	}
-	/*
+	
 	@Test
 	public void testCreateBlog() throws DataDuplicatedException, DataNotFoundException, IllegalDataException {
 		System.out.println("********** testCreateBlog() **********");
@@ -62,7 +63,6 @@ public class TestBlogService {
 		blogService.removeBlog(testMember2, selectedBlog);
 		selectedBlog = blogService.findBlogByName("test_blog4");
 	}
-	 */
 	
 	@Test
 	public void testUpdateBlog() throws DataDuplicatedException, DataNotFoundException, IllegalDataException {
@@ -87,15 +87,17 @@ public class TestBlogService {
 		blogService.removeBlog(testMember1, changedBlog);
 	}
 	
-	/*
 	@Test
 	public void testFollowing() throws DataDuplicatedException, DataNotFoundException, IllegalDataException {
 		System.out.println("********** testCreateBlog() **********");
 		blogService.createBlog(testMember1, "test_blog1");
 		blogService.createBlog(testMember1, "test_blog2");
 		
-		blogService.following(testMember2, "test_blog1");
-		blogService.following(testMember2, "test_blog2");
+		Blog tempBlog1 = blogService.findBlogByName("test_blog1");
+		Blog tempBlog2 = blogService.findBlogByName("test_blog2");
+		
+		blogService.following(testMember2, tempBlog1.getBlogId());
+		blogService.following(testMember2, tempBlog2.getBlogId());
 		
 		Blog selectedBlog = blogService.findBlogByName("test_blog1");
 		assertEquals(1, selectedBlog.getFollowCount());
@@ -114,7 +116,7 @@ public class TestBlogService {
 			assertEquals(temp.getBlogLayout(), compare.getBlogLayout());
 			assertEquals(temp.getBlogId(), compare.getBlogId());
 			
-			blogService.unfollow(testMember2, temp.getBlogName());
+			blogService.unfollow(testMember2, temp.getBlogId());
 		}
 		
 		followingList = blogService.getFollowingList(testMember2);
@@ -129,7 +131,7 @@ public class TestBlogService {
 		System.out.println("********** testCreateBlog() **********");
 		Map<String, Object> searchInfo = new HashMap<String, Object>();
 		searchInfo.put("target", "blog");
-		searchInfo.put("searchType", "memberName");
+		searchInfo.put("searchType", "email");
 		searchInfo.put("searchText", "adm");
 		searchInfo.put("startRow", 1);
 		searchInfo.put("endRow", 10);
@@ -165,7 +167,6 @@ public class TestBlogService {
 		blogService.removeBlog(testMember2, blogService.findBlogByName("test_blog5"));
 		blogService.removeBlog(testMember1, blogService.findBlogByName("test_blog6"));
 	}
-	
 	@Test
 	public void testVisitBlog() throws DataDuplicatedException, DataNotFoundException, IllegalDataException {
 		System.out.println("********** testCreateBlog() **********");
@@ -174,13 +175,13 @@ public class TestBlogService {
 		blog = blogService.findBlogByName("test_blog");
 		assertEquals(0, blog.getVisitCount());
 		
-		blogService.visitBlog(testMember2, "test_blog");
+		blogService.visitBlog(testMember2, blog.getBlogId());
 		blog = blogService.findBlogByName("test_blog");
 		assertEquals(1, blog.getVisitCount());
-		blogService.visitBlog(testMember3, "test_blog");
+		blogService.visitBlog(testMember3, blog.getBlogId());
 		blog = blogService.findBlogByName("test_blog");
 		assertEquals(2, blog.getVisitCount());
-		blogService.visitBlog(testMember4, "test_blog");
+		blogService.visitBlog(testMember4, blog.getBlogId());
 		blog = blogService.findBlogByName("test_blog");
 		assertEquals(3, blog.getVisitCount());
 		
@@ -218,7 +219,7 @@ public class TestBlogService {
 		blogService.changeBlogName(testMember1, "test_blog", "test_blog_admin");
 		blogService.removeBlog(testMember1, blogService.findBlogByName("test_blog_admin"));
 	}
-	*/
+	
 	@After
 	public void end() throws DataNotFoundException {
 	

@@ -23,13 +23,13 @@ public class PostingDaoImpl implements PostingDao {
 										+ "reply_count, posting_type, reblog_count, reblog_option ";
 	
 	private Connection obtainConnection() throws SQLException {
-    	//return DatabaseUtil_old.getConnection();
-    	return DatabaseUtil.getConnection();
+    	return DatabaseUtil_old.getConnection();
+    	//return DatabaseUtil.getConnection();
     }
 	
 	private void closeResources(Connection connection, Statement stmt, ResultSet rs){
-		//DatabaseUtil_old.close(connection, stmt, rs);
-		DatabaseUtil.close(connection, stmt, rs);
+		DatabaseUtil_old.close(connection, stmt, rs);
+		//DatabaseUtil.close(connection, stmt, rs);
 	}
 	
 	private void closeResources(Connection connection, Statement stmt){
@@ -341,11 +341,11 @@ public class PostingDaoImpl implements PostingDao {
 						pContent = new PostingContent(pNum, textContents, KitschUtil.convertToStringArray(filePaths, Posting.PATH_DELIMITER, false));
 						
 					} else if (contentTable.equals(blogId + "_single")) {
-						String filePaths = rs2.getString("file_path");
+						String filePaths = rs2.getString("file_paths");
 						pContent = new PostingContent(pNum, KitschUtil.convertToStringArray(filePaths, Posting.PATH_DELIMITER, false));
 						
 					} else if (contentTable.equals(blogId + "_text")) {
-						String textContent = rs2.getString("text_contents");
+						String textContent = rs2.getString("text_content");
 						pContent = new PostingContent(pNum, textContent);
 					}
 					selectedPosting = new Posting(num, title, writer, pContent, contentType,
@@ -471,7 +471,7 @@ public class PostingDaoImpl implements PostingDao {
 		
 		String sql = "SELECT table_name FROM tabs "
 				+ " WHERE table_name NOT IN ('BLOG', 'MEMBER', 'QNA', 'KITSCH', 'LIKES', 'REBLOG', 'FOLLOW', 'MESSAGE_BOX') "
-				+ " AND NOT LIKE '%_MIXED' AND NOT LIKE '%_SINGLE' AND NOT LIKE '%_TEXT'";
+				+ " AND table_name NOT LIKE '%_MIXED' AND table_name NOT LIKE '%_SINGLE' AND table_name NOT LIKE '%_TEXT'";
 		System.out.println("PostingDaoImpl selectAllPostings() : first query :" + sql);
 		
 		Connection connection = null;
@@ -635,7 +635,7 @@ public class PostingDaoImpl implements PostingDao {
 		}
 		
 		String sql = "SELECT table_name FROM tabs WHERE table_name NOT IN ('BLOG', 'MEMBER', 'QNA', 'KITSCH', 'LIKES', 'LIKE', 'REBLOG', 'MESSAGE_BOX', 'FOLLOW') "
-				+ " AND NOT LIKE '%_MIXED' AND NOT LIKE '%_SINGLE' AND NOT LIKE '%_TEXT'" + specifyBlog;
+				+ " AND table_name NOT LIKE '%_MIXED' AND table_name NOT LIKE '%_SINGLE' AND table_name NOT LIKE '%_TEXT'" + specifyBlog;
 		System.out.println("PostingDaoImpl getPostingList() first query : " + sql);
 		
 		Connection connection = null;
@@ -830,7 +830,7 @@ public class PostingDaoImpl implements PostingDao {
 		
 		
 		String sql = "SELECT table_name FROM tabs WHERE table_name NOT IN ('BLOG', 'MEMBER', 'QNA', 'KITSCH', 'LIKES', 'LIKE', 'REBLOG', 'MESSAGE_BOX', 'FOLLOW') "
-				+ " AND NOT LIKE '%_MIXED' AND NOT LIKE '%_SINGLE' AND NOT LIKE '%_TEXT'" + specifyBlog;
+				+ " AND table_name NOT LIKE '%_MIXED' AND table_name NOT LIKE '%_SINGLE' AND table_name NOT LIKE '%_TEXT'" + specifyBlog;
 		System.out.println("PostingDaoImpl getPostingCount() first query : " + sql);
 		
 		Connection connection = null;
@@ -854,6 +854,7 @@ public class PostingDaoImpl implements PostingDao {
 				
 				if (selectAsContentType) {
 					whereSyntax = " WHERE content_type=?";
+				} else if (!selectAsContentType) {
 					if (searchInfo.containsKey("blogName") && blogName != null && blogName.trim().length() != 0) {
 						specifyBlog = " AND table_name=?";
 					}
@@ -1134,6 +1135,7 @@ public class PostingDaoImpl implements PostingDao {
 	public void reblog(Member member, String originBlogId, int postingNum, String targetBlogId) {
 		
 		String sql = "INSERT INTO reblog (email, origin_blog_id, target_blog_id, origin_posting_num) VALUES (?, ?, ?, ?)";
+		String sql2 = "UPDATE " + originBlogId + " SET reblog_count=reblog_count+1";
 		System.out.println("PostingDaoImpl reblog() : " + sql);
 		
 		Connection connection = null;
@@ -1159,6 +1161,11 @@ public class PostingDaoImpl implements PostingDao {
 			if (this.insertPosting(targetBlogId, originPosting) == 0) {
 				throw new SQLException();
 			}
+			pstmt.close();
+			
+			pstmt = connection.prepareStatement(sql2);
+			pstmt.executeUpdate();
+			
 		} catch (SQLException e) {
 			try {
 				connection.rollback();
