@@ -60,7 +60,7 @@ public class PostingServiceImpl implements PostingService {
 		if (postingDao.postingExists(blogId, postingNum)) {
 			selectedPosting = postingDao.selectPosting(blogId, postingNum);
 		} else {
-			throw new DataNotFoundException("해당 포스팅이 존재하지 않습니다.");
+			throw new DataNotFoundException("해당 포스팅 정보가 존재하지 않습니다. [" + blogId + ", " + postingNum + "]");
 		}
 		
 		return selectedPosting;
@@ -77,9 +77,10 @@ public class PostingServiceImpl implements PostingService {
 		String blogId = blog.getBlogId();
 		
 		try {
-			Posting posting = this.findPosting(blogId, postingNum);
+			Posting posting = this.findPosting(blogName, postingNum);
 			postingDao.deletePosting(blogId, posting);
 		} catch (DataNotFoundException e) {
+			e.printStackTrace();
 			throw new DataNotFoundException("해당 포스팅이 존재하지 않습니다.", e);
 		}
 		

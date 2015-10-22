@@ -64,11 +64,14 @@ public class TestPostingDaoImpl {
 	private PostingContent textContent3 = new PostingContent("This is first Text Content written by test2.");
 	private PostingContent mixedContent3 = new PostingContent("This is first Mixed Content written by test2.", files2);
 	private PostingContent singleContent3 = new PostingContent(files1);
-	private Posting testSinglePosting3 = new Posting("First Single Content`s Title written by test2.", testMember2.getName(), singleContent1, PostingContent.SINGLE_AUDIO_FILE_CONTENT, 
+	
+	@SuppressWarnings("unused")
+	private Posting testSinglePosting3 = new Posting("First Single Content`s Title written by test2.", testMember2.getName(), singleContent3, PostingContent.SINGLE_AUDIO_FILE_CONTENT, 
 			Posting.PUBLIC_ALLOW_BOTH_REPLY_AND_REBLOG, "#TEST#testing#single_audio", Posting.NORMAL_TYPE_POSTING, Posting.NOTHING);
-	private Posting testMixedPosting3 = new Posting("First Mixed Content`s Title written by test2.", testMember2.getName(), mixedContent1, PostingContent.MIXED_VIDEO_FILE_CONTENT, 
+	
+	private Posting testMixedPosting3 = new Posting("First Mixed Content`s Title written by test2.", testMember2.getName(), mixedContent3, PostingContent.MIXED_VIDEO_FILE_CONTENT, 
 			Posting.PUBLIC_ALLOW_BOTH_REPLY_AND_REBLOG, "#TEST#testing#mixed_video", Posting.NORMAL_TYPE_POSTING, Posting.NOTHING);
-	private Posting testTextPosting3 = new Posting("First Single Content`s Title written by test2.", testMember2.getName(), textContent1, PostingContent.TEXT_CONTENT, 
+	private Posting testTextPosting3 = new Posting("First Single Content`s Title written by test2.", testMember2.getName(), textContent3, PostingContent.TEXT_CONTENT, 
 			Posting.PUBLIC_ALLOW_BOTH_REPLY_AND_REBLOG, "#TEST#testing#text", Posting.NORMAL_TYPE_POSTING, Posting.NOTHING);
 	
 	@Before
@@ -84,7 +87,7 @@ public class TestPostingDaoImpl {
 		//System.out.println(testPosting1.toString());
 		//System.out.println(testPosting2.toString());
 	}
-	/*
+	
 	// Must be changed numeric parameters(postingNum) to valid values at 41 and 42 lines.
 	@Test 
 	public void testInsertDeleteSelect() throws DataNotFoundException {
@@ -339,10 +342,9 @@ public class TestPostingDaoImpl {
 			assertEquals(originPosting.getContents().getTextContent(), reblogedPosting.getContents().getTextContent());
 		}
 	}
-	 */
 	
 	@Test
-	public void testGetAndSetContent() {
+	public void testGetAndSetContent() throws DataNotFoundException {
 		int postNum = 1;
 		String[] newFilePaths = {"@newVideo1.mp4", "@newVideo2.mp4"};
 		
@@ -352,28 +354,43 @@ public class TestPostingDaoImpl {
 		
 		PostingContent selectedContent = postingDao.getContents(blog.getBlogId(), postNum);
 		selectedContent.setFilePaths(newFilePaths);
+		selectedContent.setTextContent("This content was Changed.");
 		postingDao.setContents(blog.getBlogId(), postNum, selectedContent);
-		PostingContent changedContent = postingDao.getContents("first_blog", postNum);
-		assertEquals(selectedContent.getBlogName(), changedContent.getBlogName());
+		PostingContent changedContent = postingDao.getContents(blog.getBlogId(), postNum);
+		assertEquals(selectedContent.getNum(), changedContent.getNum());
 		for (int i =0; i < changedContent.getFilePaths().length; i++) {
 			assertEquals(newFilePaths[i], changedContent.getFilePaths()[i]);
-			System.out.println("newFilePaths[" + i + "] -- " + newFilePaths[i]);
-			System.out.println("changedFilePaths[" + i + "] -- " + changedContent.getFilePaths()[i]);
+			//System.out.println("newFilePaths[" + i + "] -- " + newFilePaths[i]);
+			//System.out.println("changedFilePaths[" + i + "] -- " + changedContent.getFilePaths()[i]);
 		}
-		assertEquals(selectedContent.getPostingNum(), changedContent.getPostingNum());
 		assertEquals(selectedContent.getTextContent(), changedContent.getTextContent());
 	}
 	
-	/*@Test
-	public void testSelectReplies() {
-		PostingContent replyContent1 = new PostingContent("This is reply1. It written by aa!");
-		PostingContent replyContent2 = new PostingContent("This is reply2. It written by aa!");
-		PostingContent replyContent3 = new PostingContent("This is reply3. It written by aa!");
-		Posting reply1 = new Posting("aa", replyContent1, PostingContent.TEXT_CONTENT, Posting.REPLY_TYPE_POSTING);
-		Posting reply2 = new Posting("aa", replyContent2, PostingContent.TEXT_CONTENT, Posting.REPLY_TYPE_POSTING);
-		Posting reply3 = new Posting("aa", replyContent3, PostingContent.TEXT_CONTENT, Posting.REPLY_TYPE_POSTING);
+	@Test
+	public void testReply() throws DataNotFoundException {
+		Blog blog = blogService.findBlogByName("first_blog");
 		
-	}*/
+		postingDao.insertPosting(blog.getBlogId(), testMixedPosting1);
+		Posting targetPosting = postingDao.selectPosting(blog.getBlogId(), 1);
+		postingDao.insertReply(blog.getBlogId(), reply1, targetPosting.getNum());
+		postingDao.insertReply(blog.getBlogId(), reply2, targetPosting.getNum());
+		postingDao.insertReply(blog.getBlogId(), reply3, targetPosting.getNum());
+		
+		targetPosting = postingDao.selectPosting(blog.getBlogId(), 1);
+		assertEquals(3, targetPosting.getReplyCount());
+		
+		Posting[] replies = postingDao.selectReplyPostings(blog.getBlogId(), 1).toArray(new Posting[0]);
+		assertEquals(replies.length, 3);
+		for (Posting reply : replies) {
+			assertEquals(reply.getPostingType(), Posting.REPLY_TYPE_POSTING);
+			assertEquals(reply.getRef(), 1);
+		}
+		
+		postingDao.deletePosting(blog.getBlogId(), reply1);
+		postingDao.deletePosting(blog.getBlogId(), reply2);
+		postingDao.deletePosting(blog.getBlogId(), reply3);
+		postingDao.deletePosting(blog.getBlogId(), testMixedPosting1);
+	}
 	
 	@After
 	public void end() throws DataNotFoundException {

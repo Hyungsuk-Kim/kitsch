@@ -1209,7 +1209,7 @@ public class PostingDaoImpl implements PostingDao {
 				try {
 					selectedPosting = this.selectPosting(blogId, postingNum);
 					if (selectedPosting == null) {
-						throw new DataNotFoundException("해당 포스팅을 찾을 수 없습니다.");
+						throw new DataNotFoundException("해당 포스팅 정보를 찾을 수 없습니다. [" + blogId + ", " + postingNum + "]");
 					}
 				} catch (DataNotFoundException dne) {
 					connection.rollback(sp);
@@ -1284,8 +1284,7 @@ public class PostingDaoImpl implements PostingDao {
 				System.out.println("PostingDaoImpl selectReplyPostings() : " + sql2);
 				
 				pstmt2 = connection.prepareStatement(sql2);
-				pstmt2.setString(1, blogId);
-				pstmt2.setInt(2, num);
+				pstmt2.setInt(1, num);
 				rs2 = pstmt2.executeQuery();
 				
 				if (rs2.next()) {
@@ -1296,11 +1295,11 @@ public class PostingDaoImpl implements PostingDao {
 						pContent = new PostingContent(pNum, textContents, KitschUtil.convertToStringArray(filePaths, Posting.PATH_DELIMITER, false));
 						
 					} else if (contentTable.equals(blogId + "_single")) {
-						String filePaths = rs2.getString("file_path");
+						String filePaths = rs2.getString("file_paths");
 						pContent = new PostingContent(pNum, KitschUtil.convertToStringArray(filePaths, Posting.PATH_DELIMITER, false));
 						
 					} else if (contentTable.equals(blogId + "_text")) {
-						String textContent = rs2.getString("text_contents");
+						String textContent = rs2.getString("text_content");
 						pContent = new PostingContent(pNum, textContent);
 					}
 					selectedPosting = new Posting(num, title, writer, pContent, contentType,
@@ -1331,7 +1330,7 @@ public class PostingDaoImpl implements PostingDao {
 	}
 
 	@Override
-	public void insertReply(String blogId, Posting posting) {
+	public void insertReply(String blogId, Posting posting, int ref) {
 		String contentTable = this.getContentTable(posting, blogId);
 		String contents = "";
 		PostingContent pContent = posting.getContents();
@@ -1377,9 +1376,9 @@ public class PostingDaoImpl implements PostingDao {
 			pstmt.setInt(3, posting.getContentType());
 			pstmt.setDate(4, KitschUtil.convertDateUtilToSql(new java.util.Date()));
 			pstmt.setInt(5, posting.getExposure());
-			pstmt.setInt(6, posting.getRef());
+			pstmt.setInt(6, ref);
 			pstmt.setInt(7, posting.getReplyStep() + 1);
-			pstmt.setInt(7, posting.getReplyDepth() + 1);
+			pstmt.setInt(8, posting.getReplyDepth() + 1);
 			pstmt.setInt(9, posting.getPostingType());
 			pstmt.setInt(10, posting.getReblogOption());
 			pstmt.executeUpdate();
@@ -1408,7 +1407,7 @@ public class PostingDaoImpl implements PostingDao {
 			
 			System.out.println("PostingDaoImpl insertPosting() fifth query : " + sql4);
 			pstmt = connection.prepareStatement(sql4);
-			pstmt.setInt(1, posting.getRef());
+			pstmt.setInt(1, ref);
 			pstmt.executeUpdate();
 			
 		} catch (SQLException e) {

@@ -5,7 +5,6 @@ import org.junit.Test;
 
 import microblog.kitsch.business.domain.Blog;
 import microblog.kitsch.business.domain.Member;
-import microblog.kitsch.business.service.BlogDao;
 import microblog.kitsch.business.service.BlogService;
 import microblog.kitsch.business.service.BlogServiceImpl;
 import microblog.kitsch.helper.DataDuplicatedException;
