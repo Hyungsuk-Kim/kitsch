@@ -53,10 +53,11 @@ public interface PostingService {
 	/**
 	 * blogName에 해당하는 블로그의 postingNum와 일치하는 포스팅에 댓글을 작성한다.
 	 * @param blogName 댓글을 달 포스팅이 존재하는 블로그 명
-	 * @param posting 등록할 댓글이 담긴 포스팅 객체
+	 * @param posting 등록할 댓글 객체
+	 * @param postingNum 댓글을 등록할 포스팅 객체의 번호
 	 * @throws DataNotFoundException blogName 혹은 postingNum과 일치하는 Posting이 없을 경우 발생하는 Exception
 	 */
-	public abstract void replyPosting(String blogName, Posting posting) throws DataNotFoundException;
+	public abstract void replyPosting(String blogName, Posting posting, int postingNum) throws DataNotFoundException;
 	
 	/**
 	 * 인자로 받은 Map 객체에 저장된 properties와 일치하는 포스팅의 갯수를 저장소에서 얻어온다.
@@ -112,5 +113,6 @@ public interface PostingService {
 	
 	public abstract Posting[] getReblogedPostings(Member member) throws DataNotFoundException;
 	public abstract Posting[] getLikedPostings(Member member) throws DataNotFoundException;
+	public abstract Posting[] getReplies(String blogName, int postingNum) throws DataNotFoundException;
 	
 }

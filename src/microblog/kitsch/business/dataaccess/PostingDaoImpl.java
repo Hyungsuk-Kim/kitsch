@@ -204,13 +204,13 @@ public class PostingDaoImpl implements PostingDao {
 			connection = this.obtainConnection();
 			connection.setAutoCommit(false);
 			pstmt = connection.prepareStatement(sql);
-			pstmt.executeUpdate();
 			pstmt.setString(1, posting.getTitle());
 			pstmt.setInt(2, posting.getContentType());
 			pstmt.setInt(3, posting.getExposure());
 			pstmt.setString(4, posting.getTags());
 			pstmt.setInt(5, posting.getReblogOption());
 			pstmt.setInt(6, posting.getNum());
+			pstmt.executeUpdate();
 			pstmt.close();
 			
 			System.out.println("PostingDaoImpl updatePosting() second query : " + sql2);
@@ -1206,19 +1206,7 @@ public class PostingDaoImpl implements PostingDao {
 			while (rs.next()) {
 				String blogId = rs.getString("blog_id");
 				int postingNum = rs.getInt("posting_num");
-				try {
-					selectedPosting = this.selectPosting(blogId, postingNum);
-					if (selectedPosting == null) {
-						throw new DataNotFoundException("해당 포스팅 정보를 찾을 수 없습니다. [" + blogId + ", " + postingNum + "]");
-					}
-				} catch (DataNotFoundException dne) {
-					connection.rollback(sp);
-					throw new SQLException(dne);
-				} finally {
-					connection.setAutoCommit(true);
-					this.closeResources(connection, pstmt, rs);
-				}
-				pList.add(selectedPosting);
+				pList.add(this.selectPosting(blogId, postingNum));
 			}
 		} catch (SQLException e) {
 			try {

@@ -130,7 +130,6 @@ public class TestPostingServiceImpl {
 		Posting tempPosting = postingService.findPosting("first_blog", 1);
 		assertEquals(tempPosting.getReadCount(), readCount);
 	}
-	 */
 	
 	@Test
 	public void testLikes() throws DataNotFoundException {
@@ -155,7 +154,55 @@ public class TestPostingServiceImpl {
 		postingService.cancelLikes(testMember2, "first_blog", 4);
 		posting = postingService.findPosting("first_blog", 1);
 		assertEquals(posting.getLikes(), 0);
+	}
+
+	@Test
+	public void testUpdatePosting() throws DataNotFoundException {
+		String newTitle = "The new title.";
+		String newTags = "#update";
 		
+		postingService.writePosting("first_blog", testMixedPosting1);
+		
+		Posting originPosting = postingService.findPosting("first_blog", 1);
+		originPosting.setContents(mixedContent2);
+		originPosting.setTitle(newTitle);
+		originPosting.setTags(newTags);
+		
+		postingService.updatePosting("first_blog", originPosting);
+		
+		Posting changedPosting = postingService.findPosting("first_blog", 1);
+		assertEquals(newTitle, changedPosting.getTitle());
+		assertEquals(newTags, changedPosting.getTags());
+		PostingContent changedContents = changedPosting.getContents();
+		assertEquals(mixedContent2.getTextContent(), changedContents.getTextContent());
+		String[] newFiles = mixedContent2.getFilePaths();
+		String[] changedFiles = changedContents.getFilePaths(); 
+		for (int i = 0; i < newFiles.length; i++) {
+			assertEquals(newFiles[i], changedFiles[i]);
+		}
+		
+		postingService.removePosting("first_blog", 1);
+	}
+	 */
+	
+	@Test
+	public void testReply() throws DataNotFoundException {
+		postingService.writePosting("first_blog", testMixedPosting1);
+		
+		postingService.replyPosting("first_blog", reply1, 1);
+		postingService.replyPosting("first_blog", reply2, 1);
+		postingService.replyPosting("first_blog", reply3, 1);
+		
+		Posting[] replies = postingService.getReplies("first_blog", 1);
+		assertEquals(3, replies.length);
+		assertEquals(reply1.getWriter(), replies[0].getWriter());
+		assertEquals(reply1.getContentType(), replies[0].getContentType());
+		assertEquals(reply1.getExposure(), replies[0].getExposure());
+		assertEquals(reply1.getTags(), replies[0].getTags());
+		assertEquals(reply1.getPostingType(), replies[0].getPostingType());
+		assertEquals(reply1.getReblogOption(), replies[0].getReblogOption());
+		
+		postingService.removePosting("first_blog", 1);
 	}
 	
 	@After

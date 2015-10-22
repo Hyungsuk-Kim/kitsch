@@ -113,7 +113,7 @@ public class PostingServiceImpl implements PostingService {
 	}
 
 	@Override
-	public void replyPosting(String blogName, Posting posting)
+	public void replyPosting(String blogName, Posting posting, int postingNum)
 			throws DataNotFoundException {
 		System.out.println("PostingService replyPosting()");
 		
@@ -122,7 +122,7 @@ public class PostingServiceImpl implements PostingService {
 		Blog blog = blogService.findBlogByName(blogName);
 		String blogId = blog.getBlogId();
 		
-		postingDao.insertPosting(blogId, posting);
+		postingDao.insertReply(blogId, posting, postingNum);;
 	}
 
 	@Override
@@ -222,6 +222,13 @@ public class PostingServiceImpl implements PostingService {
 		Member validMember = memberService.findMemberByName(member.getName());
 		
 		return postingDao.selectLikedPostings(validMember).toArray(new Posting[0]);
+	}
+
+	@Override
+	public Posting[] getReplies(String blogName, int postingNum) throws DataNotFoundException {
+		BlogService blogService = this.getBlogServiceImplementaion();
+		Blog blog = blogService.findBlogByName(blogName);
+		return this.getPosingDaoImplementation().selectReplyPostings(blog.getBlogId(), postingNum).toArray(new Posting[0]);
 	}
 
 }
