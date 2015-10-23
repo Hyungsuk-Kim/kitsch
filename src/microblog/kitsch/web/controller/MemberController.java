@@ -45,8 +45,12 @@ public class MemberController extends HttpServlet {
 				this.signOut(request, response);
 			} else if (action.equals("remove")) {
 				this.removeMember(request, response);
+			} else if (action.equals("profile")) {
+				this.memberProfile(request, response);
 			} else if (action.equals("update")) {
 				this.updateMember(request, response);
+			} else if (action.equals("management")) {
+				this.managementMember(request, response);
 			} else if (action.equals("privilege")) {
 				this.changeMemberRole(request, response);
 			}
@@ -133,12 +137,41 @@ public class MemberController extends HttpServlet {
 		dispatcher.forward(request, response);
 	}
 	
-	private void updateMember(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	private void updateMember(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
+		HttpSession session = request.getSession(false);
 		
+		String name = request.getParameter("name");
+		String password = request.getParameter("password");
+		String profileImage = request.getParameter("profileImage");
+		
+		if (session != null) {
+			Member member = (Member) session.getAttribute("member");
+			
+			if (name != null) member.setName(name);
+			if (password != null) member.setPassword(password);
+			if (profileImage != null) member.setProfileImage(profileImage);
+			
+			this.getMemberServiceImplement().updateMember(member);
+		}
 	}
 	
-	private void changeMemberRole(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	private void changeMemberRole(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException, IllegalDataException {
+		HttpSession session = request.getSession(false);
 		
+		String targetMemberName = request.getParameter("targetMemberName");
+		String role = request.getParameter("privilege");
+		
+		if (session != null) {
+			Member admin = (Member) session.getAttribute("member");
+			if (admin.getRole() == Member.ADMINISTRATOR) {
+				this.getMemberServiceImplement().giveRole(admin, targetMemberName, Integer.parseInt(role));
+				RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+				dispatcher.forward(request, response);
+				return;
+			}
+		}
+		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		dispatcher.forward(request, response);
 	}
 	
 	/**
