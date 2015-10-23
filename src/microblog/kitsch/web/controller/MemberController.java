@@ -146,13 +146,22 @@ public class MemberController extends HttpServlet {
 		
 		if (session != null) {
 			Member member = (Member) session.getAttribute("member");
-			
-			if (name != null) member.setName(name);
-			if (password != null) member.setPassword(password);
-			if (profileImage != null) member.setProfileImage(profileImage);
-			
-			this.getMemberServiceImplement().updateMember(member);
+			if (member != null) {
+				MemberService memberService = this.getMemberServiceImplement();
+				member = memberService.findMemberByEmail(member.getEmail());
+				if (name != null) { member.setName(name); }
+				if (password != null) { member.setPassword(password); }
+				if (profileImage != null) { member.setProfileImage(profileImage); }
+				memberService.updateMember(member);
+				session.removeAttribute("member");
+				session.setAttribute("member", member);
+				RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+				dispatcher.forward(request, response);
+				return;
+			}
 		}
+		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		dispatcher.forward(request, response);
 	}
 	
 	private void changeMemberRole(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException, IllegalDataException {
@@ -165,6 +174,68 @@ public class MemberController extends HttpServlet {
 			Member admin = (Member) session.getAttribute("member");
 			if (admin.getRole() == Member.ADMINISTRATOR) {
 				this.getMemberServiceImplement().giveRole(admin, targetMemberName, Integer.parseInt(role));
+				RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+				dispatcher.forward(request, response);
+				return;
+			}
+		}
+		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		dispatcher.forward(request, response);
+	}
+	
+	private void memberProfile(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
+		HttpSession session = request.getSession(false);
+		
+		if (session != null) {
+			Member member = (Member) session.getAttribute("member");
+			if (member != null) {
+				member = this.getMemberServiceImplement().findMemberByEmail(member.getEmail());
+				
+				request.setAttribute("member", member);
+				
+				RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+				dispatcher.forward(request, response);
+				return;
+			}
+		}
+		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		dispatcher.forward(request, response);
+	}
+	
+	private void managementMember(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		HttpSession session = request.getSession(false);
+		String[] privileges = request.getParameterValues("privilege");
+		int[] roles = new int[privileges.length];
+		
+		if (privileges == null) { return; }
+		
+		for (int i = 0; i < privileges.length; i++) {
+			if (privileges[i].equals("administrator")) { roles[i] = Member.ADMINISTRATOR; }
+			else if (privileges[i].equals("superuser")) { roles[i] = Member.SUPER_USER; }
+			else if (privileges[i].equals("normaluser")) { roles[i] = Member.NORMAL_USER; }
+		}
+		
+		if (session != null) {
+			Member admin = (Member) session.getAttribute("member");
+			if (admin.getRole() == Member.ADMINISTRATOR) {
+				MemberService memberService = this.getMemberServiceImplement();
+				Member[] administrators = null;
+				Member[] superUsers = null;
+				Member[] normalUsers = null;
+				for (int role : roles) {
+					if (role == Member.ADMINISTRATOR) { 
+						administrators = memberService.getMembersAsRole(role);
+						request.setAttribute("administrators", administrators);
+					}
+					else if (role == Member.SUPER_USER) { 
+						superUsers = memberService.getMembersAsRole(role);
+						request.setAttribute("superUsers", superUsers);
+					}
+					else if (role == Member.NORMAL_USER) { 
+						normalUsers = memberService.getMembersAsRole(role);
+						request.setAttribute("normalUsers", normalUsers);
+					}
+				}
 				RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
 				dispatcher.forward(request, response);
 				return;

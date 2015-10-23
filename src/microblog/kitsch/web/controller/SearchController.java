@@ -6,13 +6,35 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import microblog.kitsch.helper.DataDuplicatedException;
+import microblog.kitsch.helper.DataNotFoundException;
+import microblog.kitsch.helper.IllegalDataException;
+
 /**
  * Servlet implementation class SearchController
  */
 public class SearchController extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-       
-    /**
+	private static final long serialVersionUID = -575139487857646921L;
+
+	private void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String action = request.getParameter("action");
+		
+		try {
+			if (action.equals("")) {
+				
+			} else if (action.equals("")) {
+				
+			}
+		} catch (DataNotFoundException dne) {
+			throw new ServletException(dne);
+		} catch (DataDuplicatedException dde) {
+			throw new ServletException(dde);
+		} catch (IllegalDataException ide) {
+			throw new ServletException(ide);
+		}
+	}
+	
+	/**
      * @see HttpServlet#HttpServlet()
      */
     public SearchController() {
