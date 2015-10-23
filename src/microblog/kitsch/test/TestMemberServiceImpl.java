@@ -29,7 +29,6 @@ public class TestMemberServiceImpl {
 		memberService.registerMember(testMember);
 	}
 	
-	/*
 	@Test
 	public void testLogin() {
 		System.out.println("******* testLogin() *******");
@@ -130,7 +129,6 @@ public class TestMemberServiceImpl {
 		assertFalse(memberService.checkName("Administrator"));
 		assertTrue(memberService.checkName("new member"));
 	}
-	*/
 	
 	@Test
 	public void testGiveRole() throws DataNotFoundException, IllegalDataException, DataDuplicatedException {

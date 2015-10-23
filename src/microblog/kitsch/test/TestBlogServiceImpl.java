@@ -7,6 +7,8 @@ import microblog.kitsch.business.domain.Blog;
 import microblog.kitsch.business.domain.Member;
 import microblog.kitsch.business.service.BlogService;
 import microblog.kitsch.business.service.BlogServiceImpl;
+import microblog.kitsch.business.service.MemberService;
+import microblog.kitsch.business.service.MemberServiceImpl;
 import microblog.kitsch.helper.DataDuplicatedException;
 import microblog.kitsch.helper.DataNotFoundException;
 import microblog.kitsch.helper.IllegalDataException;
@@ -19,7 +21,8 @@ import java.util.Map;
 import org.junit.After;
 
 public class TestBlogServiceImpl {
-	private BlogService blogService;
+	private BlogService blogService = new BlogServiceImpl();
+	private MemberService memberService = new MemberServiceImpl();
 	private Member testMember1 = new Member("admin@kitsch.com", "administrator", "admin1234");
 	private Member testMember2 = new Member("kitsch@kitsch.com" ,"kitsch", "kitsch1234");
 	private Member testMember3 = new Member("test_member1@kitsch.com", "test_member1", "test1234");
@@ -30,7 +33,9 @@ public class TestBlogServiceImpl {
 	
 	@Before
 	public void init() throws DataDuplicatedException, DataNotFoundException {
-		blogService = new BlogServiceImpl();
+		memberService.registerMember(testMember3);
+		memberService.registerMember(testMember4);
+		memberService.registerMember(testMember5);
 	}
 	
 	@Test
@@ -221,6 +226,8 @@ public class TestBlogServiceImpl {
 	
 	@After
 	public void end() throws DataNotFoundException {
-	
+		memberService.removeMember(testMember3);
+		memberService.removeMember(testMember4);
+		memberService.removeMember(testMember5);
 	}
 }
