@@ -5,7 +5,6 @@
     <welcome-file>index.html</welcome-file>
     <welcome-file>index.jsp</welcome-file>
   </welcome-file-list>
-
   <servlet>
     <description></description>
     <display-name>MemberController</display-name>
@@ -66,6 +65,16 @@
     <servlet-name>DashBoardController</servlet-name>
     <url-pattern>/dashboard</url-pattern>
   </servlet-mapping>
+    <servlet>
+    <description></description>
+    <display-name>SearchController</display-name>
+    <servlet-name>SearchController</servlet-name>
+    <servlet-class>microblog.kitsch.web.controller.SearchController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SearchController</servlet-name>
+    <url-pattern>/search</url-pattern>
+  </servlet-mapping>
   
   <resource-ref>
     <res-ref-name>jdbc/kitsch</res-ref-name>
@@ -89,6 +98,7 @@
     <servlet-name>MessagingController</servlet-name>
     <servlet-name>ExploreController</servlet-name>
     <servlet-name>DashBoardController</servlet-name>
+    <servlet-name>SearchController</servlet-name>
   </filter-mapping>
-  
+
 </web-app>
