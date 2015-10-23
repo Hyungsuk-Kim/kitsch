@@ -102,16 +102,15 @@ public interface PostingService {
 	 */
 	public abstract void reblog(Member member, String originBlogName, int postingNum, String targetBlogName) throws DataNotFoundException;
 	
-	/**
-	 * 해당 포스팅 내용의 타입을 반환한다.
-	 * @param blogName 해당 포스팅이 존재하는 블로그 명
-	 * @param postingNum 해당 포스팅의 번호
-	 * @return 해당 포스팅 내용의 타입 (PostingContent 클래스에 상수로 선언된 정수 값을 리턴)
-	 * @throws DataNotFoundException blogName 혹은 postingNum과 일치하는 Posting이 없을 경우 발생하는 Exception
-	 */
-	public abstract int getContentType(String blogName, int postingNum) throws DataNotFoundException;
+//	/**
+//	 * 해당 포스팅 내용의 타입을 반환한다.
+//	 * @param blogName 해당 포스팅이 존재하는 블로그 명
+//	 * @param postingNum 해당 포스팅의 번호
+//	 * @return 해당 포스팅 내용의 타입 (PostingContent 클래스에 상수로 선언된 정수 값을 리턴)
+//	 * @throws DataNotFoundException blogName 혹은 postingNum과 일치하는 Posting이 없을 경우 발생하는 Exception
+//	 */
+//	public abstract int getContentType(String blogName, int postingNum) throws DataNotFoundException;
 	
-	public abstract Posting[] getReblogedPostings(Member member) throws DataNotFoundException;
 	public abstract Posting[] getLikedPostings(Member member) throws DataNotFoundException;
 	public abstract Posting[] getReplies(String blogName, int postingNum) throws DataNotFoundException;
 	

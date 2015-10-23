@@ -128,12 +128,22 @@ public class PostingServiceImpl implements PostingService {
 	@Override
 	public int getPostingCount(Map<String, Object> searchInfo) throws DataNotFoundException {
 		System.out.println("PostingService getPostingCount()");
+		String blogName = (String) searchInfo.get("blogName");
+		if (blogName != null) {
+			Blog blog = this.getBlogServiceImplementaion().findBlogByName(blogName);
+			searchInfo.replace("blogName", blog.getBlogId());
+		}
 		return this.getPosingDaoImplementation().selectPostingCount(searchInfo);
 	}
 
 	@Override
 	public Posting[] getPostingList(Map<String, Object> searchInfo) throws DataNotFoundException {
-		System.out.println("PostingService ");
+		System.out.println("PostingService getPostingList()");
+		String blogName = (String) searchInfo.get("blogName");
+		if (blogName != null) {
+			Blog blog = this.getBlogServiceImplementaion().findBlogByName(blogName);
+			searchInfo.replace("blogName", blog.getBlogId());
+		}
 		return this.getPosingDaoImplementation().selectPostingList(searchInfo).toArray(new Posting[0]);
 	}
 
@@ -194,23 +204,6 @@ public class PostingServiceImpl implements PostingService {
 		} else {
 			throw new DataNotFoundException("해당 포스팅이 존재하지 않습니다.");
 		}
-	}
-
-	@Override
-	public int getContentType(String blogName, int postingNum)
-			throws DataNotFoundException {
-		System.out.println("PostingService getContentType()");
-		// TODO Auto-generated method stub
-		
-		return 0;
-	}
-
-	@Override
-	public Posting[] getReblogedPostings(Member member) throws DataNotFoundException {
-		System.out.println("PostingService getReblogedPostings");
-		// TODO Auto-generated method stub
-		
-		return null;
 	}
 
 	@Override

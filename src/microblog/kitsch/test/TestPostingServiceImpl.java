@@ -2,6 +2,9 @@ package microblog.kitsch.test;
 
 import static org.junit.Assert.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -75,7 +78,6 @@ public class TestPostingServiceImpl {
 		blogService.createBlog(testMember1, "third_blog");
 	}
 	
-	/*
 	@Test(expected=DataNotFoundException.class)
 	public void testPostingWriteFindDelete() throws DataNotFoundException {
 		postingService.writePosting("first_blog", testMixedPosting1);
@@ -183,7 +185,6 @@ public class TestPostingServiceImpl {
 		
 		postingService.removePosting("first_blog", 1);
 	}
-	 */
 	
 	@Test
 	public void testReply() throws DataNotFoundException {
@@ -203,6 +204,124 @@ public class TestPostingServiceImpl {
 		assertEquals(reply1.getReblogOption(), replies[0].getReblogOption());
 		
 		postingService.removePosting("first_blog", 1);
+	}
+	
+	@Test
+	public void testReblog() throws DataNotFoundException {
+		postingService.writePosting("first_blog", testMixedPosting1);
+		postingService.reblog(testMember2, "first_blog", 1, "third_blog");
+		
+		Posting reblogedPosting = postingService.findPosting("third_blog", 1);
+		assertEquals(reblogedPosting.getTitle(), testMixedPosting1.getTitle());
+		assertEquals(reblogedPosting.getWriter(), testMixedPosting1.getWriter() + " >> " + testMember2.getName());
+		assertEquals(reblogedPosting.getContentType(), testMixedPosting1.getContentType());
+		assertEquals(reblogedPosting.getExposure(), testMixedPosting1.getExposure());
+		assertEquals(reblogedPosting.getTags(), testMixedPosting1.getTags());
+		assertEquals(reblogedPosting.getPostingType(), testMixedPosting1.getPostingType());
+		assertEquals(reblogedPosting.getReblogOption(), testMixedPosting1.getReblogOption());
+		
+		postingService.removePosting("first_blog", 1);
+		postingService.removePosting("third_blog", 1);
+	}
+	
+	@Test
+	public void testSearchPosting() throws DataNotFoundException {
+		postingService.writePosting("first_blog", testMixedPosting1);
+		postingService.writePosting("first_blog", testTextPosting1);
+		postingService.writePosting("first_blog", testSinglePosting1);
+		postingService.writePosting("second_blog", testMixedPosting2);
+		postingService.writePosting("second_blog", testTextPosting2);
+		postingService.writePosting("second_blog", testSinglePosting2);
+		postingService.writePosting("third_blog", testMixedPosting3);
+		postingService.writePosting("third_blog", testTextPosting3);
+		postingService.writePosting("third_blog", testSinglePosting3);
+		
+		Map<String, Object> searchInfo1 =  new HashMap<String, Object>(); // expected - 6
+		searchInfo1.put("target", "all");
+		searchInfo1.put("searchType", "writer");
+		searchInfo1.put("searchText", "1");
+		searchInfo1.put("startRow", 1);
+		searchInfo1.put("endRow", 10);
+		
+		Map<String, Object> searchInfo2 =  new HashMap<String, Object>(); // expected - 3
+		searchInfo2.put("target", "posting");
+		searchInfo2.put("searchType", "title");
+		searchInfo2.put("searchText", "secon");
+		searchInfo2.put("startRow", 1);
+		searchInfo2.put("endRow", 10);
+		
+		// problem1 : 모든 테이블마다 startRow & endRow num이 적용됨. 통합 적용 필요!!!
+		Map<String, Object> searchInfo3 =  new HashMap<String, Object>(); // expected - count = 9, list = 4
+		searchInfo3.put("target", "all");
+		searchInfo3.put("searchType", "tags");
+		searchInfo3.put("searchText", "tes");
+		searchInfo3.put("startRow", 1);
+		searchInfo3.put("endRow", 4);
+		
+		Map<String, Object> searchInfo4 =  new HashMap<String, Object>(); // expected - count = 4, list = 3
+		searchInfo4.put("target", "all");
+		searchInfo4.put("searchType", "contents");
+		searchInfo4.put("searchText", "first");
+		searchInfo4.put("startRow", 2);
+		searchInfo4.put("endRow", 4);
+		
+		Map<String, Object> searchInfo5 =  new HashMap<String, Object>(); // expected - count = 1, list = 1
+		searchInfo5.put("target", "all");
+		searchInfo5.put("contentType", PostingContent.MIXED_IMAGE_FILE_CONTENT);
+		searchInfo5.put("startRow", 1);
+		searchInfo5.put("endRow", 10);
+		
+		Map<String, Object> searchInfo6 =  new HashMap<String, Object>(); // expected - count = 3, list = 2
+		searchInfo6.put("target", "posting");
+		searchInfo6.put("blogName", "first_blog");
+		searchInfo6.put("searchType", "title");
+		searchInfo6.put("searchText", "first");
+		searchInfo6.put("startRow", 2);
+		searchInfo6.put("endRow", 3);
+		
+		System.out.println("1------------------------------------------------------------------");
+		int count = postingService.getPostingCount(searchInfo1);
+		assertEquals(6, count);
+		Posting[] postings = postingService.getPostingList(searchInfo1);
+		assertEquals(count, postings.length);
+		System.out.println("------------------------------------------------------------------1");
+		
+		System.out.println("2------------------------------------------------------------------");
+		count = postingService.getPostingCount(searchInfo2);
+		assertEquals(3, count);
+		postings = postingService.getPostingList(searchInfo2);
+		assertEquals(count, postings.length);
+		System.out.println("------------------------------------------------------------------2");
+		
+		System.out.println("3------------------------------------------------------------------");
+		count = postingService.getPostingCount(searchInfo3);
+		assertEquals(9, count);
+		postings = postingService.getPostingList(searchInfo3);
+		assertEquals(4, postings.length);
+		System.out.println("------------------------------------------------------------------3");
+		
+		System.out.println("4------------------------------------------------------------------");
+		count = postingService.getPostingCount(searchInfo4);
+		assertEquals(4, count);
+		postings = postingService.getPostingList(searchInfo4);
+		assertEquals(3, postings.length);
+		System.out.println("------------------------------------------------------------------4");
+		
+		System.out.println("5------------------------------------------------------------------");
+		count = postingService.getPostingCount(searchInfo5);
+		assertEquals(1, count);
+		postings = postingService.getPostingList(searchInfo5);
+		assertEquals(count, postings.length);
+		System.out.println("------------------------------------------------------------------5");
+		
+		System.out.println("6------------------------------------------------------------------");
+		count = postingService.getPostingCount(searchInfo6);
+		assertEquals(3, count);
+		searchInfo6.replace("blogName", "first_blog"); // getPostingCount()에서 바뀌었기 때문에 원래 값으로 초기화.
+		postings = postingService.getPostingList(searchInfo6);
+		assertEquals(2, postings.length);
+		System.out.println("------------------------------------------------------------------6");
+		
 	}
 	
 	@After

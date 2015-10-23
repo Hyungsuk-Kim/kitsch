@@ -501,5 +501,41 @@ public class MemberDaoImpl implements MemberDao{
 			this.closeResources(connection, pstmt);
 		}
 	}
+	
+	@Override
+	public List<Member> selectMembersAsRole(int... roles) {
+		String sql = "SELECT * FROM member WHERE role=?";
+		System.out.println("MemberDaoImpl selectMemberAsRole() query : " + sql);
+		
+		List<Member> mList = new ArrayList<Member>();
+		Member selectedMember = null;
+		
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		try {
+			connection = this.obtainConnection();
+			pstmt = connection.prepareStatement(sql);
+			
+			for (int role : roles) {
+				pstmt.setInt(1, role);
+				rs = pstmt.executeQuery();
+				while (rs.next()) {
+					selectedMember = new Member(rs.getString("email"), rs.getString("name"), rs.getString("password"),
+							rs.getInt("role"), rs.getString("profile_image"), KitschUtil.convertDateSqlToUtil(rs.getDate("reg_date")), 
+							rs.getInt("total_follower_count"));
+					
+					mList.add(selectedMember);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			this.closeResources(connection, pstmt, rs);
+		}
+		
+		return mList;
+	}
 
 }

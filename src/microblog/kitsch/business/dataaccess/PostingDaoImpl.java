@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Savepoint;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +13,6 @@ import microblog.kitsch.business.domain.Member;
 import microblog.kitsch.business.domain.Posting;
 import microblog.kitsch.business.domain.PostingContent;
 import microblog.kitsch.business.service.PostingDao;
-import microblog.kitsch.helper.DataNotFoundException;
 import microblog.kitsch.helper.KitschUtil;
 
 public class PostingDaoImpl implements PostingDao {
@@ -562,9 +560,88 @@ public class PostingDaoImpl implements PostingDao {
 		return pList;
 	}
 
+	@SuppressWarnings("resource")
 	@Override
 	public List<Posting> selectPostingList(Map<String, Object> searchInfo) {
 		List<Posting> pList = new ArrayList<Posting>();
+		
+		String query1 = "CREATE TABLE search_dump ("
+				+ "temp_num INTEGER,"
+				+ "num INTEGER,"
+				+ "title VARCHAR2(420),"
+				+ "writer VARCHAR2(60) NOT NULL,"
+				+ "content_type NUMBER(3) NOT NULL,"
+				+ "read_count NUMBER(10) DEFAULT 0,"
+				+ "reg_date DATE,"
+				+ "likes INTEGER DEFAULT 0,"
+				+ "exposure NUMBER(1),"
+				+ "tags VARCHAR2(4000),"
+				+ "ref INTEGER NOT NULL,"
+				+ "reply_step INTEGER DEFAULT 0,"
+				+ "reply_depth INTEGER DEFAULT 0,"
+				+ "reply_count INTEGER DEFAULT 0,"
+				+ "posting_type NUMBER(1),"
+				+ "reblog_count INTEGER DEFAULT 0,"
+				+ "reblog_option NUMBER(1),"
+				+ "PRIMARY KEY(temp_num),"
+				+ "CHECK(content_type IN("
+				+ PostingContent.TEXT_CONTENT + ", "
+				+ PostingContent.MIXED_AUDIO_FILE_CONTENT + ", "
+				+ PostingContent.MIXED_AUDIO_LINK_CONTENT + ", "
+				+ PostingContent.MIXED_IMAGE_FILE_CONTENT + ", "
+				+ PostingContent.MIXED_IMAGE_LINK_CONTENT + ", "
+				+ PostingContent.MIXED_VIDEO_FILE_CONTENT + ", "
+				+ PostingContent.MIXED_VIDEO_LINK_CONTENT + ", "
+				+ PostingContent.SINGLE_AUDIO_FILE_CONTENT +", "
+				+ PostingContent.SINGLE_AUDIO_LINK_CONTENT +", "
+				+ PostingContent.SINGLE_IMAGE_FILE_CONTENT +", "
+				+ PostingContent.SINGLE_IMAGE_LINK_CONTENT +", "
+				+ PostingContent.SINGLE_VIDEO_FILE_CONTENT +", "
+				+ PostingContent.SINGLE_VIDEO_LINK_CONTENT + ")),"
+				+ "CHECK(exposure IN(" 
+				+ Posting.PUBLIC_ALLOW_BOTH_REPLY_AND_REBLOG + ", "
+				+ Posting.PUBLIC_ALLOW_REPLY_AND_NO_REBLOG + ", "
+				+ Posting.PUBLIC_NO_REPLY_AND_ALLOW_REBLOG + ", "
+				+ Posting.PUBLIC_NO_REPLY_NO_REBLOG + ", "
+				+ Posting.PRIVATE + ")),"
+				+ "CHECK(posting_type IN("
+				+ Posting.NORMAL_TYPE_POSTING + ", "
+				+ Posting.REPLY_TYPE_POSTING + ", "
+				+ Posting.QNA_TYPE_POSTING + ")),"
+				+ "CHECK(reblog_option IN("
+				+ Posting.NOTHING + ", "
+				+ Posting.ON_DELETE_CASCADE + ", "
+				+ Posting.ON_UPDATE_CASCADE + ", "
+				+ Posting.SET_NULL + ", "
+				+ Posting.ON_UPDATE_AND_DELETE_CASCADE + "))"
+			+")";
+		String query2 = "CREATE SEQUENCE search_dump_num_seq START with 1 INCREMENT BY 1";
+		
+		String query3 = "CREATE TABLE search_dump_mixed ("
+				+ "temp_num INTEGER,"
+				+ "num INTEGER,"
+				+ "text_content VARCHAR2(4000),"
+				+ "file_paths VARCHAR2(4000),"
+				+ "PRIMARY KEY(temp_num))";
+		
+		String query4 = "CREATE TABLE search_dump_single ("
+				+ "temp_num INTEGER,"
+				+ "num INTEGER,"
+				+ "file_paths VARCHAR2(4000),"
+				+ "PRIMARY KEY(temp_num))";
+		
+		String query5 = "CREATE TABLE search_dump_text ("
+				+ "temp_num INTEGER,"
+				+ "num INTEGER,"
+				+ "text_content VARCHAR2(4000),"
+				+ "PRIMARY KEY(temp_num))";
+		
+		String query6 = "DROP TABLE search_dump";
+		String query7 = "DROP TABLE search_dump_mixed";
+		String query8 = "DROP TABLE search_dump_text";
+		String query9 = "DROP TABLE search_dump_single";
+		String query10 = "DROP SEQUENCE search_dump_num_seq";
+		
 		Posting selectedPosting = null;
 		PostingContent pContent = null;
 		String blogId = null;
@@ -577,10 +654,9 @@ public class PostingDaoImpl implements PostingDao {
 			return pList;
 		}
 		
-		for (String temp : searchInfo.keySet()){
-			System.out.println(searchInfo.get(temp));
-		}
-		
+		/*for (String temp : searchInfo.keySet()){
+			System.out.println("PostingDaoImpl (line:658)" + searchInfo.get(temp));
+		}*/
 		
 		String target = (String) searchInfo.get("target");
 		String searchType = (String) searchInfo.get("searchType");
@@ -634,25 +710,50 @@ public class PostingDaoImpl implements PostingDao {
 			specifyBlog = " AND table_name=?";
 		}
 		
-		String sql = "SELECT table_name FROM tabs WHERE table_name NOT IN ('BLOG', 'MEMBER', 'QNA', 'KITSCH', 'LIKES', 'LIKE', 'REBLOG', 'MESSAGE_BOX', 'FOLLOW') "
+		String sql = "SELECT table_name FROM tabs WHERE table_name NOT IN ('BLOG', 'MEMBER', 'QNA', 'KITSCH', 'LIKES', 'LIKE', 'REBLOG', 'MESSAGE_BOX', 'FOLLOW', 'SEARCH_DUMP') "
 				+ " AND table_name NOT LIKE '%_MIXED' AND table_name NOT LIKE '%_SINGLE' AND table_name NOT LIKE '%_TEXT'" + specifyBlog;
-		System.out.println("PostingDaoImpl getPostingList() first query : " + sql);
 		
 		Connection connection = null;
 		PreparedStatement pstmt = null;
 		PreparedStatement pstmt2 = null;
 		PreparedStatement pstmt3 = null;
+		PreparedStatement pstmt4 = null;
+		PreparedStatement pstmt5 = null;
 		ResultSet rs = null;
 		ResultSet rs2 = null;
 		ResultSet rs3 = null;
+		ResultSet rs4 = null;
 		
 		try {
 			connection = this.obtainConnection();
 			connection.setAutoCommit(false);
+			
+			System.out.println("PostingDaoImpl selectPostingList() first query : " + query1);
+			pstmt = connection.prepareStatement(query1);
+			pstmt.executeUpdate();
+			pstmt.close();
+			System.out.println("PostingDaoImpl selectPostingList() second query : " + query2);
+			pstmt = connection.prepareStatement(query2);
+			pstmt.executeUpdate();
+			pstmt.close();
+			System.out.println("PostingDaoImpl selectPostingList() third query : " + query3);
+			pstmt = connection.prepareStatement(query3);
+			pstmt.executeUpdate();
+			pstmt.close();
+			System.out.println("PostingDaoImpl selectPostingList() fourth query : " + query4);
+			pstmt = connection.prepareStatement(query4);
+			pstmt.executeUpdate();
+			pstmt.close();
+			System.out.println("PostingDaoImpl selectPostingList() fifth query : " + query5);
+			pstmt = connection.prepareStatement(query5);
+			pstmt.executeUpdate();
+			pstmt.close();
+			
+			System.out.println("PostingDaoImpl selectPostingList() sixth query : " + sql);
 			pstmt = connection.prepareStatement(sql);
 			
 			if (searchInfo.containsKey("blogName") && blogName != null && blogName.trim().length() != 0) {
-				pstmt.setString(1, blogName);
+				pstmt.setString(1, blogName.toUpperCase());
 			}
 			rs = pstmt.executeQuery();
 			
@@ -663,57 +764,43 @@ public class PostingDaoImpl implements PostingDao {
 					whereSyntax = " WHERE content_type=?";
 				} else if (searchType != null && searchType.trim().length() != 0) {
 					if (searchType.equals("all")) {
-						whereSyntax = " WHERE num IN (SELECT num FROM " + blogId + "_text WHERE UPPER(text_content) LIKE ? ESCAPE '@') OR "
-											+ " num IN (SELECT num FROM " + blogId + "_mixed WHERE UPPER(text_content) LIKE ? ESCAPE '@') OR "
-											+ " UPPER(title) LIKE ? OR UPPER(writer) LIKE ? OR UPPER(tags) LIKE ? ESCAPE '@'";
+						whereSyntax = " WHERE num IN (SELECT num FROM " + blogId + "_text WHERE LOWER(text_content) LIKE LOWER(?) ESCAPE '@') OR "
+											+ " num IN (SELECT num FROM " + blogId + "_mixed WHERE LOWER(text_content) LIKE LOWER(?) ESCAPE '@') OR "
+											+ " LOWER(title) LIKE LOWER(?) OR LOWER(writer) LIKE LOWER(?) OR LOWER(tags) LIKE LOWER(?) ESCAPE '@'";
 					} else if (searchType.equals("title")) {
-						whereSyntax = " WHERE UPPER(title) LIKE ? ESCAPE '@'";
+						whereSyntax = " WHERE LOWER(title) LIKE LOWER(?) ESCAPE '@'";
 					} else if (searchType.equals("writer")) {
-						whereSyntax = " WHERE UPPER(writer) LIKE ? ESCAPE '@'";
+						whereSyntax = " WHERE LOWER(writer) LIKE LOWER(?) ESCAPE '@'";
 					} else if (searchType.equals("contents")) {
-						whereSyntax = " WHERE num IN (SELECT num FROM " + blogId + "_text WHERE UPPER(text_content) LIKE ? ESCAPE '@')";
+						whereSyntax = " WHERE num IN (SELECT num FROM " + blogId + "_text WHERE LOWER(text_content) LIKE LOWER(?) ESCAPE '@') OR "
+										+ " num IN (SELECT num FROM " + blogId + "_mixed WHERE LOWER(text_content) LIKE LOWER(?) ESCAPE '@')";
 					} else if (searchType.equals("tags")) {
-						whereSyntax = " WHERE UPPER(tags) LIKE ? ESCAPE '@'";
+						whereSyntax = " WHERE LOWER(tags) LIKE LOWER(?) ESCAPE '@'";
 					} else { /*return pList;*/ }
 				} else { /*return pList;*/ }
 			
 			
-				String sql2 = "SELECT * FROM ("
-								+ "SELECT ROWNUM AS row_num, " + ALL_COLUMNS + " FROM ("
-									+ "SELECT * FROM " + blogId + whereSyntax + orderBySyntax
-								+ ")"
-							+ ") WHERE row_num BETWEEN ? AND ?";
-				System.out.println("PostingDaoImpl getPostingList() second query : " + sql2);
+				String sql2 = "SELECT * FROM " + blogId + whereSyntax;
+				System.out.println("PostingDaoImpl getPostingList() seventh query : " + sql2);
 				pstmt2 = connection.prepareStatement(sql2);
 				
 				if (selectAsContentType){
 					pstmt2.setInt(1, typeOfContent);
-					pstmt2.setInt(2, startRow);
-					pstmt2.setInt(3, endRow);
 				} else if (searchType.equals("all")) {
 						pstmt2.setString(1, searchTextKeyword);
 						pstmt2.setString(2, searchTextKeyword);
 						pstmt2.setString(3, searchTextKeyword);
 						pstmt2.setString(4, searchTextKeyword);
 						pstmt2.setString(5, searchTextKeyword);
-						pstmt2.setInt(6, startRow);
-						pstmt2.setInt(7, endRow);
 				} else if (searchType.equals("title")) {
 					pstmt2.setString(1, searchTextKeyword);
-					pstmt2.setInt(2, startRow);
-					pstmt2.setInt(3, endRow);
 				} else if (searchType.equals("writer")) {
 					pstmt2.setString(1, searchTextKeyword);
-					pstmt2.setInt(2, startRow);
-					pstmt2.setInt(3, endRow);
 				} else if (searchType.equals("contents")) {
 					pstmt2.setString(1, searchTextKeyword);
-					pstmt2.setInt(2, startRow);
-					pstmt2.setInt(3, endRow);
+					pstmt2.setString(2, searchTextKeyword);
 				} else if (searchType.equals("tags")) {
 					pstmt2.setString(1, searchTextKeyword);
-					pstmt2.setInt(2, startRow);
-					pstmt2.setInt(3, endRow);
 				}
 				
 				rs2 = pstmt2.executeQuery();
@@ -738,7 +825,7 @@ public class PostingDaoImpl implements PostingDao {
 					
 					String contentTable = this.getContentTable(contentType, blogId);
 					String sql3 = "SELECT * FROM " + contentTable + " WHERE num=?";
-					System.out.println("PostingDaoImpl getPostingList() third query : " + sql3);
+					System.out.println("PostingDaoImpl getPostingList() eighth query : " + sql3);
 					pstmt3 = connection.prepareStatement(sql3);
 					pstmt3.setInt(1, num);
 					rs3 = pstmt3.executeQuery();
@@ -756,15 +843,141 @@ public class PostingDaoImpl implements PostingDao {
 							String textContent = rs3.getString("text_content");
 							pContent = new PostingContent(pNum, textContent);
 						}
-						selectedPosting = new Posting(num, title, writer, pContent, contentType,
+						/*selectedPosting = new Posting(num, title, writer, pContent, contentType,
 								readCount, regDate, likes, exposure, tags, ref, replyStep, 
 								replyDepth, replyCount, postingType, reblogCount, reblogOption);
 						
-						pList.add(selectedPosting);
+						int affectedRow = 0;
+						if (selectedPosting != null) {
+							affectedRow = this.insertPosting("search_dump", selectedPosting);
+						}
+						if (affectedRow == 0) {
+							throw new SQLException("Insert failed.");
+						}*/
+						String insertQuery1 = "SELECT search_dump_num_seq.NEXTVAL FROM dual";
+						System.out.println("PostingDaoImpl selectPostingList() ninth query : " + insertQuery1);
+						pstmt4 = connection.prepareStatement(insertQuery1);
+						rs4 = pstmt4.executeQuery();
+						if (rs4.next()) {
+							int seqNum = rs4.getInt(1);
+							
+							String insertQuery2 = "INSERT INTO search_dump (temp_num, " + ALL_COLUMNS + ") "
+									+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+							System.out.println("PostingDaoImpl selectPostingList() tenth query : " + insertQuery2);
+							
+							pstmt5 = connection.prepareStatement(insertQuery2);
+							pstmt5.setInt(1, seqNum);
+							pstmt5.setInt(2, num);
+							pstmt5.setString(3, title);
+							pstmt5.setString(4, writer);
+							pstmt5.setInt(5, contentType);
+							pstmt5.setInt(6, readCount);
+							pstmt5.setDate(7, KitschUtil.convertDateUtilToSql(regDate));
+							pstmt5.setInt(8, likes);
+							pstmt5.setInt(9, exposure);
+							pstmt5.setString(10, tags);
+							pstmt5.setInt(11, ref);
+							pstmt5.setInt(12, replyStep);
+							pstmt5.setInt(13, replyDepth);
+							pstmt5.setInt(14, replyCount);
+							pstmt5.setInt(15, postingType);
+							pstmt5.setInt(16, reblogCount);
+							pstmt5.setInt(17, reblogOption);
+							pstmt5.executeUpdate();
+							pstmt5.close();
+							
+							String columns = "";
+							String search_dump_content_table = "";
+							if (contentTable.equals(blogId + "_mixed")) {
+								search_dump_content_table = "search_dump_mixed";
+								columns = "?, ?";
+							} else if (contentTable.equals(blogId + "_single")) {
+								search_dump_content_table = "search_dump_single";
+								columns = "?";
+							} else if (contentTable.equals(blogId + "_text")) {
+								search_dump_content_table = "search_dump_text";
+								columns = "?";
+							}
+							
+							String insertQuery3 = "INSERT INTO " + search_dump_content_table + " VALUES (?, ?, " + columns + ")";
+							System.out.println("PostingDaoImpl selectPostingList() eleventh query : " + insertQuery3);
+							
+							pstmt5 = connection.prepareStatement(insertQuery3);
+							pstmt5.setInt(1, seqNum);
+							pstmt5.setInt(2, num);
+							if (contentTable.equals(blogId + "_mixed")) {
+								pstmt5.setString(3, pContent.getTextContent());
+								pstmt5.setString(4, KitschUtil.convertToString(pContent.getFilePaths(), Posting.PATH_DELIMITER, true));
+							} else if (contentTable.equals(blogId + "_single")) {
+								pstmt5.setString(3, KitschUtil.convertToString(pContent.getFilePaths(), Posting.PATH_DELIMITER, true));
+							} else if (contentTable.equals(blogId + "_text")) {
+								pstmt5.setString(3, pContent.getTextContent());
+							}
+							pstmt5.executeUpdate();
+						}
 					}
 				}
 			}
+			String sql4 = "SELECT * FROM ("
+							+ "SELECT ROWNUM AS row_num, temp_num, " + ALL_COLUMNS + " FROM ("
+								+ "SELECT * FROM search_dump " + orderBySyntax
+							+ ")"
+						+ ") WHERE row_num BETWEEN ? AND ?";
+			System.out.println("PostingDaoImpl selectPostingList() twelfth query : " + sql4);
 			
+			pstmt = connection.prepareStatement(sql4);
+			pstmt.setInt(1, startRow);
+			pstmt.setInt(2, endRow);
+			rs = pstmt.executeQuery();
+			
+			while (rs.next()) {
+				int tempNum = rs.getInt("temp_num");
+				int num = rs.getInt("num");
+				String title = rs.getString("title");
+				String writer = rs.getString("writer");
+				int contentType = rs.getInt("content_type");
+				int readCount = rs.getInt("read_count");
+				java.util.Date regDate = KitschUtil.convertDateSqlToUtil(rs.getDate("reg_date"));
+				int likes = rs.getInt("likes");
+				int exposure = rs.getInt("exposure");
+				String tags = rs.getString("tags");
+				int ref = rs.getInt("ref");
+				int replyStep = rs.getInt("reply_step");
+				int replyDepth = rs.getInt("reply_depth");
+				int replyCount = rs.getInt("reply_count");
+				int postingType = rs.getInt("posting_type");
+				int reblogCount = rs.getInt("reblog_count");
+				int reblogOption = rs.getInt("reblog_option");
+				
+				String contentTable = this.getContentTable(contentType, "search_dump");
+				String sql2 = "SELECT * FROM " + contentTable + " WHERE temp_num=?";
+				System.out.println("PostingDaoImpl selectAllPostings() second query : " + sql2);
+				pstmt2 = connection.prepareStatement(sql2);
+				pstmt2.setInt(1, tempNum);
+				rs2 = pstmt2.executeQuery();
+				
+				while (rs2.next()) {
+					int pNum = rs2.getInt("num");
+					if (contentTable.equals("search_dump_mixed")) {
+						String textContents = rs2.getString("text_content");
+						String filePaths = rs2.getString("file_paths");
+						pContent = new PostingContent(pNum, textContents, KitschUtil.convertToStringArray(filePaths, Posting.PATH_DELIMITER, false));
+						
+					} else if (contentTable.equals("search_dump_single")) {
+						String filePaths = rs2.getString("file_paths");
+						pContent = new PostingContent(pNum, KitschUtil.convertToStringArray(filePaths, Posting.PATH_DELIMITER, false));
+						
+					} else if (contentTable.equals("search_dump_text")) {
+						String textContent = rs2.getString("text_content");
+						pContent = new PostingContent(pNum, textContent);
+					}
+					selectedPosting = new Posting(num, title, writer, pContent, contentType,
+							readCount, regDate, likes, exposure, tags, ref, replyStep, 
+							replyDepth, replyCount, postingType, reblogCount, reblogOption);
+					
+					pList.add(selectedPosting);
+				}
+			}
 		} catch (SQLException e) {
 			try {
 				connection.rollback();
@@ -775,9 +988,31 @@ public class PostingDaoImpl implements PostingDao {
 		} finally {
 			try {
 				connection.setAutoCommit(true);
+				System.out.println("PostingDaoImpl selectPostingList() thirteenth query : " + query6);
+				pstmt = connection.prepareStatement(query6);
+				pstmt.executeUpdate();
+				pstmt.close();
+				System.out.println("PostingDaoImpl selectPostingList() fourteenth query : " + query7);
+				pstmt = connection.prepareStatement(query7);
+				pstmt.executeUpdate();
+				pstmt.close();
+				System.out.println("PostingDaoImpl selectPostingList() fifteenth query : " + query8);
+				pstmt = connection.prepareStatement(query8);
+				pstmt.executeUpdate();
+				pstmt.close();
+				System.out.println("PostingDaoImpl selectPostingList() sixteenth query : " +query9);
+				pstmt = connection.prepareStatement(query9);
+				pstmt.executeUpdate();
+				pstmt.close();
+				System.out.println("PostingDaoImpl selectPostingList() seventeenth query : " + query10);
+				pstmt = connection.prepareStatement(query10);
+				pstmt.executeUpdate();
+				pstmt.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
+			this.closeResources(null, pstmt5);
+			this.closeResources(null, pstmt4, rs4);
 			this.closeResources(null, pstmt3, rs3);
 			this.closeResources(null, pstmt2, rs2);
 			this.closeResources(connection, pstmt, rs);
@@ -793,7 +1028,7 @@ public class PostingDaoImpl implements PostingDao {
 		String whereSyntax = "";
 		String specifyBlog = "";
 		String blogId = null;
-		String contentTable = null;
+		//String contentTable = null;
 		
 		if(searchInfo == null) {
 			return selectedCount;
@@ -811,6 +1046,10 @@ public class PostingDaoImpl implements PostingDao {
 		if (searchInfo.containsKey("contentType")) {
 			typeOfContent = (Integer) searchInfo.get("contentType");
 			selectAsContentType = this.checkValidContentType(typeOfContent);
+		}
+		
+		if (searchInfo.containsKey("blogName") && blogName != null && blogName.trim().length() != 0) {
+			specifyBlog = " AND table_name=?";
 		}
 		
 		if (searchText != null) {
@@ -845,7 +1084,7 @@ public class PostingDaoImpl implements PostingDao {
 			pstmt = connection.prepareStatement(sql);
 			
 			if (searchInfo.containsKey("blogName") && blogName != null && blogName.trim().length() != 0) {
-				pstmt.setString(1, blogName);
+				pstmt.setString(1, blogName.toUpperCase()); System.out.println("PostingDaoImpl Line:1088 blogName : " + blogName);
 			}
 			rs = pstmt.executeQuery();
 			
@@ -859,17 +1098,18 @@ public class PostingDaoImpl implements PostingDao {
 						specifyBlog = " AND table_name=?";
 					}
 					if (searchType.equals("all")) {
-						whereSyntax = " WHERE num IN (SELECT num FROM " + blogId + "_text WHERE UPPER(text_content) LIKE ? ESCAPE '@') OR "
-								+ "num IN (SELECT num FROM " + blogId + "_mixed WHERE UPPER(text_content) LIKE ? ESCAPE '@') OR"
-								+ " UPPER(title) LIKE ? OR UPPER(writer) LIKE ? OR UPPER(tags) LIKE ? ESCAPE '@'";
+						whereSyntax = " WHERE num IN (SELECT num FROM " + blogId + "_text WHERE LOWER(text_content) LIKE LOWER(?) ESCAPE '@') OR "
+								+ "num IN (SELECT num FROM " + blogId + "_mixed WHERE LOWER(text_content) LIKE LOWER(?) ESCAPE '@') OR"
+								+ " LOWER(title) LIKE LOWER(?) OR LOWER(writer) LIKE LOWER(?) OR LOWER(tags) LIKE LOWER(?) ESCAPE '@'";
 					} else if (searchType.equals("title")) {
-						whereSyntax = " WHERE UPPER(title) LIKE ? ESCAPE '@'";
+						whereSyntax = " WHERE LOWER(title) LIKE LOWER(?) ESCAPE '@'";
 					} else if (searchType.equals("writer")) {
-						whereSyntax = " WHERE UPPER(writer) LIKE ? ESCAPE '@'";
+						whereSyntax = " WHERE LOWER(writer) LIKE LOWER(?) ESCAPE '@'";
 					} else if (searchType.equals("contents")) {
-						whereSyntax = " WHERE num IN (SELECT num FROM " + contentTable + " WHERE UPPER(text_content) LIKE ? ESCAPE '@')";
+						whereSyntax = " WHERE num IN (SELECT num FROM " + blogId + "_text WHERE LOWER(text_content) LIKE LOWER(?) ESCAPE '@') OR "
+										+ " num IN (SELECT num FROM " + blogId + "_mixed WHERE LOWER(text_content) LIKE LOWER(?) ESCAPE '@')";
 					} else if (searchType.equals("tags")) {
-						whereSyntax = " WHERE UPPER(tags) LIKE ? ESCAPE '@'";
+						whereSyntax = " WHERE LOWER(tags) LIKE LOWER(?) ESCAPE '@'";
 					} else { /*return selectedCount;*/ }
 				} else { /*return selectedCount;*/ }
 				
@@ -892,6 +1132,7 @@ public class PostingDaoImpl implements PostingDao {
 					pstmt2.setString(1, searchTextKeyword);
 				} else if (searchType.equals("contents")) {
 					pstmt2.setString(1, searchTextKeyword);
+					pstmt2.setString(2, searchTextKeyword);
 				} else if (searchType.equals("tags")) {
 					pstmt2.setString(1, searchTextKeyword);
 				}
@@ -1189,7 +1430,7 @@ public class PostingDaoImpl implements PostingDao {
 		System.out.println("PostingDaoImpl selectLikedPosting() first query : " + sql);
 
 		List<Posting> pList = new ArrayList<Posting>();
-		Posting selectedPosting = null;
+		//Posting selectedPosting = null;
 		
 		Connection connection = null;
 		PreparedStatement pstmt = null;
@@ -1198,7 +1439,7 @@ public class PostingDaoImpl implements PostingDao {
 		try {
 			connection = this.obtainConnection();
 			connection.setAutoCommit(false);
-			Savepoint sp = connection.setSavepoint();
+			//Savepoint sp = connection.setSavepoint();
 			pstmt = connection.prepareStatement(sql);
 			pstmt.setString(1, member.getEmail());
 			rs = pstmt.executeQuery();

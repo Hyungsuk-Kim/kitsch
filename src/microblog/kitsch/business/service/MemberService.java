@@ -83,9 +83,12 @@ public interface MemberService {
 	 */
 	public abstract boolean checkEmail(String email);
 	
-	public abstract Member[] getMembersAsRole(int role);
 	
 	public abstract void giveRole(Member administrator, String targetMemberName, int role) throws DataNotFoundException, IllegalDataException;
 	
 	public abstract boolean memberExistsByEmail(String email) throws DataNotFoundException;
+	
+	public abstract Member[] getMembersAsRole(int... roles) throws DataNotFoundException;
+
+	public abstract Member[] getMembersAsRole(int role);
 }

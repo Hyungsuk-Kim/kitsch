@@ -101,7 +101,7 @@ public class MemberServiceImpl implements MemberService {
 				if (memberDao.memberNameExists(targetMemberName)) {
 					Member targetMember = memberDao.selectMemberAsName(targetMemberName);
 					if (role == Member.SUPER_USER || role == Member.NORMAL_USER) {
-						targetMember.setRole(role);
+						memberDao.updateRole(targetMember.getEmail(), role);
 					}
 				} else {
 					throw new DataNotFoundException("등록되지 않은 회원입니다. [" + targetMemberName + "]");
@@ -145,6 +145,11 @@ public class MemberServiceImpl implements MemberService {
 			throw new DataNotFoundException("존재하지 않는 이메일 입니다. [" + email + "]");
 		}
 		return result;
+	}
+
+	@Override
+	public Member[] getMembersAsRole(int... roles) throws DataNotFoundException {
+		return this.getMemberDaoImplementation().selectMembersAsRole(roles).toArray(new Member[0]);
 	}
 	
 }

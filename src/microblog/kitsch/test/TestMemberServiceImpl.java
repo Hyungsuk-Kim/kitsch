@@ -8,6 +8,7 @@ import microblog.kitsch.business.service.MemberService;
 import microblog.kitsch.business.service.MemberServiceImpl;
 import microblog.kitsch.helper.DataDuplicatedException;
 import microblog.kitsch.helper.DataNotFoundException;
+import microblog.kitsch.helper.IllegalDataException;
 
 import static org.junit.Assert.*;
 
@@ -28,6 +29,7 @@ public class TestMemberServiceImpl {
 		memberService.registerMember(testMember);
 	}
 	
+	/*
 	@Test
 	public void testLogin() {
 		System.out.println("******* testLogin() *******");
@@ -127,6 +129,29 @@ public class TestMemberServiceImpl {
 		System.out.println(memberService.checkName("new member"));
 		assertFalse(memberService.checkName("Administrator"));
 		assertTrue(memberService.checkName("new member"));
+	}
+	*/
+	
+	@Test
+	public void testGiveRole() throws DataNotFoundException, IllegalDataException, DataDuplicatedException {
+		Member admin = memberService.findMemberByName("administrator");
+		Member testMember2 = new Member("test2@test.com", "test2", "test1234");
+		memberService.registerMember(testMember2);
+		memberService.giveRole(admin, testMember.getName(), Member.SUPER_USER);
+		
+		Member[] adminAccounts = memberService.getMembersAsRole(Member.ADMINISTRATOR);
+		assertEquals(4, adminAccounts.length);
+		
+		Member[] superUsers = memberService.getMembersAsRole(Member.SUPER_USER);
+		assertEquals(1, superUsers.length);
+		
+		Member[] normUsers = memberService.getMembersAsRole(Member.NORMAL_USER);
+		assertEquals(1, normUsers.length);
+		
+		Member[] AllUsers = memberService.getMembersAsRole(Member.ADMINISTRATOR, Member.SUPER_USER, Member.NORMAL_USER);
+		assertEquals(6, AllUsers.length);
+		
+		memberService.removeMember(testMember2);
 	}
 	
 	@After
