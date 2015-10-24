@@ -110,17 +110,18 @@ public class BlogServiceImpl implements BlogService {
 	}
 
 	@Override
-	public void following(Member member, String blogId) throws DataNotFoundException {
+	public void following(Member member, String blogName) throws DataNotFoundException {
 		System.out.println("BlogServiceImpl following()");
 		
 		MemberService memberService = this.getMemberServiceImplimentation();
 		BlogDao blogDao = null;
 		if (memberService.memberExistsByEmail(member.getEmail())) {
 			blogDao = this.getBlogDaoImplimentation();
-			if (blogDao.blogExistsById(blogId)) {
-				blogDao.addFollowing(member, blogId);
+			if (blogDao.blogExistsByName(blogName)) {
+				Blog blog = blogDao.selectBlogByName(blogName);
+				blogDao.addFollowing(member, blog.getBlogId());
 			} else {
-				throw new DataNotFoundException("존재하지 않는 블로그 정보입니다. [" + blogId + "]");
+				throw new DataNotFoundException("존재하지 않는 블로그 정보입니다. [" + blogName + "]");
 			}
 		} else {
 			throw new DataNotFoundException("존재하지 않는 회원정보입니다. [" + member.getName() + "]");
@@ -128,17 +129,18 @@ public class BlogServiceImpl implements BlogService {
 	}
 
 	@Override
-	public void unfollow(Member member, String blogId) throws DataNotFoundException {
+	public void unfollow(Member member, String blogName) throws DataNotFoundException {
 		System.out.println("BlogServiceImpl unfollow()");
 		
 		MemberService memberService = this.getMemberServiceImplimentation();
 		BlogDao blogDao = null;
 		if (memberService.memberExistsByEmail(member.getEmail())) {
 			blogDao = this.getBlogDaoImplimentation();
-			if (blogDao.blogExistsById(blogId)) {
-				blogDao.cancelFollowing(member, blogId);
+			if (blogDao.blogExistsByName(blogName)) {
+				Blog blog = blogDao.selectBlogByName(blogName);
+				blogDao.cancelFollowing(member, blog.getBlogId());
 			} else {
-				throw new DataNotFoundException("존재하지 않는 블로그 정보입니다. [" + blogId + "]");
+				throw new DataNotFoundException("존재하지 않는 블로그 정보입니다. [" + blogName + "]");
 			}
 		} else {
 			throw new DataNotFoundException("존재하지 않는 회원정보입니다. [" + member.getName() + "]");
@@ -204,24 +206,45 @@ public class BlogServiceImpl implements BlogService {
 	}
 
 	@Override
-	public void visitBlog(Member member, String blogId) throws DataNotFoundException {
+	public Blog visitBlog(Member member, String blogName) throws DataNotFoundException {
 		System.out.println("BlogServiceImpl visitBlog()");
+		
+		Blog blog = null;
 		
 		MemberService memberService = this.getMemberServiceImplimentation();
 		BlogDao blogDao = null;
 		if (memberService.memberExistsByEmail(member.getEmail())) {
 			blogDao = this.getBlogDaoImplimentation();
-			if (blogDao.blogExistsById(blogId)) {
-				Blog blog = blogDao.selectBlogById(blogId);
+			if (blogDao.blogExistsByName(blogName)) {
+				blog = blogDao.selectBlogByName(blogName);
 				if (!(member.getEmail()).equals(blog.getEmail())) {
-					blogDao.addVisitCount(blogId);
+					blogDao.addVisitCount(blog.getBlogId());
 				}
 			} else {
-				throw new DataNotFoundException("존재하지 않는 블로그 정보입니다. [" + blogId + "]");
+				throw new DataNotFoundException("존재하지 않는 블로그 정보입니다. [" + blogName + "]");
 			}
 		} else {
 			throw new DataNotFoundException("존재하지 않는 회원정보입니다. [" + member.getEmail() + "]");
 		}
+		
+		return blog;
+	}
+	
+	@Override
+	public Blog visitBlog(String blogName) throws DataNotFoundException {
+		System.out.println("BlogServiceImpl visitBlog()");
+		
+		Blog blog = null;
+		
+		BlogDao blogDao = this.getBlogDaoImplimentation();
+		if (blogDao.blogExistsByName(blogName)) {
+			blog = blogDao.selectBlogByName(blogName);
+			blogDao.addVisitCount(blog.getBlogId());
+		} else {
+			throw new DataNotFoundException("존재하지 않는 블로그 정보입니다. [" + blogName + "]");
+		}
+		
+		return blog;
 	}
 
 	@Override
@@ -252,6 +275,20 @@ public class BlogServiceImpl implements BlogService {
 			Blog[] blogs = this.getMemberBlogs(member);
 			for (Blog blog : blogs) {
 				blogDao.deleteBlog(blog);
+			}
+		} else {
+			throw new DataNotFoundException("존재하지 않는 회원정보입니다. [" + member.getEmail() + "]");
+		}
+	}
+
+	@Override
+	public boolean isFollowed(Member member, String blogName) throws DataNotFoundException {
+		if(this.getMemberServiceImplimentation().memberExistsByEmail(member.getEmail())) {
+			BlogDao blogDao = this.getBlogDaoImplimentation();
+			if (blogDao.blogExistsByName(blogName)) {
+				return blogDao.isFollowed(member, blogName);
+			} else {
+				throw new DataNotFoundException("존재하지 않는 블로그입니다. [" + blogName + "]");
 			}
 		} else {
 			throw new DataNotFoundException("존재하지 않는 회원정보입니다. [" + member.getEmail() + "]");

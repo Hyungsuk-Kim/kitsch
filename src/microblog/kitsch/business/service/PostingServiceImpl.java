@@ -224,4 +224,15 @@ public class PostingServiceImpl implements PostingService {
 		return this.getPosingDaoImplementation().selectReplyPostings(blog.getBlogId(), postingNum).toArray(new Posting[0]);
 	}
 
+	@Override
+	public boolean isLiked(Member member, String blogName, int postingNum) throws DataNotFoundException {
+		if (this.getMemberServiceImplementation().memberExistsByEmail(member.getEmail())) {
+			BlogService blogService = this.getBlogServiceImplementaion();
+			Blog blog = blogService.findBlogByName(blogName);
+			return this.getPosingDaoImplementation().isLiked(member, blog.getBlogId(), postingNum);
+		} else {
+			throw new DataNotFoundException("존재하지 않는 회원정보입니다. [" + member.getEmail() + "]");
+		}
+	}
+
 }

@@ -156,19 +156,87 @@ public class BlogController extends HttpServlet {
 	}
 	
 	private void manageBlog(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
+		HttpSession session = request.getSession(false);
+		if (session !=null) {
+			Member member = (Member) session.getAttribute("member");
+			if (member != null) {
+				
+			}
+		}
 	}
 	
-	private void followBlog(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	private void followBlog(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException{
+		String blogName = request.getParameter("blogName");
 		
+		HttpSession session = request.getSession(false);
+		if (session !=null) {
+			Member member = (Member) session.getAttribute("member");
+			if (member != null) {
+				BlogService blogService = this.getBlogServiceImplement();
+				if (!blogService.isFollowed(member, blogName)) {
+					blogService.following(member, blogName);
+					RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+					dispatcher.forward(request, response);
+					return;
+				}
+			}
+		}
+		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		dispatcher.forward(request, response);
 	}
 	
 	private void unfollowBlog(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+String blogName = request.getParameter("blogName");
 		
+		HttpSession session = request.getSession(false);
+		if (session !=null) {
+			Member member = (Member) session.getAttribute("member");
+			if (member != null) {
+				BlogService blogService = this.getBlogServiceImplement();
+				if (blogService.isFollowed(member, blogName)) {
+					blogService.unfollow(member, blogName);
+					RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+					dispatcher.forward(request, response);
+					return;
+				}
+			}
+		}
+		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		dispatcher.forward(request, response);
 	}
 	
-	private void visitBlog(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	private void visitBlog(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
+		String blogName = request.getParameter("blogName");
 		
+		BlogService blogService = this.getBlogServiceImplement();
+		Blog blog = null;
+		
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			Member member = (Member) session.getAttribute("member");
+			if (member == null) {
+				blog = blogService.visitBlog(blogName);
+				request.setAttribute("blog", blog);
+				RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+				dispatcher.forward(request, response);
+				return;
+			} else if (member != null) {
+				blog = blogService.visitBlog(member, blogName);
+				request.setAttribute("blog", blog);
+				RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+				dispatcher.forward(request, response);
+				return;
+			}
+			
+		} else if (session == null) {
+			blog = blogService.visitBlog(blogName);
+			request.setAttribute("blog", blog);
+			RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+			dispatcher.forward(request, response);
+			return;
+		}
+		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		dispatcher.forward(request, response);
 	}
 	
 	/**

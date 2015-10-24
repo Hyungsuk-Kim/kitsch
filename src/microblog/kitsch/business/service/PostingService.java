@@ -113,5 +113,6 @@ public interface PostingService {
 	
 	public abstract Posting[] getLikedPostings(Member member) throws DataNotFoundException;
 	public abstract Posting[] getReplies(String blogName, int postingNum) throws DataNotFoundException;
+	public abstract boolean isLiked(Member member, String blogName, int postingNum) throws DataNotFoundException;
 	
 }

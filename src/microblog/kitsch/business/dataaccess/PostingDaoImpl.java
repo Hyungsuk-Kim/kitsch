@@ -1656,4 +1656,32 @@ public class PostingDaoImpl implements PostingDao {
 		}
 	}
 
+	@Override
+	public boolean isLiked(Member member, String blogId, int postingNum) {
+		String sql = "SELECT * FROM likes WHERE email=? AND blog_id=? AND posting_num=?";
+		System.out.println("PostingDaoImpl isLikes() query : " + sql);
+		
+		boolean result = false;
+		
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		try {
+			connection = this.obtainConnection();
+			pstmt = connection.prepareStatement(sql);
+			pstmt.setString(1, member.getEmail());
+			pstmt.setString(2, blogId);
+			pstmt.setInt(3, postingNum);
+			rs = pstmt.executeQuery();
+			result = rs.next();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			this.closeResources(connection, pstmt, rs);
+		}
+		
+		return result;
+	}
+
 }

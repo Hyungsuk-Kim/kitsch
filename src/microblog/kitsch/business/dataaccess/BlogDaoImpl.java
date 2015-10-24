@@ -796,5 +796,32 @@ public class BlogDaoImpl implements BlogDao{
 		
 		return result;
 	}
+
+	@Override
+	public boolean isFollowed(Member member, String blogId) {
+		String sql = "SELECT * FROM follow WHERE email=? AND origin_blog_id=?";
+		System.out.println("BlogDaoImpl isFollowed() query : " + sql);
+		
+		boolean result = false;
+		
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+				
+		try {
+			connection = this.obtainConnection();
+			pstmt = connection.prepareStatement(sql);
+			pstmt.setString(1, member.getEmail());
+			pstmt.setString(2, blogId);
+			rs = pstmt.executeQuery();
+			result = rs.next();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			this.closeResources(connection, pstmt, rs);
+		}
+		
+		return result;
+	}
 	
 }

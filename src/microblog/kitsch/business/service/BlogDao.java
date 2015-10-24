@@ -22,4 +22,5 @@ public interface BlogDao {
 	public abstract void addVisitCount(String blogName);
 	public abstract void updateBlogName(String originBlogName, String newBlogName);
 	public abstract List<Blog> selectMemberBlogs(Member member);
+	public abstract boolean isFollowed(Member member, String blogId);
 }

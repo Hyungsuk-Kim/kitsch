@@ -26,4 +26,5 @@ public interface PostingDao {
 	public abstract List<Posting> selectLikedPostings(Member member);
 	public abstract List<Posting> selectReplyPostings(String blogId, int postingNum);
 	public abstract void insertReply(String blogId, Posting posting, int ref);
+	public abstract boolean isLiked(Member member, String blogId, int postingNum);
 }

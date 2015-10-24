@@ -51,7 +51,7 @@ public interface BlogService {
 	 * @param blogName 팔로잉할 블로그 명
 	 * @throws DataNotFoundException member 혹은 blogName 정보에 해당하는 객체가 존재하지 않을 경우 발생하는 Exception
 	 */
-	public abstract void following(Member member, String blogId) throws DataNotFoundException;
+	public abstract void following(Member member, String blogName) throws DataNotFoundException;
 	
 	/**
 	 * 인자로 받은 회원이 해당 블로그를 언팔로우 한다.
@@ -59,7 +59,7 @@ public interface BlogService {
 	 * @param blogName 언팔로우할 블로그 명
 	 * @throws DataNotFoundException member 혹은 blogName 정보에 해당하는 객체가 존재하지 않을 경우 발생하는 Exception
 	 */
-	public abstract void unfollow(Member member, String blogId) throws DataNotFoundException;
+	public abstract void unfollow(Member member, String blogName) throws DataNotFoundException;
 	
 	/**
 	 * 회원이 팔로우한 블로그의 목록을 조회한다.
@@ -85,7 +85,9 @@ public interface BlogService {
 	
 	public abstract void changeBlogName(Member member, String originBlogName, String newBlogName) throws DataNotFoundException, DataDuplicatedException, IllegalDataException;
 	
-	public abstract void visitBlog(Member member, String blogName) throws DataNotFoundException;
+	public abstract Blog visitBlog(Member member, String blogName) throws DataNotFoundException;
+
+	public abstract Blog visitBlog(String blogName) throws DataNotFoundException;
 	
 	public abstract boolean checkValidBlogName(String blogName);
 	
@@ -94,4 +96,6 @@ public interface BlogService {
 	public abstract void removeBlog(Member member) throws DataNotFoundException;
 
 	public abstract Blog findBlogById(String blogId) throws DataNotFoundException;
+	
+	public abstract boolean isFollowed(Member member, String blogName) throws DataNotFoundException;
 }
