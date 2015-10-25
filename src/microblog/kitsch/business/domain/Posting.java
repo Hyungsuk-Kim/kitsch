@@ -108,6 +108,15 @@ public class Posting implements Serializable {
 		this.postingType = postingType;
 		this.exposure = PUBLIC_ALLOW_REPLY_AND_NO_REBLOG;
 	}
+	
+	public Posting(String writer, PostingContent contents, int contentType, int exposure, int postingType) {
+		this.writer = writer;
+		this.contents = contents;
+		this.contentType = contentType;
+		this.regDate = new java.util.Date();
+		this.postingType = postingType;
+		this.exposure = exposure;
+	}
 
 	// Methods
 	@Override

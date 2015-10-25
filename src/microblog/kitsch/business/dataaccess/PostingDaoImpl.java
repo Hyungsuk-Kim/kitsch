@@ -761,21 +761,21 @@ public class PostingDaoImpl implements PostingDao {
 				blogId = rs.getString(1);
 				
 				if (selectAsContentType) {
-					whereSyntax = " WHERE content_type=?";
+					whereSyntax = " WHERE content_type=? AND posting_type=" + Posting.NORMAL_TYPE_POSTING;
 				} else if (searchType != null && searchType.trim().length() != 0) {
 					if (searchType.equals("all")) {
 						whereSyntax = " WHERE num IN (SELECT num FROM " + blogId + "_text WHERE LOWER(text_content) LIKE LOWER(?) ESCAPE '@') OR "
 											+ " num IN (SELECT num FROM " + blogId + "_mixed WHERE LOWER(text_content) LIKE LOWER(?) ESCAPE '@') OR "
-											+ " LOWER(title) LIKE LOWER(?) OR LOWER(writer) LIKE LOWER(?) OR LOWER(tags) LIKE LOWER(?) ESCAPE '@'";
+											+ " LOWER(title) LIKE LOWER(?) OR LOWER(writer) LIKE LOWER(?) OR LOWER(tags) LIKE LOWER(?) ESCAPE '@' AND posting_type=" + Posting.NORMAL_TYPE_POSTING;
 					} else if (searchType.equals("title")) {
-						whereSyntax = " WHERE LOWER(title) LIKE LOWER(?) ESCAPE '@'";
+						whereSyntax = " WHERE LOWER(title) LIKE LOWER(?) ESCAPE '@' AND posting_type=" + Posting.NORMAL_TYPE_POSTING;
 					} else if (searchType.equals("writer")) {
-						whereSyntax = " WHERE LOWER(writer) LIKE LOWER(?) ESCAPE '@'";
+						whereSyntax = " WHERE LOWER(writer) LIKE LOWER(?) ESCAPE '@' AND posting_type=" + Posting.NORMAL_TYPE_POSTING;
 					} else if (searchType.equals("contents")) {
 						whereSyntax = " WHERE num IN (SELECT num FROM " + blogId + "_text WHERE LOWER(text_content) LIKE LOWER(?) ESCAPE '@') OR "
-										+ " num IN (SELECT num FROM " + blogId + "_mixed WHERE LOWER(text_content) LIKE LOWER(?) ESCAPE '@')";
+										+ " num IN (SELECT num FROM " + blogId + "_mixed WHERE LOWER(text_content) LIKE LOWER(?) ESCAPE '@') AND posting_type=" + Posting.NORMAL_TYPE_POSTING;
 					} else if (searchType.equals("tags")) {
-						whereSyntax = " WHERE LOWER(tags) LIKE LOWER(?) ESCAPE '@'";
+						whereSyntax = " WHERE LOWER(tags) LIKE LOWER(?) ESCAPE '@' AND posting_type=" + Posting.NORMAL_TYPE_POSTING;
 					} else { /*return pList;*/ }
 				} else { /*return pList;*/ }
 			
@@ -1092,24 +1092,24 @@ public class PostingDaoImpl implements PostingDao {
 				blogId = rs.getString(1);
 				
 				if (selectAsContentType) {
-					whereSyntax = " WHERE content_type=?";
+					whereSyntax = " WHERE content_type=? AND posting_type=" + Posting.NORMAL_TYPE_POSTING;
 				} else if (!selectAsContentType) {
 					if (searchInfo.containsKey("blogName") && blogName != null && blogName.trim().length() != 0) {
-						specifyBlog = " AND table_name=?";
+						specifyBlog = " AND table_name=? AND posting_type=" + Posting.NORMAL_TYPE_POSTING;
 					}
 					if (searchType.equals("all")) {
 						whereSyntax = " WHERE num IN (SELECT num FROM " + blogId + "_text WHERE LOWER(text_content) LIKE LOWER(?) ESCAPE '@') OR "
 								+ "num IN (SELECT num FROM " + blogId + "_mixed WHERE LOWER(text_content) LIKE LOWER(?) ESCAPE '@') OR"
-								+ " LOWER(title) LIKE LOWER(?) OR LOWER(writer) LIKE LOWER(?) OR LOWER(tags) LIKE LOWER(?) ESCAPE '@'";
+								+ " LOWER(title) LIKE LOWER(?) OR LOWER(writer) LIKE LOWER(?) OR LOWER(tags) LIKE LOWER(?) ESCAPE '@' AND posting_type=" + Posting.NORMAL_TYPE_POSTING;
 					} else if (searchType.equals("title")) {
-						whereSyntax = " WHERE LOWER(title) LIKE LOWER(?) ESCAPE '@'";
+						whereSyntax = " WHERE LOWER(title) LIKE LOWER(?) ESCAPE '@' AND posting_type=" + Posting.NORMAL_TYPE_POSTING;
 					} else if (searchType.equals("writer")) {
-						whereSyntax = " WHERE LOWER(writer) LIKE LOWER(?) ESCAPE '@'";
+						whereSyntax = " WHERE LOWER(writer) LIKE LOWER(?) ESCAPE '@' AND posting_type=" + Posting.NORMAL_TYPE_POSTING;
 					} else if (searchType.equals("contents")) {
 						whereSyntax = " WHERE num IN (SELECT num FROM " + blogId + "_text WHERE LOWER(text_content) LIKE LOWER(?) ESCAPE '@') OR "
-										+ " num IN (SELECT num FROM " + blogId + "_mixed WHERE LOWER(text_content) LIKE LOWER(?) ESCAPE '@')";
+										+ " num IN (SELECT num FROM " + blogId + "_mixed WHERE LOWER(text_content) LIKE LOWER(?) ESCAPE '@') AND posting_type=" + Posting.NORMAL_TYPE_POSTING;
 					} else if (searchType.equals("tags")) {
-						whereSyntax = " WHERE LOWER(tags) LIKE LOWER(?) ESCAPE '@'";
+						whereSyntax = " WHERE LOWER(tags) LIKE LOWER(?) ESCAPE '@' AND posting_type=" + Posting.NORMAL_TYPE_POSTING;
 					} else { /*return selectedCount;*/ }
 				} else { /*return selectedCount;*/ }
 				

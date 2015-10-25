@@ -77,6 +77,10 @@ public class PostingContent implements Serializable{
 		this.filePaths = filePaths;
 	}
 	
+	public PostingContent() {
+		
+	}
+
 	// Methods
 	@Override
 	public String toString() {
