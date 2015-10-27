@@ -1,6 +1,7 @@
 package microblog.kitsch.web.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -102,7 +103,7 @@ public class PostingController extends HttpServlet {
     	
 		String blogName = request.getParameter("blogName");
 		String title = request.getParameter("title");
-		String writer = null;
+		//String writer = null;
 		int contentType = Integer.parseInt(request.getParameter("contentType"));
 		int exposure = Integer.parseInt(request.getParameter("exposure"));
 		String tags = request.getParameter("tags");
@@ -131,33 +132,48 @@ public class PostingController extends HttpServlet {
 	
 	private void writePostingForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = request.getSession(false);
-		if (session != null) {
-			if (session.getAttribute("member") != null) {
-				RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-				dispatcher.forward(request, response);
-				return;
-			}
-		}
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+    	if (session == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	Member member = (Member) session.getAttribute("member");
+    	if (member == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+		
+		RequestDispatcher dispatcher = request.getRequestDispatcher("");
 		dispatcher.forward(request, response);
 	}
 	
 	private void removePosting(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
+		HttpSession session = request.getSession(false);
+    	if (session == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	Member member = (Member) session.getAttribute("member");
+    	if (member == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+		
 		String blogName = request.getParameter("blogName");
 		int postingNum = Integer.parseInt(request.getParameter("postingNum"));
 		
-		HttpSession session = request.getSession(false);
-		if (session != null) {
-			Member member = (Member) session.getAttribute("member");
-			Blog blog = this.getBlogServiceImplement().findBlogByName(blogName);
-			if (blog.getEmail().equals(member.getEmail())) {
-				this.getPostingServiceImplement().removePosting(blogName, postingNum);
-				RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-				dispatcher.forward(request, response);
-				return;
-			}
+		ArrayList<String> errorMsgs = new ArrayList<String>();
+		
+		Blog blog = this.getBlogServiceImplement().findBlogByName(blogName);
+		if (!blog.getEmail().equals(member.getEmail())) {
+			errorMsgs.add("해당 블로그에 포스팅할 수 없습니다.");
+			request.setAttribute("errorMsgs", errorMsgs);
+			RequestDispatcher dispatcher = request.getRequestDispatcher("userError.jsp");
+			dispatcher.forward(request, response);
+			return;
 		}
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		this.getPostingServiceImplement().removePosting(blogName, postingNum);
+		
+		RequestDispatcher dispatcher = request.getRequestDispatcher(".list");
 		dispatcher.forward(request, response);
 	}
 	
@@ -202,110 +218,161 @@ public class PostingController extends HttpServlet {
 		dispatcher.forward(request, response);
 	}
 	
-	private void updatePostingForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	private void updatePostingForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
+		HttpSession session = request.getSession(false);
+    	if (session == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	Member member = (Member) session.getAttribute("member");
+    	if (member == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	
 		String blogName = request.getParameter("blogName");
 		int postingNum = Integer.parseInt(request.getParameter("postingNum"));
 		
-		HttpSession session = request.getSession(false);
-		if (session != null) {
-			if (session.getAttribute("member") != null) {
-				RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-				dispatcher.forward(request, response);
-				return;
-			}
-		}
+		Posting posting = this.getPostingServiceImplement().findPosting(blogName, postingNum);
+		
+		request.setAttribute("posting", posting);
 		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
 		dispatcher.forward(request, response);
 	}
 	
 	private void likeList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
 		HttpSession session = request.getSession(false);
-		if (session != null) {
-			Member member = (Member) session.getAttribute("member");
-			if (member != null) {
-				Posting[] likes = this.getPostingServiceImplement().getLikedPostings(member);
-				request.setAttribute("likes", likes);
-				RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-				dispatcher.forward(request, response);
-				return;
-			}
-		}
+    	if (session == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	Member member = (Member) session.getAttribute("member");
+    	if (member == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	
+		Posting[] likes = this.getPostingServiceImplement().getLikedPostings(member);
+		request.setAttribute("likes", likes);
+		
 		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
 		dispatcher.forward(request, response);
 	}
 	
 	private void addLike(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
+		HttpSession session = request.getSession(false);
+    	if (session == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	Member member = (Member) session.getAttribute("member");
+    	if (member == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+		
 		String blogName = request.getParameter("blogName");
 		int postingNum = Integer.parseInt(request.getParameter("postingNum"));
 		
-		HttpSession session = request.getSession(false);
-		if (session != null) {
-			Member member = (Member) session.getAttribute("member");
-			if (member != null) {
-				Blog blog = this.getBlogServiceImplement().findBlogByName(blogName);
-				if (!member.getEmail().equals(blog.getEmail())) {
-					PostingService postingService = this.getPostingServiceImplement();
-					if (!postingService.isLiked(member, blogName, postingNum)) {
-						postingService.addLikes(member, blogName, postingNum);
-						RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-						dispatcher.forward(request, response);
-						return;
-					}
-				}
-			}
+		Blog blog = this.getBlogServiceImplement().findBlogByName(blogName);
+		PostingService postingService = this.getPostingServiceImplement();
+		
+		ArrayList<String> errorMsgs = new ArrayList<String>();
+		
+		if (member.getEmail().equals(blog.getEmail())) {
+			errorMsgs.add("본인의 포스팅은 좋아요할 수 없습니다.");
 		}
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		if (postingService.isLiked(member, blogName, postingNum)) {
+			errorMsgs.add("이미 좋아요한 포스팅입니다.");
+		}
+		if (!errorMsgs.isEmpty()) {
+			RequestDispatcher dispatcher = request.getRequestDispatcher("userError.jsp");
+			dispatcher.forward(request, response);
+			return;
+		}
+		postingService.addLikes(member, blogName, postingNum);
+		
+		RequestDispatcher dispatcher = request.getRequestDispatcher(".list");
 		dispatcher.forward(request, response);
 	}
 	
-	private void cancelLike(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	private void cancelLike(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
+		HttpSession session = request.getSession(false);
+    	if (session == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	Member member = (Member) session.getAttribute("member");
+    	if (member == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+		
 		String blogName = request.getParameter("blogName");
 		int postingNum = Integer.parseInt(request.getParameter("postingNum"));
 		
-		HttpSession session = request.getSession(false);
-		if (session != null) {
-			Member member = (Member) session.getAttribute("member");
-			if (member != null) {
-				Blog blog = this.getBlogServiceImplement().findBlogByName(blogName);
-				if (!member.getEmail().equals(blog.getEmail())) {
-					PostingService postingService = this.getPostingServiceImplement();
-					if (postingService.isLiked(member, blogName, postingNum)) {
-						postingService.cancelLikes(member, blogName, postingNum);
-						RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-						dispatcher.forward(request, response);
-						return;
-					}
-				}
-			}
+		Blog blog = this.getBlogServiceImplement().findBlogByName(blogName);
+		PostingService postingService = this.getPostingServiceImplement();
+		
+		ArrayList<String> errorMsgs = new ArrayList<String>();
+		
+		if (member.getEmail().equals(blog.getEmail())) {
+			errorMsgs.add("본인의 포스팅은 좋아요 취소할 수 없습니다.");
 		}
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		if (!postingService.isLiked(member, blogName, postingNum)) {
+			errorMsgs.add("좋아요 추가되지 않은 포스팅입니다.");
+		}
+		if (!errorMsgs.isEmpty()) {
+			RequestDispatcher dispatcher = request.getRequestDispatcher("userError.jsp");
+			dispatcher.forward(request, response);
+			return;
+		}
+		postingService.addLikes(member, blogName, postingNum);
+		
+		RequestDispatcher dispatcher = request.getRequestDispatcher(".list");
 		dispatcher.forward(request, response);
 	}
 	
-	private void reblog(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	private void reblog(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
+		HttpSession session = request.getSession(false);
+    	if (session == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	Member member = (Member) session.getAttribute("member");
+    	if (member == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+		
 		String blogName = request.getParameter("blogName");
 		int postingNum = Integer.parseInt(request.getParameter("postingNum"));
 		String targetBlog = request.getParameter("targetBlog");
 		
-		HttpSession session = request.getSession(false);
-		if (session != null) {
-			Member member = (Member) session.getAttribute("member");
-			if (member != null) {
-				Blog blog = this.getBlogServiceImplement().findBlogByName(blogName);
-				if (!member.getEmail().equals(blog.getEmail())) {
-					Blog target = this.getBlogServiceImplement().findBlogByName(targetBlog);
-					if (target.getEmail().equals(member.getEmail())) {
-						PostingService postingService = this.getPostingServiceImplement();
-						
-						postingService.reblog(member, blogName, postingNum, targetBlog);
-						RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-						dispatcher.forward(request, response);
-						return;
-					}
-				}
-			}
+		ArrayList<String> errorMsgs = new ArrayList<String>();
+		
+		PostingService postingService = this.getPostingServiceImplement();
+		BlogService blogService = this.getBlogServiceImplement();
+		
+		Blog blog = blogService.findBlogByName(blogName);
+		Blog target = blogService.findBlogByName(targetBlog);
+		
+		if (blog.getEmail().equals(member.getEmail())) {
+			errorMsgs.add("본인의 포스팅은 리블로그할 수 없습니다.");
 		}
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		if (!target.getEmail().equals(member.getEmail())) {
+			errorMsgs.add("블로그에 포스팅할 수 없습니다. [" + targetBlog + "]");
+		}
+		if (!errorMsgs.isEmpty()) {
+			request.setAttribute("errorMsgs", errorMsgs);
+			RequestDispatcher dispatcher = request.getRequestDispatcher("userError.jsp");
+			dispatcher.forward(request, response);
+			return;
+		}
+		
+		postingService.reblog(member, blogName, postingNum, targetBlog);
+		
+		RequestDispatcher dispatcher = request.getRequestDispatcher(".list");
 		dispatcher.forward(request, response);
 	}
 	
