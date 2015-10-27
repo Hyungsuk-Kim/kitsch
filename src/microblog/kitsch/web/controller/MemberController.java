@@ -1,6 +1,7 @@
 package microblog.kitsch.web.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -37,7 +38,7 @@ public class MemberController extends HttpServlet {
 		String action = request.getParameter("action");
 		
 		try {
-			if (action.equals("signUp")) {
+			if (action.equals("register")) {
 				this.signUp(request, response);
 			} else if (action.equals("signIn")) {
 				this.signIn(request, response);
@@ -49,24 +50,39 @@ public class MemberController extends HttpServlet {
 				this.memberProfile(request, response);
 			} else if (action.equals("update")) {
 				this.updateMember(request, response);
-			} else if (action.equals("management")) {
-				this.managementMember(request, response);
-			} else if (action.equals("privilege")) {
-				this.changeMemberRole(request, response);
+			} else if (action.equals("editProfile")) {
+				this.editProfile(request, response);
 			}
 		} catch (DataNotFoundException dne) {
 			throw new ServletException(dne);
 		} catch (DataDuplicatedException dde) {
 			throw new ServletException(dde);
-		} catch (IllegalDataException ide) {
-			throw new ServletException(ide);
 		}
 	}
 	
-	private void signUp(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataDuplicatedException {
+	private void signUp(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataDuplicatedException, DataNotFoundException {
 		String email = request.getParameter("email");
 		String name = request.getParameter("name");
 		String password = request.getParameter("password");
+		
+		ArrayList<String> errorMsgs = new ArrayList<String>();
+		if (email == null || email.trim().length() == 0) {
+			errorMsgs.add("이메일을 입력해 주세요.");
+		} else if (name == null || name.trim().length() == 0) {
+			errorMsgs.add("이름을 입력해 주세요.");
+		} else if (name.trim().length() > 12 || name.trim().length() < 2) {
+			errorMsgs.add("이름은 2 ~ 12 글자 사이의 값으로 입력해 주세요.");
+		} else if (password == null || password.trim().length() == 0) {
+			errorMsgs.add("패스워드를 입력해 주세요.");
+		} else if (password.trim().length() > 16 || password.trim().length() < 8) {
+			errorMsgs.add("패스워드는 8 ~ 16 글자 사이의 값으로 입력해 주세요.");
+		}
+		if (!errorMsgs.isEmpty()) {
+			request.setAttribute("errorMsgs", errorMsgs);
+			RequestDispatcher dispatcher = request.getRequestDispatcher("userError.jsp");
+			dispatcher.forward(request, response);
+			return;
+		}
 		
 		Member member = new Member(email, name, password);
 		
@@ -75,13 +91,15 @@ public class MemberController extends HttpServlet {
 		Member signedMember = memberService.findMemberByEmail(member.getEmail());
 		
 		request.getSession(true).setAttribute("member", signedMember);
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		RequestDispatcher dispatcher = request.getRequestDispatcher("dashboard?action=initialize");
 		dispatcher.forward(request, response);
 	}
 	
 	private void signIn(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
 		String email = request.getParameter("email");
 		String password = request.getParameter("password");
+		
+		ArrayList<String> errorMsgs = new ArrayList<String>();
 		
 		Member member = this.getMemberServiceImplement().loginCheck(email, password);
 		int check = member.getCheck();
@@ -90,21 +108,25 @@ public class MemberController extends HttpServlet {
 			
 			Blog[] memberBlogs = this.getBlogServiceImplement().getMemberBlogs(member);
 			if (memberBlogs.length == 0) {
-				RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+				RequestDispatcher dispatcher = request.getRequestDispatcher("dashboard?action=initialize");
 				dispatcher.forward(request, response);
 				return;
 			} else {
 				request.getSession(false).setAttribute("memberBlogs", memberBlogs);
-				RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+				RequestDispatcher dispatcher = request.getRequestDispatcher("dashboard?action=main");
 				dispatcher.forward(request, response);
 				return;
 			}
 		} else if (check == Member.INVALID_EMAIL) {
-			request.setAttribute("signInErrorMsg", "등록되지 않은 이메일입니다.");
+			errorMsgs.add("존재하지 않는 이메일입니다.");
 		} else if (check == Member.INVALID_PASSWORD) {
-			request.setAttribute("signInErrorMsg", "비밀번호가 일치하지 않습니다.");
+			errorMsgs.add("패스워드가 일치하지 않습니다.");
 		}
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		if (!errorMsgs.isEmpty()) {
+			request.setAttribute("errorMsgs", errorMsgs);
+		}
+		
+		RequestDispatcher dispatcher = request.getRequestDispatcher("userError.jsp");
 		dispatcher.forward(request, response);
 	}
 	
@@ -116,132 +138,91 @@ public class MemberController extends HttpServlet {
 			session.invalidate();
 		}
 
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
 		dispatcher.forward(request, response);
 	}
 	
 	private void removeMember(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
 		HttpSession session = request.getSession(false);
+    	if (session == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	Member member = (Member) session.getAttribute("member");
+    	if (member == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
 		
-		Member member = null;
-		if (session != null) {
-			member = (Member) session.getAttribute("member");
-			if (member != null) {
-				this.getMemberServiceImplement().removeMember(member);
-				RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-				dispatcher.forward(request, response);
-				return;
-			}
-		}
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+    	this.getMemberServiceImplement().removeMember(member);
+    	session.removeAttribute("member");
+    	session.invalidate();
+    	
+		RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
 		dispatcher.forward(request, response);
 	}
 	
 	private void updateMember(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
 		HttpSession session = request.getSession(false);
+    	if (session == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	Member member = (Member) session.getAttribute("member");
+    	if (member == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
 		
 		String name = request.getParameter("name");
 		String password = request.getParameter("password");
 		String profileImage = request.getParameter("profileImage");
 		
-		if (session != null) {
-			Member member = (Member) session.getAttribute("member");
-			if (member != null) {
-				MemberService memberService = this.getMemberServiceImplement();
-				member = memberService.findMemberByEmail(member.getEmail());
-				if (name != null) { member.setName(name); }
-				if (password != null) { member.setPassword(password); }
-				if (profileImage != null) { member.setProfileImage(profileImage); }
-				memberService.updateMember(member);
-				session.removeAttribute("member");
-				session.setAttribute("member", member);
-				RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-				dispatcher.forward(request, response);
-				return;
-			}
-		}
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-		dispatcher.forward(request, response);
-	}
-	
-	private void changeMemberRole(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException, IllegalDataException {
-		HttpSession session = request.getSession(false);
-		
-		String targetMemberName = request.getParameter("targetMemberName");
-		String role = request.getParameter("privilege");
-		
-		if (session != null) {
-			Member admin = (Member) session.getAttribute("member");
-			if (admin.getRole() == Member.ADMINISTRATOR) {
-				this.getMemberServiceImplement().giveRole(admin, targetMemberName, Integer.parseInt(role));
-				RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-				dispatcher.forward(request, response);
-				return;
-			}
-		}
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		MemberService memberService = this.getMemberServiceImplement();
+		member = memberService.findMemberByEmail(member.getEmail());
+		if (name != null) { member.setName(name); }
+		if (password != null) { member.setPassword(password); }
+		if (profileImage != null) { member.setProfileImage(profileImage); }
+		memberService.updateMember(member);
+		session.removeAttribute("member");
+		session.setAttribute("member", member);
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/member/profile.jsp");
 		dispatcher.forward(request, response);
 	}
 	
 	private void memberProfile(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
 		HttpSession session = request.getSession(false);
+    	if (session == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	Member member = (Member) session.getAttribute("member");
+    	if (member == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
 		
-		if (session != null) {
-			Member member = (Member) session.getAttribute("member");
-			if (member != null) {
-				member = this.getMemberServiceImplement().findMemberByEmail(member.getEmail());
-				
-				request.setAttribute("member", member);
-				
-				RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-				dispatcher.forward(request, response);
-				return;
-			}
-		}
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		request.setAttribute("member", member);
+		
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/member/profile.jsp");
 		dispatcher.forward(request, response);
 	}
 	
-	private void managementMember(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	private void editProfile(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
 		HttpSession session = request.getSession(false);
-		String[] privileges = request.getParameterValues("privilege");
-		int[] roles = new int[privileges.length];
+    	if (session == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	Member member = (Member) session.getAttribute("member");
+    	if (member == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
 		
-		if (privileges == null) { return; }
+		request.setAttribute("member", member);
 		
-		for (int i = 0; i < privileges.length; i++) {
-			if (privileges[i].equals("administrator")) { roles[i] = Member.ADMINISTRATOR; }
-			else if (privileges[i].equals("superuser")) { roles[i] = Member.SUPER_USER; }
-			else if (privileges[i].equals("normaluser")) { roles[i] = Member.NORMAL_USER; }
-		}
-		
-		if (session != null) {
-			Member admin = (Member) session.getAttribute("member");
-			if (admin.getRole() == Member.ADMINISTRATOR) {
-				MemberService memberService = this.getMemberServiceImplement();
-				Member[] administrators = null;
-				Member[] superUsers = null;
-				Member[] normalUsers = null;
-				for (int role : roles) {
-					if (role == Member.ADMINISTRATOR) { 
-						administrators = memberService.getMembersAsRole(role);
-						request.setAttribute("administrators", administrators);
-					}
-					else if (role == Member.SUPER_USER) { 
-						superUsers = memberService.getMembersAsRole(role);
-						request.setAttribute("superUsers", superUsers);
-					}
-					else if (role == Member.NORMAL_USER) { 
-						normalUsers = memberService.getMembersAsRole(role);
-						request.setAttribute("normalUsers", normalUsers);
-					}
-				}
-				RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-				dispatcher.forward(request, response);
-				return;
-			}
-		}
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/member/editProfile.jsp");
 		dispatcher.forward(request, response);
 	}
 	

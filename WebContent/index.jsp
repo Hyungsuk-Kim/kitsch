@@ -12,14 +12,14 @@
 	<header>
 		<nav>
 			<ul>
-				<li><a href="#">HOME</a></li>
+				<li><a href="#home">HOME</a></li>
 				<li><a href="#">둘러보기</a></li>
 				<li><a href="#">회원가입</a></li>
 			</ul>
 		</nav>
 	</header>
 	<section id="home">
-		<img src="image/logo.png" alt="kitsch logo" /><br />
+		<img src="images/logo.png" alt="kitsch logo" /><br />
 		<form id="slick-login" action="member?action=register" method="POST">
 
 			<c:if test="${not empty errorMsgs}">
@@ -36,17 +36,18 @@
 				<label for="username">name</label>
 			<input type="text" name="name" id="name" class="placeholder" onkeyup="namechecked()" placeholder="닉네임">
 			<span id="namecheckLayer"></span>
+			
 			<label for="password">password</label> 
-			<input type="password" id="password" onkeyup="passwordcheck()"
-				name="password" class="placeholder" placeholder="비밀번호"> <span id="passwordcheckLayer"></span>
+			<input type="password" id="password" onkeyup="passwordcheck()" name="password" class="placeholder" placeholder="비밀번호">
+			<span id="passwordcheckLayer"></span>
 				
-			<input type="password" id="chkpassword" onkeyup="chkpasswordcheck()"
-				name="chkpassword" class="placeholder" placeholder="비밀번호 확인"><span id="chkpasswordcheckLayer"></span>
-				<input type="submit" id="join" value="회원가입"> <input type="hidden"
-				name="${errorMsgs}" value="${errorMsgs}" />
+			<input type="password" id="chkpassword" onkeyup="chkpasswordcheck()" name="chkpassword" class="placeholder" placeholder="비밀번호 확인">
+			<span id="chkpasswordcheckLayer"></span>
+			<input type="submit" id="join" value="회원가입">
+			<input type="hidden" name="${errorMsgs}" value="${errorMsgs}" />
 
 		</form>
-		<br /> <br /> <br /> <a href="blogMain.jsp">Kitsch 둘러보기</a>
+		<br /> <br /> <br /> <a href="explore?action=trend">Kitsch 둘러보기</a>
 	</section>
 	<%--
 	<section>

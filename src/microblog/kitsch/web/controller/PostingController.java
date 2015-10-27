@@ -85,14 +85,21 @@ public class PostingController extends HttpServlet {
 			}
 		} catch (DataNotFoundException dne) {
 			throw new ServletException(dne);
-		} catch (DataDuplicatedException dde) {
-			throw new ServletException(dde);
-		} catch (IllegalDataException ide) {
-			throw new ServletException(ide);
 		}
 	}
 	
 	private void writePosting(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
+		HttpSession session = request.getSession(false);
+    	if (session == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	Member member = (Member) session.getAttribute("member");
+    	if (member == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	
 		String blogName = request.getParameter("blogName");
 		String title = request.getParameter("title");
 		String writer = null;
@@ -104,33 +111,21 @@ public class PostingController extends HttpServlet {
 		String textContent = request.getParameter("textContent");
 		String fileContents = request.getParameter("fileContents");
 		
-		HttpSession session = request.getSession(false);
-		if (session != null) {
-			Member member = (Member) session.getAttribute("member");
-			if (member != null) {
-				member = this.getMemberServiceImplement().findMemberByEmail(member.getEmail());
-				Blog blog = this.getBlogServiceImplement().findBlogByName(blogName);
-				
-				PostingContent pContent = new PostingContent();
-				if (contentType == PostingContent.TEXT_CONTENT) {
-					pContent.setTextContent(textContent);
-				} else if (contentType / 100 == PostingContent.MIXED_TYPE_CONTENT) {
-					pContent.setFilePaths(KitschUtil.convertToStringArray(fileContents, Posting.PATH_DELIMITER, false));
-					pContent.setTextContent(textContent);
-				} else if (contentType / 100 == PostingContent.SINGLE_TYPE_CONTENT) {
-					pContent.setFilePaths(KitschUtil.convertToStringArray(fileContents, Posting.PATH_DELIMITER, false));
-				}
-				
-				Posting newPosting = new Posting(title, member.getName(), pContent, contentType, exposure, tags,  postingType, reblogOption);
-				
-				this.getPostingServiceImplement().writePosting(blogName, newPosting);
-				
-				RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-				dispatcher.forward(request, response);
-				return;
-			}
+		PostingContent pContent = new PostingContent();
+		if (contentType == PostingContent.TEXT_CONTENT) {
+			pContent.setTextContent(textContent);
+		} else if (contentType / 100 == PostingContent.MIXED_TYPE_CONTENT) {
+			pContent.setFilePaths(KitschUtil.convertToStringArray(fileContents, Posting.PATH_DELIMITER, false));
+			pContent.setTextContent(textContent);
+		} else if (contentType / 100 == PostingContent.SINGLE_TYPE_CONTENT) {
+			pContent.setFilePaths(KitschUtil.convertToStringArray(fileContents, Posting.PATH_DELIMITER, false));
 		}
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		
+		Posting newPosting = new Posting(title, member.getName(), pContent, contentType, exposure, tags,  postingType, reblogOption);
+		
+		this.getPostingServiceImplement().writePosting(blogName, newPosting);
+				
+		RequestDispatcher dispatcher = request.getRequestDispatcher(".list");
 		dispatcher.forward(request, response);
 	}
 	
