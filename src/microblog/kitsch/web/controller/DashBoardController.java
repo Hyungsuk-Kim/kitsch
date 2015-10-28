@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
 import microblog.kitsch.business.domain.Member;
+import microblog.kitsch.business.domain.Posting;
 import microblog.kitsch.business.service.BlogService;
 import microblog.kitsch.business.service.BlogServiceImpl;
 import microblog.kitsch.business.service.PostingService;
@@ -42,6 +42,26 @@ public class DashBoardController extends HttpServlet {
 				this.initSetting(request, response);
 			} else if (action.equals("main")) {
 				this.dashboard(request, response);
+			} else if (action.equals("text")) {
+				this.writeTextPosting(request, response);
+			} else if (action.equals("video")) {
+				this.writeVideoPosting(request, response);
+			} else if (action.equals("audio")) {
+				this.writeAudioPosting(request, response);
+			} else if (action.equals("image")) {
+				this.writeImagePosting(request, response);
+			} else if (action.equals("blog")) {
+				this.visitBlog(request, response);
+			} else if (action.equals("edit")) {
+				
+			} else if (action.equals("like")) {
+				
+			} else if (action.equals("remove")) {
+				
+			} else if (action.equals("follow")) {
+				
+			} else if (action.equals("unfollow")) {
+				
 			}
 		} catch (DataNotFoundException dne) {
 			throw new ServletException(dne);
@@ -65,7 +85,7 @@ public class DashBoardController extends HttpServlet {
     	}
     	
     	request.setAttribute("member", member);
-    	RequestDispatcher dispatcher = request.getRequestDispatcher("WEB-INF/views/dashboard/createBlog.jsp");
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/dashboard/createBlog.jsp");
     	dispatcher.forward(request, response);
 	}
 
@@ -86,8 +106,11 @@ public class DashBoardController extends HttpServlet {
     	int endRow = Integer.parseInt(request.getParameter("endRow"));
     	
     	PostingService postingService = this. getPostingServiceImplementation();
-    	postingService.getRelativePostings(member, startRow, endRow);
+    	Posting[] postings= postingService.getRelativePostings(member, startRow, endRow);
     	
+    	request.setAttribute("postings", postings);
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/dashboard/main.jsp");
+    	dispatcher.forward(request, response);
 	}
 
 	/**
