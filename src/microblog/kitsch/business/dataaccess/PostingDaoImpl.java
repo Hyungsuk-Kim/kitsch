@@ -21,13 +21,13 @@ public class PostingDaoImpl implements PostingDao {
 										+ "reply_count, posting_type, reblog_count, reblog_option ";
 	
 	private Connection obtainConnection() throws SQLException {
-    	return DatabaseUtil_old.getConnection();
-    	//return DatabaseUtil.getConnection();
+    	//return DatabaseUtil_old.getConnection();
+    	return DatabaseUtil.getConnection();
     }
 	
 	private void closeResources(Connection connection, Statement stmt, ResultSet rs){
-		DatabaseUtil_old.close(connection, stmt, rs);
-		//DatabaseUtil.close(connection, stmt, rs);
+		//DatabaseUtil_old.close(connection, stmt, rs);
+		DatabaseUtil.close(connection, stmt, rs);
 	}
 	
 	private void closeResources(Connection connection, Statement stmt){
@@ -1684,4 +1684,493 @@ public class PostingDaoImpl implements PostingDao {
 		return result;
 	}
 
+	@Override
+	public List<Posting> selectRelativePostings(Member member, int startRow, int endRow) {
+		List<Posting> pList = new ArrayList<Posting>();
+		Posting selectedPosting = null;
+		PostingContent pContent = null;
+		
+		String query1 = "CREATE TABLE search_dump ("
+				+ "temp_num INTEGER,"
+				+ "num INTEGER,"
+				+ "title VARCHAR2(420),"
+				+ "writer VARCHAR2(60) NOT NULL,"
+				+ "content_type NUMBER(3) NOT NULL,"
+				+ "read_count NUMBER(10) DEFAULT 0,"
+				+ "reg_date DATE,"
+				+ "likes INTEGER DEFAULT 0,"
+				+ "exposure NUMBER(1),"
+				+ "tags VARCHAR2(4000),"
+				+ "ref INTEGER NOT NULL,"
+				+ "reply_step INTEGER DEFAULT 0,"
+				+ "reply_depth INTEGER DEFAULT 0,"
+				+ "reply_count INTEGER DEFAULT 0,"
+				+ "posting_type NUMBER(1),"
+				+ "reblog_count INTEGER DEFAULT 0,"
+				+ "reblog_option NUMBER(1),"
+				+ "PRIMARY KEY(temp_num),"
+				+ "CHECK(content_type IN("
+				+ PostingContent.TEXT_CONTENT + ", "
+				+ PostingContent.MIXED_AUDIO_FILE_CONTENT + ", "
+				+ PostingContent.MIXED_AUDIO_LINK_CONTENT + ", "
+				+ PostingContent.MIXED_IMAGE_FILE_CONTENT + ", "
+				+ PostingContent.MIXED_IMAGE_LINK_CONTENT + ", "
+				+ PostingContent.MIXED_VIDEO_FILE_CONTENT + ", "
+				+ PostingContent.MIXED_VIDEO_LINK_CONTENT + ", "
+				+ PostingContent.SINGLE_AUDIO_FILE_CONTENT +", "
+				+ PostingContent.SINGLE_AUDIO_LINK_CONTENT +", "
+				+ PostingContent.SINGLE_IMAGE_FILE_CONTENT +", "
+				+ PostingContent.SINGLE_IMAGE_LINK_CONTENT +", "
+				+ PostingContent.SINGLE_VIDEO_FILE_CONTENT +", "
+				+ PostingContent.SINGLE_VIDEO_LINK_CONTENT + ")),"
+				+ "CHECK(exposure IN(" 
+				+ Posting.PUBLIC_ALLOW_BOTH_REPLY_AND_REBLOG + ", "
+				+ Posting.PUBLIC_ALLOW_REPLY_AND_NO_REBLOG + ", "
+				+ Posting.PUBLIC_NO_REPLY_AND_ALLOW_REBLOG + ", "
+				+ Posting.PUBLIC_NO_REPLY_NO_REBLOG + ", "
+				+ Posting.PRIVATE + ")),"
+				+ "CHECK(posting_type IN("
+				+ Posting.NORMAL_TYPE_POSTING + ", "
+				+ Posting.REPLY_TYPE_POSTING + ", "
+				+ Posting.QNA_TYPE_POSTING + ")),"
+				+ "CHECK(reblog_option IN("
+				+ Posting.NOTHING + ", "
+				+ Posting.ON_DELETE_CASCADE + ", "
+				+ Posting.ON_UPDATE_CASCADE + ", "
+				+ Posting.SET_NULL + ", "
+				+ Posting.ON_UPDATE_AND_DELETE_CASCADE + "))"
+			+")";
+		String query2 = "CREATE SEQUENCE search_dump_num_seq START with 1 INCREMENT BY 1";
+		
+		String query3 = "CREATE TABLE search_dump_mixed ("
+				+ "temp_num INTEGER,"
+				+ "num INTEGER,"
+				+ "text_content VARCHAR2(4000),"
+				+ "file_paths VARCHAR2(4000),"
+				+ "PRIMARY KEY(temp_num))";
+		
+		String query4 = "CREATE TABLE search_dump_single ("
+				+ "temp_num INTEGER,"
+				+ "num INTEGER,"
+				+ "file_paths VARCHAR2(4000),"
+				+ "PRIMARY KEY(temp_num))";
+		
+		String query5 = "CREATE TABLE search_dump_text ("
+				+ "temp_num INTEGER,"
+				+ "num INTEGER,"
+				+ "text_content VARCHAR2(4000),"
+				+ "PRIMARY KEY(temp_num))";
+		
+		String query6 = "DROP TABLE search_dump";
+		String query7 = "DROP TABLE search_dump_mixed";
+		String query8 = "DROP TABLE search_dump_text";
+		String query9 = "DROP TABLE search_dump_single";
+		String query10 = "DROP SEQUENCE search_dump_num_seq";
+		
+		String sql = "SELECT blog_id FROM blog WHERE email=?";
+		
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		PreparedStatement pstmt2 = null;
+		PreparedStatement pstmt3 = null;
+		PreparedStatement pstmt4 = null;
+		PreparedStatement pstmt5 = null;
+		ResultSet rs = null;
+		ResultSet rs2 = null;
+		ResultSet rs3 = null;
+		ResultSet rs4 = null;
+		
+		try {
+			connection = this.obtainConnection();
+			connection.setAutoCommit(false);
+			
+			pstmt = connection.prepareStatement(query1);
+			System.out.println("PostingDaoImpl selectRelativePostings() first query : " + query1);
+			pstmt.executeUpdate();
+			pstmt.close();
+			
+			pstmt = connection.prepareStatement(query2);
+			System.out.println("PostingDaoImpl selectRelativePostings() second query : " + query2);
+			pstmt.executeUpdate();
+			pstmt.close();
+			
+			pstmt = connection.prepareStatement(query3);
+			System.out.println("PostingDaoImpl selectRelativePostings() third query : " + query3);
+			pstmt.executeUpdate();
+			pstmt.close();
+			
+			pstmt = connection.prepareStatement(query4);
+			System.out.println("PostingDaoImpl selectRelativePostings() fourth query : " + query4);
+			pstmt.executeUpdate();
+			pstmt.close();
+			
+			pstmt = connection.prepareStatement(query5);
+			System.out.println("PostingDaoImpl selectRelativePostings() fifth query : " + query5);
+			pstmt.executeUpdate();
+			pstmt.close();
+			
+			pstmt = connection.prepareStatement(sql);
+			System.out.println("PostingDaoimpl selectRelativePostings() sixth query : " + sql);
+			pstmt.setString(1, member.getEmail());
+			rs = pstmt.executeQuery();
+			
+			while (rs.next()) {
+				String blogId = rs.getString("blog_id");
+				/*int tempNum = 0;
+				
+				String sql2 = "SELECT search_dump_num_seq.NEXTVAL FROM dual";
+				System.out.println("PostingDaoImpl selectRelativePostings() seventh query : " + sql2);
+				pstmt2 = connection.prepareStatement(sql2);
+				rs2 = pstmt2.executeQuery();
+				
+				if (rs2.next()) {
+					tempNum = rs2.getInt(1);
+				}
+				rs2.close();
+				pstmt2.close();*/
+				
+				/*String sql3 = "INSERT INTO search_dump (temp_num, " + ALL_COLUMNS + ")"
+						+ "SELECT " + tempNum + ", " + ALL_COLUMNS + " FROM " + blogId;*/
+				String sql3 = "SELECT * FROM " + blogId;
+				System.out.println("PostingDaoImpl selectRelativePostings() eighth query : " + sql3);
+				
+				pstmt2 = connection.prepareStatement(sql3);
+				rs2 = pstmt2.executeQuery();
+				
+				while (rs2.next()) {
+					int num = rs2.getInt("num");
+					String title = rs2.getString("title");
+					String writer = rs2.getString("writer");
+					int contentType = rs2.getInt("content_type");
+					int readCount = rs2.getInt("read_count");
+					java.util.Date regDate = KitschUtil.convertDateSqlToUtil(rs2.getDate("reg_date"));
+					int likes = rs2.getInt("likes");
+					int exposure = rs2.getInt("exposure");
+					String tags = rs2.getString("tags");
+					int ref = rs2.getInt("ref");
+					int replyStep = rs2.getInt("reply_step");
+					int replyDepth = rs2.getInt("reply_depth");
+					int replyCount = rs2.getInt("reply_count");
+					int postingType = rs2.getInt("posting_type");
+					int reblogCount = rs2.getInt("reblog_count");
+					int reblogOption = rs2.getInt("reblog_option");
+					
+					String contentTable = this.getContentTable(contentType, blogId);
+					String sql4 = "SELECT * FROM " + contentTable + " WHERE num=?";
+					System.out.println("PostingDaoImpl selectRelativePostings() ninth query : " + sql4);
+					pstmt3 = connection.prepareStatement(sql3);
+					pstmt3.setInt(1, num);
+					rs3 = pstmt3.executeQuery();
+					
+					while (rs3.next()) {
+						int pNum = rs3.getInt("num");
+						if (contentTable.equals(blogId + "_mixed")) {
+							String textContents = rs3.getString("text_content");
+							String filePaths = rs3.getString("file_paths");
+							pContent = new PostingContent(pNum, textContents, KitschUtil.convertToStringArray(filePaths, Posting.PATH_DELIMITER, false));
+						} else if (contentTable.equals(blogId + "_single")) {
+							String filePaths = rs3.getString("file_paths");
+							pContent = new PostingContent(pNum, KitschUtil.convertToStringArray(filePaths, Posting.PATH_DELIMITER, false));
+						} else if (contentTable.equals(blogId + "_text")) {
+							String textContent = rs3.getString("text_content");
+							pContent = new PostingContent(pNum, textContent);
+						}
+						String insertQuery1 = "SELECT search_dump_num_seq.NEXTVAL FROM dual";
+						System.out.println("PostingDaoImpl selectRelativePostings() tenth query : " + insertQuery1);
+						pstmt4 = connection.prepareStatement(insertQuery1);
+						rs4 = pstmt4.executeQuery();
+						if (rs4.next()) {
+							int seqNum = rs4.getInt(1);
+							
+							String insertQuery2 = "INSERT INTO search_dump (temp_num, " + ALL_COLUMNS + ") "
+									+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+							System.out.println("PostingDaoImpl selectRelativePostings() eleventh query : " + insertQuery2);
+							
+							pstmt5 = connection.prepareStatement(insertQuery2);
+							pstmt5.setInt(1, seqNum);
+							pstmt5.setInt(2, num);
+							pstmt5.setString(3, title);
+							pstmt5.setString(4, writer);
+							pstmt5.setInt(5, contentType);
+							pstmt5.setInt(6, readCount);
+							pstmt5.setDate(7, KitschUtil.convertDateUtilToSql(regDate));
+							pstmt5.setInt(8, likes);
+							pstmt5.setInt(9, exposure);
+							pstmt5.setString(10, tags);
+							pstmt5.setInt(11, ref);
+							pstmt5.setInt(12, replyStep);
+							pstmt5.setInt(13, replyDepth);
+							pstmt5.setInt(14, replyCount);
+							pstmt5.setInt(15, postingType);
+							pstmt5.setInt(16, reblogCount);
+							pstmt5.setInt(17, reblogOption);
+							pstmt5.executeUpdate();
+							pstmt5.close();
+							
+							String columns = "";
+							String search_dump_content_table = "";
+							if (contentTable.equals(blogId + "_mixed")) {
+								search_dump_content_table = "search_dump_mixed";
+								columns = "?, ?";
+							} else if (contentTable.equals(blogId + "_single")) {
+								search_dump_content_table = "search_dump_single";
+								columns = "?";
+							} else if (contentTable.equals(blogId + "_text")) {
+								search_dump_content_table = "search_dump_text";
+								columns = "?";
+							}
+							
+							String insertQuery3 = "INSERT INTO " + search_dump_content_table + " VALUES (?, ?, " + columns + ")";
+							System.out.println("PostingDaoImpl selectRelativePostings() twelfth query : " + insertQuery3);
+							
+							pstmt5 = connection.prepareStatement(insertQuery3);
+							pstmt5.setInt(1, seqNum);
+							pstmt5.setInt(2, num);
+							if (contentTable.equals(blogId + "_mixed")) {
+								pstmt5.setString(3, pContent.getTextContent());
+								pstmt5.setString(4, KitschUtil.convertToString(pContent.getFilePaths(), Posting.PATH_DELIMITER, true));
+							} else if (contentTable.equals(blogId + "_single")) {
+								pstmt5.setString(3, KitschUtil.convertToString(pContent.getFilePaths(), Posting.PATH_DELIMITER, true));
+							} else if (contentTable.equals(blogId + "_text")) {
+								pstmt5.setString(3, pContent.getTextContent());
+							}
+							pstmt5.executeUpdate();
+						}
+					}
+				}
+			}
+			rs.close();
+			pstmt.close();
+			
+			sql = "SELECT origin_blog_id FROM follow WHERE email=?";
+			pstmt = connection.prepareStatement(sql);
+			System.out.println("PostingDaoimpl selectRelativePostings() sixth query : " + sql);
+			pstmt.setString(1, member.getEmail());
+			rs = pstmt.executeQuery();
+			
+			while (rs.next()) {
+				String blogId = rs.getString("blog_id");
+				/*int tempNum = 0;
+				
+				String sql2 = "SELECT search_dump_num_seq.NEXTVAL FROM dual";
+				System.out.println("PostingDaoImpl selectRelativePostings() seventh query : " + sql2);
+				pstmt2 = connection.prepareStatement(sql2);
+				rs2 = pstmt2.executeQuery();
+				
+				if (rs2.next()) {
+					tempNum = rs2.getInt(1);
+				}
+				rs2.close();
+				pstmt2.close();*/
+				
+				/*String sql3 = "INSERT INTO search_dump (temp_num, " + ALL_COLUMNS + ")"
+						+ "SELECT " + tempNum + ", " + ALL_COLUMNS + " FROM " + blogId;*/
+				String sql3 = "SELECT * FROM " + blogId;
+				System.out.println("PostingDaoImpl selectRelativePostings() eighth query : " + sql3);
+				
+				pstmt2 = connection.prepareStatement(sql3);
+				rs2 = pstmt2.executeQuery();
+				
+				while (rs2.next()) {
+					int num = rs2.getInt("num");
+					String title = rs2.getString("title");
+					String writer = rs2.getString("writer");
+					int contentType = rs2.getInt("content_type");
+					int readCount = rs2.getInt("read_count");
+					java.util.Date regDate = KitschUtil.convertDateSqlToUtil(rs2.getDate("reg_date"));
+					int likes = rs2.getInt("likes");
+					int exposure = rs2.getInt("exposure");
+					String tags = rs2.getString("tags");
+					int ref = rs2.getInt("ref");
+					int replyStep = rs2.getInt("reply_step");
+					int replyDepth = rs2.getInt("reply_depth");
+					int replyCount = rs2.getInt("reply_count");
+					int postingType = rs2.getInt("posting_type");
+					int reblogCount = rs2.getInt("reblog_count");
+					int reblogOption = rs2.getInt("reblog_option");
+					
+					String contentTable = this.getContentTable(contentType, blogId);
+					String sql4 = "SELECT * FROM " + contentTable + " WHERE num=?";
+					System.out.println("PostingDaoImpl selectRelativePostings() ninth query : " + sql4);
+					pstmt3 = connection.prepareStatement(sql3);
+					pstmt3.setInt(1, num);
+					rs3 = pstmt3.executeQuery();
+					
+					while (rs3.next()) {
+						int pNum = rs3.getInt("num");
+						if (contentTable.equals(blogId + "_mixed")) {
+							String textContents = rs3.getString("text_content");
+							String filePaths = rs3.getString("file_paths");
+							pContent = new PostingContent(pNum, textContents, KitschUtil.convertToStringArray(filePaths, Posting.PATH_DELIMITER, false));
+						} else if (contentTable.equals(blogId + "_single")) {
+							String filePaths = rs3.getString("file_paths");
+							pContent = new PostingContent(pNum, KitschUtil.convertToStringArray(filePaths, Posting.PATH_DELIMITER, false));
+						} else if (contentTable.equals(blogId + "_text")) {
+							String textContent = rs3.getString("text_content");
+							pContent = new PostingContent(pNum, textContent);
+						}
+						String insertQuery1 = "SELECT search_dump_num_seq.NEXTVAL FROM dual";
+						System.out.println("PostingDaoImpl selectRelativePostings() tenth query : " + insertQuery1);
+						pstmt4 = connection.prepareStatement(insertQuery1);
+						rs4 = pstmt4.executeQuery();
+						if (rs4.next()) {
+							int seqNum = rs4.getInt(1);
+							
+							String insertQuery2 = "INSERT INTO search_dump (temp_num, " + ALL_COLUMNS + ") "
+									+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+							System.out.println("PostingDaoImpl selectRelativePostings() eleventh query : " + insertQuery2);
+							
+							pstmt5 = connection.prepareStatement(insertQuery2);
+							pstmt5.setInt(1, seqNum);
+							pstmt5.setInt(2, num);
+							pstmt5.setString(3, title);
+							pstmt5.setString(4, writer);
+							pstmt5.setInt(5, contentType);
+							pstmt5.setInt(6, readCount);
+							pstmt5.setDate(7, KitschUtil.convertDateUtilToSql(regDate));
+							pstmt5.setInt(8, likes);
+							pstmt5.setInt(9, exposure);
+							pstmt5.setString(10, tags);
+							pstmt5.setInt(11, ref);
+							pstmt5.setInt(12, replyStep);
+							pstmt5.setInt(13, replyDepth);
+							pstmt5.setInt(14, replyCount);
+							pstmt5.setInt(15, postingType);
+							pstmt5.setInt(16, reblogCount);
+							pstmt5.setInt(17, reblogOption);
+							pstmt5.executeUpdate();
+							pstmt5.close();
+							
+							String columns = "";
+							String search_dump_content_table = "";
+							if (contentTable.equals(blogId + "_mixed")) {
+								search_dump_content_table = "search_dump_mixed";
+								columns = "?, ?";
+							} else if (contentTable.equals(blogId + "_single")) {
+								search_dump_content_table = "search_dump_single";
+								columns = "?";
+							} else if (contentTable.equals(blogId + "_text")) {
+								search_dump_content_table = "search_dump_text";
+								columns = "?";
+							}
+							
+							String insertQuery3 = "INSERT INTO " + search_dump_content_table + " VALUES (?, ?, " + columns + ")";
+							System.out.println("PostingDaoImpl selectRelativePostings() twelfth query : " + insertQuery3);
+							
+							pstmt5 = connection.prepareStatement(insertQuery3);
+							pstmt5.setInt(1, seqNum);
+							pstmt5.setInt(2, num);
+							if (contentTable.equals(blogId + "_mixed")) {
+								pstmt5.setString(3, pContent.getTextContent());
+								pstmt5.setString(4, KitschUtil.convertToString(pContent.getFilePaths(), Posting.PATH_DELIMITER, true));
+							} else if (contentTable.equals(blogId + "_single")) {
+								pstmt5.setString(3, KitschUtil.convertToString(pContent.getFilePaths(), Posting.PATH_DELIMITER, true));
+							} else if (contentTable.equals(blogId + "_text")) {
+								pstmt5.setString(3, pContent.getTextContent());
+							}
+							pstmt5.executeUpdate();
+						}
+					}
+				}
+			}
+			
+			String sql4 = "SELECT * FROM ("
+							+ "SELECT ROWNUM AS row_num, temp_num, " + ALL_COLUMNS + " FROM ("
+								+ "SELECT * FROM search_dump  ORDER BY reg_date DESC, reblog DESC, likes DESC, read_count DESC"
+							+ ")"
+						+ ") WHERE row_num BETWEEN ? AND ?";
+			System.out.println("PostingDaoImpl selectRelativePostings() thirteenth query : " + sql4);
+			
+			pstmt = connection.prepareStatement(sql4);
+			pstmt.setInt(1, startRow);
+			pstmt.setInt(2, endRow);
+			rs = pstmt.executeQuery();
+			
+			while (rs.next()) {
+				int tempNum = rs.getInt("temp_num");
+				int num = rs.getInt("num");
+				String title = rs.getString("title");
+				String writer = rs.getString("writer");
+				int contentType = rs.getInt("content_type");
+				int readCount = rs.getInt("read_count");
+				java.util.Date regDate = KitschUtil.convertDateSqlToUtil(rs.getDate("reg_date"));
+				int likes = rs.getInt("likes");
+				int exposure = rs.getInt("exposure");
+				String tags = rs.getString("tags");
+				int ref = rs.getInt("ref");
+				int replyStep = rs.getInt("reply_step");
+				int replyDepth = rs.getInt("reply_depth");
+				int replyCount = rs.getInt("reply_count");
+				int postingType = rs.getInt("posting_type");
+				int reblogCount = rs.getInt("reblog_count");
+				int reblogOption = rs.getInt("reblog_option");
+				
+				String contentTable = this.getContentTable(contentType, "search_dump");
+				String sql2 = "SELECT * FROM " + contentTable + " WHERE temp_num=?";
+				System.out.println("PostingDaoImpl selectRelativePostings() fourteenth query : " + sql2);
+				pstmt2 = connection.prepareStatement(sql2);
+				pstmt2.setInt(1, tempNum);
+				rs2 = pstmt2.executeQuery();
+				
+				while (rs2.next()) {
+					int pNum = rs2.getInt("num");
+					if (contentTable.equals("search_dump_mixed")) {
+						String textContents = rs2.getString("text_content");
+						String filePaths = rs2.getString("file_paths");
+						pContent = new PostingContent(pNum, textContents, KitschUtil.convertToStringArray(filePaths, Posting.PATH_DELIMITER, false));
+						
+					} else if (contentTable.equals("search_dump_single")) {
+						String filePaths = rs2.getString("file_paths");
+						pContent = new PostingContent(pNum, KitschUtil.convertToStringArray(filePaths, Posting.PATH_DELIMITER, false));
+						
+					} else if (contentTable.equals("search_dump_text")) {
+						String textContent = rs2.getString("text_content");
+						pContent = new PostingContent(pNum, textContent);
+					}
+					selectedPosting = new Posting(num, title, writer, pContent, contentType,
+							readCount, regDate, likes, exposure, tags, ref, replyStep, 
+							replyDepth, replyCount, postingType, reblogCount, reblogOption);
+					
+					pList.add(selectedPosting);
+				}
+			}
+		} catch (SQLException e) {
+			try {
+				connection.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		} finally {
+			try {
+				connection.setAutoCommit(true);
+				System.out.println("PostingDaoImpl selectPostingList() thirteenth query : " + query6);
+				pstmt = connection.prepareStatement(query6);
+				pstmt.executeUpdate();
+				pstmt.close();
+				System.out.println("PostingDaoImpl selectPostingList() fourteenth query : " + query7);
+				pstmt = connection.prepareStatement(query7);
+				pstmt.executeUpdate();
+				pstmt.close();
+				System.out.println("PostingDaoImpl selectPostingList() fifteenth query : " + query8);
+				pstmt = connection.prepareStatement(query8);
+				pstmt.executeUpdate();
+				pstmt.close();
+				System.out.println("PostingDaoImpl selectPostingList() sixteenth query : " +query9);
+				pstmt = connection.prepareStatement(query9);
+				pstmt.executeUpdate();
+				pstmt.close();
+				System.out.println("PostingDaoImpl selectPostingList() seventeenth query : " + query10);
+				pstmt = connection.prepareStatement(query10);
+				pstmt.executeUpdate();
+				pstmt.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			this.closeResources(null, pstmt2, rs2);
+			this.closeResources(connection, pstmt, rs);
+		}
+		
+		return pList;
+	}
 }

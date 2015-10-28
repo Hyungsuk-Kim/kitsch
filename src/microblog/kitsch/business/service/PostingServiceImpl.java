@@ -235,4 +235,8 @@ public class PostingServiceImpl implements PostingService {
 		}
 	}
 
+	@Override
+	public Posting[] getRelativePostings(Member member, int startRow, int endRow) {
+		return this.getPosingDaoImplementation().selectRelativePostings(member, startRow, endRow).toArray(new Posting[0]);
+	}
 }

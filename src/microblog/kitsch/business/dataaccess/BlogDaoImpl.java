@@ -19,13 +19,13 @@ import microblog.kitsch.helper.KitschUtil;
 public class BlogDaoImpl implements BlogDao{
 
 	private Connection obtainConnection() throws SQLException{
-		return DatabaseUtil_old.getConnection();
-		//return DatabaseUtil.getConnection();
+		//return DatabaseUtil_old.getConnection();
+		return DatabaseUtil.getConnection();
 	}
 	
 	private void closeResources(Connection connection, Statement stmt, ResultSet rs){
-		DatabaseUtil_old.close(connection, stmt, rs);
-		//DatabaseUtil.close(connection, stmt, rs);
+		//DatabaseUtil_old.close(connection, stmt, rs);
+		DatabaseUtil.close(connection, stmt, rs);
 	}
 	
 	private void closeResources(Connection connection, Statement stmt){
