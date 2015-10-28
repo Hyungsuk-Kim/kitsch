@@ -55,13 +55,13 @@ public class DashBoardController extends HttpServlet {
 			} else if (action.equals("edit")) {
 				
 			} else if (action.equals("like")) {
-				
+				this.like(request, response);
 			} else if (action.equals("remove")) {
-				
+				this.removePosting(request, response);
 			} else if (action.equals("follow")) {
-				
+				this.following(request, response);
 			} else if (action.equals("unfollow")) {
-				
+				this.unfollowing(request, response);
 			}
 		} catch (DataNotFoundException dne) {
 			throw new ServletException(dne);
@@ -111,6 +111,26 @@ public class DashBoardController extends HttpServlet {
     	request.setAttribute("postings", postings);
     	RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/dashboard/main.jsp");
     	dispatcher.forward(request, response);
+	}
+	
+	private void writeTextPosting(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+	}
+	
+	private void writeVideoPosting(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+	}
+	
+	private void writeAudioPosting(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+	}
+	
+	private void writeImagePosting(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+	}
+	
+	private void visitBlog(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
 	}
 
 	/**
