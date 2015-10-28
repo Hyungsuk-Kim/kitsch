@@ -177,7 +177,18 @@ public class PostingController extends HttpServlet {
 		dispatcher.forward(request, response);
 	}
 	
-	private void updatePosting(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	private void updatePosting(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
+		HttpSession session = request.getSession(false);
+    	if (session == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	Member member = (Member) session.getAttribute("member");
+    	if (member == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+		
 		String blogName = request.getParameter("blogName");
 		String title = request.getParameter("title");
 		String writer = request.getParameter("writer");
@@ -188,33 +199,33 @@ public class PostingController extends HttpServlet {
 		String textContent = request.getParameter("textContent");
 		String fileContents = request.getParameter("fileContents");
 		
-		HttpSession session = request.getSession(false);
-		if (session != null) {
-			Member member = (Member) session.getAttribute("member");
-			if (member != null) {
-				Member author = this.getMemberServiceImplement().findMemberByName(writer);
-				if (member.getEmail().equals(author.getEmail())) {
-					PostingContent pContent = new PostingContent();
-					if (contentType == PostingContent.TEXT_CONTENT) {
-						pContent.setTextContent(textContent);
-					} else if (contentType / 100 == PostingContent.MIXED_TYPE_CONTENT) {
-						pContent.setFilePaths(KitschUtil.convertToStringArray(fileContents, Posting.PATH_DELIMITER, false));
-						pContent.setTextContent(textContent);
-					} else if (contentType / 100 == PostingContent.SINGLE_TYPE_CONTENT) {
-						pContent.setFilePaths(KitschUtil.convertToStringArray(fileContents, Posting.PATH_DELIMITER, false));
-					}
-					
-					Posting posting = new Posting(title, member.getName(), pContent, contentType, exposure, tags, reblogOption);
-					
-					this.getPostingServiceImplement().updatePosting(blogName, posting);
-					
-					RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-					dispatcher.forward(request, response);
-					return;
-				}
-			}
+		Member author = this.getMemberServiceImplement().findMemberByName(writer);
+		ArrayList<String> errorMsgs = new ArrayList<String>();
+		if (!(member.getEmail().equals(author.getEmail())) || !(member.getRole() == Member.ADMINISTRATOR )|| !(member.getRole() == Member.SUPER_USER)) {
+			errorMsgs.add("해당 포스팅에 대한 권한이 없습니다.");
 		}
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		if (!errorMsgs.isEmpty()) {
+			request.setAttribute("errorMsgs", errorMsgs);
+			RequestDispatcher dispatcher = request.getRequestDispatcher("userError.jsp");
+			dispatcher.forward(request, response);
+			return;
+		}
+		
+		PostingContent pContent = new PostingContent();
+		if (contentType == PostingContent.TEXT_CONTENT) {
+			pContent.setTextContent(textContent);
+		} else if (contentType / 100 == PostingContent.MIXED_TYPE_CONTENT) {
+			pContent.setFilePaths(KitschUtil.convertToStringArray(fileContents, Posting.PATH_DELIMITER, false));
+			pContent.setTextContent(textContent);
+		} else if (contentType / 100 == PostingContent.SINGLE_TYPE_CONTENT) {
+			pContent.setFilePaths(KitschUtil.convertToStringArray(fileContents, Posting.PATH_DELIMITER, false));
+		}
+		
+		Posting posting = new Posting(title, member.getName(), pContent, contentType, exposure, tags, reblogOption);
+		
+		this.getPostingServiceImplement().updatePosting(blogName, posting);
+		
+		RequestDispatcher dispatcher = request.getRequestDispatcher(".list");
 		dispatcher.forward(request, response);
 	}
 	
@@ -255,7 +266,7 @@ public class PostingController extends HttpServlet {
 		Posting[] likes = this.getPostingServiceImplement().getLikedPostings(member);
 		request.setAttribute("likes", likes);
 		
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/posting/likes.jsp");
 		dispatcher.forward(request, response);
 	}
 	
@@ -378,17 +389,18 @@ public class PostingController extends HttpServlet {
 	
 	private void reblogRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
 		HttpSession session = request.getSession(false);
-		if (session != null) {
-			Member member = (Member) session.getAttribute("member");
-			if (member != null) {
-				Blog[] memberBlogs = this.getBlogServiceImplement().getMemberBlogs(member);
-				request.setAttribute("memberBlogs", memberBlogs);
-				RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-				dispatcher.forward(request, response);
-				return;
-			}
-		}
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+    	if (session == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	Member member = (Member) session.getAttribute("member");
+    	if (member == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+		Blog[] memberBlogs = this.getBlogServiceImplement().getMemberBlogs(member);
+		request.setAttribute("memberBlogs", memberBlogs);
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/posting/reblog.jsp");
 		dispatcher.forward(request, response);
 	}
 	
@@ -398,7 +410,7 @@ public class PostingController extends HttpServlet {
 		
 		Posting[] replies = this.getPostingServiceImplement().getReplies(blogName, postingNum);
 		request.setAttribute("replies", replies);
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		RequestDispatcher dispatcher = request.getRequestDispatcher(".list");
 		dispatcher.forward(request, response);
 	}
 	
@@ -529,10 +541,13 @@ public class PostingController extends HttpServlet {
 		String blogName = request.getParameter("blogName");
 		int postingNum = Integer.parseInt(request.getParameter("postingNum"));
 		
-		Posting posting = this.getPostingServiceImplement().readPosting(blogName, postingNum);
+		PostingService postingService = this.getPostingServiceImplement();
+		Posting posting = postingService.readPosting(blogName, postingNum);
+		Posting[] replies = postingService.getReplies(blogName, postingNum);
 		request.setAttribute("posting", posting);
+		request.setAttribute("replies", replies);
 		
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/posting/posting.jsp");
 		dispatcher.forward(request, response);
 	}
 	
