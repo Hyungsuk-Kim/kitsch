@@ -761,7 +761,7 @@ public class PostingDaoImpl implements PostingDao {
 				blogId = rs.getString(1);
 				
 				if (selectAsContentType) {
-					whereSyntax = " WHERE content_type=? AND posting_type=" + Posting.NORMAL_TYPE_POSTING;
+					whereSyntax = " WHERE content_type LIKE ? AND posting_type=" + Posting.NORMAL_TYPE_POSTING;
 				} else if (searchType != null && searchType.trim().length() != 0) {
 					if (searchType.equals("all")) {
 						whereSyntax = " WHERE num IN (SELECT num FROM " + blogId + "_text WHERE LOWER(text_content) LIKE LOWER(?) ESCAPE '@') OR "
@@ -785,7 +785,10 @@ public class PostingDaoImpl implements PostingDao {
 				pstmt2 = connection.prepareStatement(sql2);
 				
 				if (selectAsContentType){
-					pstmt2.setInt(1, typeOfContent);
+					int type = typeOfContent / 10;
+					type = type % 10;
+					String content = "_" + type + "_";
+					pstmt2.setString(1, content);
 				} else if (searchType.equals("all")) {
 						pstmt2.setString(1, searchTextKeyword);
 						pstmt2.setString(2, searchTextKeyword);

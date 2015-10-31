@@ -12,9 +12,9 @@
 	<header>
 		<nav>
 			<ul>
-				<li><a href="#home">HOME</a></li>
-				<li><a href="#">둘러보기</a></li>
-				<li><a href="#">회원가입</a></li>
+				<li><a href="#home">Home</a></li>
+				<li><a href="#about">About us</a></li>
+				<li><a href="#loginModal" role="button" data-toggle="modal">Login</a></li>
 			</ul>
 		</nav>
 	</header>

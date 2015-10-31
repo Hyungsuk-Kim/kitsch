@@ -32,6 +32,9 @@ public class PostingContent implements Serializable{
 	public static final int SINGLE_VIDEO_LINK_CONTENT = 141;
 	public static final int MIXED_VIDEO_FILE_CONTENT = 240;
 	public static final int MIXED_VIDEO_LINK_CONTENT = 241;
+	public static final int COMMON_IMAGE_CONTENT = 929;
+	public static final int COMMON_AUDIO_CONTENT = 939;
+	public static final int COMMON_VIDEO_CONTENT = 949;
 	
 	// Constructors
 	// for Text Contents

@@ -48,11 +48,11 @@ public class SearchController extends HttpServlet {
 			if (action.equals("searchAll")) {
 				this.searchAll(request, response);
 			} else if (action.equals("searchMembers")) {
-				
+				this.searchMembers(request, response);
 			} else if (action.equals("searchBlogs")) {
-				
+				this.searchBlogs(request, response);
 			} else if (action.equals("searchPostings")) {
-				
+				this.searchPostings(request, response);
 			}
 		} catch (DataNotFoundException dne) {
 			throw new ServletException(dne);
@@ -60,8 +60,21 @@ public class SearchController extends HttpServlet {
 	}
 	
 	private void searchAll(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
+		String searchType = request.getParameter("searchType");
+		String searchText = request.getParameter("searchText");
+		int startRow = Integer.parseInt(request.getParameter("startRow"));
+		int endRow = Integer.parseInt(request.getParameter("endRow"));
+		String sortingOption = request.getParameter("sortingOption");
+		
 		Map<String, Object> searchInfo = new HashMap<String, Object>();
-		searchInfo.put(key, value);
+		searchInfo.put("target", "all");
+		searchInfo.put("searchType", "all");
+		searchInfo.put("searchText", searchText);
+		searchInfo.put("startRow", startRow);
+		searchInfo.put("endRow", endRow);
+		if (sortingOption != null && sortingOption.trim().length() != 0) {
+			searchInfo.put("sortingOption", sortingOption);
+		}
 		
 		Member[] members = this.getMemberServiceImplementaion().getMemberList(searchInfo);
 		Blog[] blogs = this.getBlogServiceImplementaion().getBlogList(searchInfo);
@@ -76,31 +89,76 @@ public class SearchController extends HttpServlet {
 	}
 	
 	private void searchMembers(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
-		Map<String, Object> searchInfo = new HashMap<String, Object>();
-		searchInfo.put(key, value);
+		String searchType = request.getParameter("searchType");
+		String searchText = request.getParameter("searchText");
+		int startRow = Integer.parseInt(request.getParameter("startRow"));
+		int endRow = Integer.parseInt(request.getParameter("endRow"));
+		String sortingOption = request.getParameter("sortingOption");
 		
-		Posting[] postings = this.getPostingServiceImplement().getPostingList(searchInfo);
-		request.setAttribute("postings", postings);
+		Map<String, Object> searchInfo = new HashMap<String, Object>();
+		searchInfo.put("target", "member");
+		searchInfo.put("searchType", "all");
+		searchInfo.put("searchText", searchText);
+		searchInfo.put("startRow", startRow);
+		searchInfo.put("endRow", endRow);
+		if (sortingOption != null && sortingOption.trim().length() != 0) {
+			searchInfo.put("sortingOption", sortingOption);
+		}
+		
+		Member[] members = this.getMemberServiceImplementaion().getMemberList(searchInfo);
+		
+		request.setAttribute("members", members);
+		
 		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
 		dispatcher.forward(request, response);
 	}
 	
 	private void searchBlogs(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
-		Map<String, Object> searchInfo = new HashMap<String, Object>();
-		searchInfo.put(key, value);
+		String searchType = request.getParameter("searchType");
+		String searchText = request.getParameter("searchText");
+		int startRow = Integer.parseInt(request.getParameter("startRow"));
+		int endRow = Integer.parseInt(request.getParameter("endRow"));
+		String sortingOption = request.getParameter("sortingOption");
 		
-		Posting[] postings = this.getPostingServiceImplement().getPostingList(searchInfo);
-		request.setAttribute("postings", postings);
+		Map<String, Object> searchInfo = new HashMap<String, Object>();
+		searchInfo.put("target", "blog");
+		searchInfo.put("searchType", "all");
+		searchInfo.put("searchText", searchText);
+		searchInfo.put("startRow", startRow);
+		searchInfo.put("endRow", endRow);
+		if (sortingOption != null && sortingOption.trim().length() != 0) {
+			searchInfo.put("sortingOption", sortingOption);
+		}
+		
+		Blog[] blogs = this.getBlogServiceImplementaion().getBlogList(searchInfo);
+		
+		request.setAttribute("blogs", blogs);
+		
 		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
 		dispatcher.forward(request, response);
 	}
 	
 	private void searchPostings(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
-		Map<String, Object> searchInfo = new HashMap<String, Object>();
-		searchInfo.put(key, value);
+		String searchType = request.getParameter("searchType");
+		String searchText = request.getParameter("searchText");
+		int startRow = Integer.parseInt(request.getParameter("startRow"));
+		int endRow = Integer.parseInt(request.getParameter("endRow"));
+		String sortingOption = request.getParameter("sortingOption");
 		
-		Posting[] postings = this.getPostingServiceImplement().getPostingList(searchInfo);
+		Map<String, Object> searchInfo = new HashMap<String, Object>();
+		searchInfo.put("target", "posting");
+		searchInfo.put("searchType", "all");
+		searchInfo.put("searchText", searchText);
+		searchInfo.put("startRow", startRow);
+		searchInfo.put("endRow", endRow);
+		if (sortingOption != null && sortingOption.trim().length() != 0) {
+			searchInfo.put("sortingOption", sortingOption);
+		}
+		
+		Posting[] postings = this.getPostingServiceImplementaion().getPostingList(searchInfo);
+		
 		request.setAttribute("postings", postings);
+		
 		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
 		dispatcher.forward(request, response);
 	}

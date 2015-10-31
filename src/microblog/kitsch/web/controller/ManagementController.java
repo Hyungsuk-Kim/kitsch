@@ -27,7 +27,7 @@ public class ManagementController extends HttpServlet {
 		try {
 			if (action.equals("privilege")) {
 				this.changeMemberRole(request, response);
-			} else if (action.equals(arg0)) {
+			} else if (action.equals("")) {
 				
 			} 
 		} catch (DataNotFoundException dne) {
