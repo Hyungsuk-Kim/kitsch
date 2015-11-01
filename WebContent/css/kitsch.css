@@ -1,0 +1,86 @@
+@CHARSET "UTF-8";
+
+body {
+	
+	background-color: #676767;
+}
+
+.m_padding {
+	margin-top: 10px;
+	margin-right: 20px;
+}
+
+.menu, .table_label2, .login {
+	text-align:right;
+}
+
+.modal-title {
+	text-align: center;
+}
+
+.login2{
+	margin: 0 20 0 0;
+}
+
+.nav_icons {
+	color: #676767;
+}
+.nav_icons:hover {
+	color: white;
+}
+
+.nav_icons:FOCUS{
+	color: white;
+}
+
+.writer_color {
+	color: white;
+}
+
+.main_contents {
+
+	background-image: url("../images/main_img.png");
+	background-color:#d4ad9a;
+	background-repeat:no-repeat;
+	background-position:center;
+
+	text-align: center;
+}
+
+.table_label, .table_padding, .logo_align {
+	text-align: center;
+	margin : 0 auto;
+}
+.table_label3 {
+	color: white;
+	text-align: center;
+}
+
+#slick-login {
+	padding: 0 330 0 450;
+	text-align: center;
+}
+
+.top_font {
+	font-size: 12pt;
+}
+
+.img-circle2 {
+	width : 250px;
+	width : 250px;
+	border-radius:50%;
+}
+
+footer {
+	
+	bottom :0px;
+	left : 0px;
+	position: inherit;	
+}
+
+.my_posting {
+	margin:0 auto;
+	width:50%;
+	background-color: white;
+	border-radius:10px;
+}

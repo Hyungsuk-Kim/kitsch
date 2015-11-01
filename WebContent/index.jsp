@@ -1,27 +1,45 @@
-<%@ page contentType="text/html; charset=UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>micro Blogging Service</title>
-</head>
-<body>
-	<header>
-		<nav>
-			<ul>
-				<li><a href="#home">Home</a></li>
-				<li><a href="#about">About us</a></li>
-				<li><a href="#loginModal" role="button" data-toggle="modal">Login</a></li>
-			</ul>
-		</nav>
-	</header>
-	<section id="home">
-		<img src="images/logo.png" alt="kitsch logo" /><br />
-		<form id="slick-login" action="member?action=register" method="POST">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Home | Kitsch</title>
+	
+	<!-- core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/animate.min.css" rel="stylesheet">
+    <link href="css/prettyPhoto.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+    <link href="css/responsive.css" rel="stylesheet">
+	<link href="css/kitsch.css" rel="stylesheet">
+         
+    <link rel="shortcut icon" href="images/ico/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="images/ico/apple-touch-icon-57-precomposed.png">
+</head><!--/head-->
 
+<body class="homepage">
+
+    <header id="header">
+        <c:import url="/include/top.jsp" />
+    </header><!--/header-->
+
+   <section class="main_contents">
+   <%--
+   <div class="container-fluid" >
+   	<img src="images/main_img.png">
+   </div>
+   --%>
+   	<img src="images/logo2.png"><br>
+   			
+	<form id="slick-login" action="member?action=register" method="POST">
 			<c:if test="${not empty errorMsgs}">
 				<div class="error">
 					<c:forEach items="${errorMsgs}" var="msgs">
@@ -29,49 +47,42 @@
 					</c:forEach>
 				</div>
 			</c:if>
-
-			<label for="email">email</label> 
-			<input type="email" name="email" id="email" onkeyup="idcheck()"
-				class="placeholder" placeholder="이메일"> <span id="idcheckLayer"></span>
-				<label for="username">name</label>
-			<input type="text" name="name" id="name" class="placeholder" onkeyup="namechecked()" placeholder="닉네임">
-			<span id="namecheckLayer"></span>
 			
-			<label for="password">password</label> 
-			<input type="password" id="password" onkeyup="passwordcheck()" name="password" class="placeholder" placeholder="비밀번호">
-			<span id="passwordcheckLayer"></span>
-				
-			<input type="password" id="chkpassword" onkeyup="chkpasswordcheck()" name="chkpassword" class="placeholder" placeholder="비밀번호 확인">
-			<span id="chkpasswordcheckLayer"></span>
-			<input type="submit" id="join" value="회원가입">
-			<input type="hidden" name="${errorMsgs}" value="${errorMsgs}" />
-
+			<table class="table_padding">
+				<tr>
+					<td class="table_label3"><label>e-mail : </label></td>
+					<td>
+					<input type="text" placeholder="email">
+					</td>
+				</tr>
+				<tr>
+					<td class="table_label3"><label>닉네임 : </label></td>
+					<td><input type="text" placeholder="닉네임"></td>
+				</tr>
+				<tr>
+					<td class="table_label3"><label>비밀번호 : </label></td>
+					<td><input type="text" placeholder="비밀번호"></td>
+				</tr>
+				<tr>
+					<td class="table_label3"><label>비밀번호 확인 : </label></td>
+					<td><input type="text" placeholder="비밀번호 확인"></td>
+				</tr>
+				<tr>
+					<td colspan="2" class="table_label2"><input type="button" value="회원가입"></td>
+				</tr>
+			</table>
 		</form>
-		<br /> <br /> <br /> <a href="explore?action=trend">Kitsch 둘러보기</a>
-	</section>
-	<%--
-	<section>
-		<img src="images/logo.png">
-		<div>
-			<label for="email">이메일</label>
-			<input type="email" name="email" class="placeholder" placeholder="이메일">
-			<label for="password">비밀번호</label>
-			<input type="password" name="password" class="placeholder" placeholder="비밀번호">
-		</div>
-		<div>
-			<input type="button" value="로그인" onclick="#">
-			<input type="button" value="아이디/비밀번호 찾기" onclick="#">
-		</div>
-	</section>
-	--%>
-	<section>
-		<h2>About Kitsch</h2>
-			<p>
-				관심사가 같은 다른 사용자와 정보를 공유해보세요.<br>
-				기존의 SNS에서 기대하기 힘든 감성적인,<br> 
-				개인에 특화된 웹 기반의 마이크로 블로깅 서비스를 누려보세요.<br>
-			</p>
-	</section>
+</section>
 
+    <footer id="footer" class="midnight-blue">
+        <c:import url="/include/footer.jsp" />
+    </footer><!--/#footer-->
+
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.prettyPhoto.js"></script>
+    <script src="js/jquery.isotope.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/wow.min.js"></script>
 </body>
 </html>

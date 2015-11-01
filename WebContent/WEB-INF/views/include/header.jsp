@@ -1,4 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,12 +9,13 @@
 <title>micro Blogging Service</title>
 </head>
 <body>
-
 <div>
 	<img src="images/logo_s.png">
 	<input type="text" placeholder="검색어를 입력해 주세요.">
 	<input type="button" value="검색"><br>
 </div>
+
+<c:if test="${not empty sessionScope.member}">
 <div>
 	<i class="glyphicon glyphicon-home"></i>
 	<i class="glyphicon glyphicon-dashboard"></i>
@@ -20,6 +23,7 @@
 	<i class="glyphicon glyphicon-user"></i>
 	<i class="glyphicon glyphicon-pencil"></i>
 </div>
+</c:if>
 <hr>
 	
 </body>
