@@ -29,6 +29,7 @@
     <link rel="apple-touch-icon-precomposed" href="images/ico/apple-touch-icon-57-precomposed.png">
     
     <script src="<c:url value='/js/kitsch.js' />"></script>
+    <script src="<c:url value='/js/imagesloaded.pkgd.min.js' />"></script>
 </head><!--/head-->
 <body class="homepage">
 	<header id="header">
@@ -103,7 +104,6 @@
 			</div>
 		</c:forEach>
 	</c:if>
-	
 	</section>
 	<footer id="footer" class="midnight-blue">
         <c:import url="/include/footer.jsp" />

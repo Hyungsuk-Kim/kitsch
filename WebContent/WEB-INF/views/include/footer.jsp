@@ -6,8 +6,10 @@
 <title>Insert title here</title>
 </head>
 <body>
+<div class="navbar-fixed-bottom">
 	<hr>
 	<h4 class="text-center">©Copyright 2015 reserved sungkyul project </h4>
 	<hr>
+</div>
 </body>
 </html>

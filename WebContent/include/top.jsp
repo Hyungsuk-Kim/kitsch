@@ -15,7 +15,7 @@ $('#myModal').on('shown.bs.modal', function () {
 <title>Insert title here</title>
 </head>
 <body>
-<nav class="navbar navbar-inverse" role="banner">
+<nav class="navbar navbar-inverse navbar-fixed-top" role="banner">
             <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
