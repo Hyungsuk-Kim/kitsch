@@ -50,25 +50,25 @@
 			
 			<table class="table_padding">
 				<tr>
-					<td class="table_label3"><label>e-mail : </label></td>
+					<td class="table_label3"><label>E-mail : </label></td>
 					<td>
-					<input type="text" placeholder="email">
+					<input type="email" placeholder="E-mail" name="email">
 					</td>
 				</tr>
 				<tr>
 					<td class="table_label3"><label>닉네임 : </label></td>
-					<td><input type="text" placeholder="닉네임"></td>
+					<td><input type="text" placeholder="닉네임" name="name"></td>
 				</tr>
 				<tr>
 					<td class="table_label3"><label>비밀번호 : </label></td>
-					<td><input type="text" placeholder="비밀번호"></td>
+					<td><input type="password" placeholder="비밀번호" name="password"></td>
 				</tr>
 				<tr>
 					<td class="table_label3"><label>비밀번호 확인 : </label></td>
-					<td><input type="text" placeholder="비밀번호 확인"></td>
+					<td><input type="password" placeholder="비밀번호 확인" name="confirmPassword"></td>
 				</tr>
 				<tr>
-					<td colspan="2" class="table_label2"><input type="button" value="회원가입"></td>
+					<td colspan="2" class="table_label2"><input type="submit" class="btn btn-default" value="회원가입"></td>
 				</tr>
 			</table>
 		</form>
