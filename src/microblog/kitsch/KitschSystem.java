@@ -7,7 +7,7 @@ public class KitschSystem {
 	
 	// Uploaded File Location
 	//public static String UPLOADED_FILES_ROOT_DIR = "/home/incognito-desktop/kitsch/custom_files";
-	public static String ON_CONTEXT_UPLOADED_FILES_ROOT_DIR = "/kitsch/custom_files";
+	public static String ON_CONTEXT_UPLOADED_FILES_ROOT_DIR = "/custom_files";
 	public static String UPLOADED_FILES_ROOT_DIR = "/custom_files";
 	
 	public static String RESOURCES_ROOT_DIR = "/resources";

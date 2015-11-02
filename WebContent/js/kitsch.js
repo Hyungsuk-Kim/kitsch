@@ -21,6 +21,18 @@ function searchCheck() {
 	return true;
 }
 
+// 블로그 생성 시 블로그 명의 공백을 체크하는 기능
+function blogNameCheck(form) {
+	form.submit.disabled = true;
+	if (form.newBlogName.value.trim().length == 0) {
+		alert('블로그 명을 입력하세요.');
+		form.newBlogName.focus();
+		return;
+	}
+	
+	form.submit();
+}
+
 // 삭제 여부를 확인 후 해당 url로 이동하는 기능
 function deleteCheck(url) {
 	if (confirm('정말로 삭제하시겠습니까?')) {

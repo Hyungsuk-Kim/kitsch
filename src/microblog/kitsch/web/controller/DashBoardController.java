@@ -209,7 +209,7 @@ public class DashBoardController extends HttpServlet {
     	Posting[] postings= postingService.getRelativePostings(member, startRow, endRow);
     	
     	request.setAttribute("postings", postings);
-    	RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/dashboard/main.jsp");
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("/testBlog.jsp");
     	dispatcher.forward(request, response);
 	}
 	

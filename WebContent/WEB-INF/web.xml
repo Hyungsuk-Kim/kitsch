@@ -20,6 +20,12 @@
     <display-name>PostingController</display-name>
     <servlet-name>PostingController</servlet-name>
     <servlet-class>microblog.kitsch.web.controller.PostingController</servlet-class>
+    <multipart-config>
+      <location>/Users/Kimhyungsuk/tempUpload</location>
+      <max-file-size>-1</max-file-size>
+      <max-request-size>-1</max-request-size>
+      <file-size-threshold>0</file-size-threshold>
+    </multipart-config>
   </servlet>
   <servlet-mapping>
     <servlet-name>PostingController</servlet-name>

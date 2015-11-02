@@ -91,7 +91,7 @@ public class MemberController extends HttpServlet {
 		Member signedMember = memberService.findMemberByEmail(member.getEmail());
 		
 		request.getSession(true).setAttribute("member", signedMember);
-		RequestDispatcher dispatcher = request.getRequestDispatcher("dashboard?action=initialize");
+		RequestDispatcher dispatcher = request.getRequestDispatcher("explore?action=trend");
 		dispatcher.forward(request, response);
 	}
 	
@@ -108,7 +108,7 @@ public class MemberController extends HttpServlet {
 			
 			Blog[] memberBlogs = this.getBlogServiceImplement().getMemberBlogs(member);
 			if (memberBlogs.length == 0) {
-				RequestDispatcher dispatcher = request.getRequestDispatcher("dashboard?action=initialize");
+				RequestDispatcher dispatcher = request.getRequestDispatcher("blog?action=");
 				dispatcher.forward(request, response);
 				return;
 			} else {

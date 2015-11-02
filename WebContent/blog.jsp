@@ -31,11 +31,12 @@
     <script src="<c:url value='/js/kitsch.js' />"></script>
     <script src="<c:url value='/js/imagesloaded.pkgd.min.js' />"></script>
 </head><!--/head-->
+
 <body class="homepage">
 	<header id="header">
 		<c:import url="/include/top.jsp" />
 	</header>
-	<section class="table_label">
+	<section class="table_label  blog_posting">
 	<div class="container-fluid">
 	<img src="${request.blog.headerImage}">
 	<h1><label>${requestScope.blog.blogName}</label></h1>

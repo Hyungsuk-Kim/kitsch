@@ -1,7 +1,11 @@
 package microblog.kitsch.web.controller;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,7 +15,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
 
+import microblog.kitsch.KitschSystem;
 import microblog.kitsch.business.domain.Blog;
 import microblog.kitsch.business.domain.Member;
 import microblog.kitsch.business.domain.Posting;
@@ -52,7 +58,7 @@ public class PostingController extends HttpServlet {
 		try {
 			if (action.equals("write")) {
 				this.writePosting(request, response);
-			} /*else if (action.equals("writeForm")) {
+			} else if (action.equals("writeForm")) {
 				this.writePostingForm(request, response);
 			} else if (action.equals("remove")) {
 				this.removePosting(request, response);
@@ -84,13 +90,13 @@ public class PostingController extends HttpServlet {
 				this.readPosting(request, response);
 			} else if (action.equals("list")) {
 				this.listUpPosting(request, response);
-			}*/
+			}
 		} catch (DataNotFoundException dne) {
 			throw new ServletException(dne);
 		}
 	}
 	
-	private void writePosting(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
+	/*private void writePosting(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
 		HttpSession session = request.getSession(false);
     	if (session == null) {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
@@ -115,15 +121,21 @@ public class PostingController extends HttpServlet {
     		fileType = "";
     	}
     	
-		String blogName = request.getParameter("blogName");
-		String title = request.getParameter("title");
+    	String[] fileContents = FileUploadUtil.fileUpload(request, response, member, fileType);
+    	Enumeration<String> enumeration = request.getAttributeNames();
+    	while (enumeration.hasMoreElements()) {
+    		System.out.print("PostingController - 121 lines.");
+    		System.out.println(enumeration.nextElement());
+    	}
+    	
+		String blogName = (String) request.getAttribute("blogName");
+		String title = (String) request.getAttribute("title");
 		//String writer = null;
-		int exposure = Integer.parseInt(request.getParameter("exposure"));
-		String tags = request.getParameter("tags");
-		int postingType = Integer.parseInt(request.getParameter("postingType"));
-		int reblogOption = Integer.parseInt(request.getParameter("reblogOption"));
-		String textContent = request.getParameter("textContent");
-		String[] fileContents = FileUploadUtil.fileUpload(request, response, member, fileType);
+		int exposure = (Integer) request.getAttribute("exposure");
+		String tags = (String) request.getAttribute("tags");
+		int postingType = (Integer) request.getAttribute("postingType");
+		int reblogOption = (Integer) request.getAttribute("reblogOption");
+		String textContent = (String) request.getAttribute("textContent");
 		String conType = (String) request.getAttribute("contentType");
 		int contentType = 0;
 		if (conType != null) {
@@ -161,8 +173,130 @@ public class PostingController extends HttpServlet {
 				
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/index.jsp");
 		dispatcher.forward(request, response);
+	}*/
+	private void writePosting(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
+		HttpSession session = request.getSession(false);
+    	if (session == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	Member member = (Member) session.getAttribute("member");
+    	if (member == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	
+    	String uploadDir = getServletContext().getRealPath(KitschSystem.UPLOADED_FILES_ROOT_DIR + member.getEmail());
+		File dir = new File(uploadDir);
+		if (!dir.exists()) { dir.mkdir(); }
+    	
+    	request.setCharacterEncoding("UTF-8");
+		response.setContentType("text/html; charset=UTF-8");
+		
+		String[] filePaths = null;
+		ArrayList<String> fList = new ArrayList<String>();
+		
+		Collection<Part> parts = request.getParts();
+		Map<String, String> params = new HashMap<String, String>();
+		
+		for (Part part : parts) {
+			// Part가 파일인지 여부는 content-type 헤더의 유무로  확인 가능
+			String contentType = part.getContentType();
+			if (contentType != null) {
+				// 파일 이름은 content-disposition 헤더로부터 추출 가능
+				String fileName = null;
+				String contentDispositionHeader = part.getHeader("content-disposition");
+				String[] elements = contentDispositionHeader.split(";");
+				for (String element : elements) {
+					if (element.trim().startsWith("filename")) {
+						fileName = element.substring(element.indexOf('=') + 1).trim().replace("\"", "");
+					}
+				}
+				
+				// 파일 이름이 비었다면 파일 필드는 있지만 아무 파일도 업로드 하지 않은 경우에 해당
+				if (fileName != null && !fileName.isEmpty()) {
+					String fullPath = null;
+					// 파일 Part를 디스크에 저장
+					if (contentType.startsWith("image")) {
+						fullPath = uploadDir + "/images/" + fileName;
+						part.write(fullPath);
+						request.setAttribute("contentType", "image");
+					} else if (contentType.startsWith("video")) {
+						fullPath = uploadDir + "/videos/" + fileName;
+						part.write(fullPath);
+						request.setAttribute("contentType", "video");
+					} else if (contentType.startsWith("audio")) {
+						fullPath = uploadDir + "/audios/" + fileName;
+						part.write(fullPath);
+						request.setAttribute("contentType", "audio");
+					}
+					fList.add(fullPath);
+				}
+				for (String path : fList) {
+					filePaths = KitschUtil.convertToStringArray(path, Posting.PATH_DELIMITER, false);
+				}
+
+			// Part가 파일 필드가 아닐 경우 content-type 헤더가 존재하지 않음				
+			} else {
+			    String partName = part.getName(); // 필드 이름
+			    String fieldValue = request.getParameter(partName); // 필드 값
+			    params.put(partName, fieldValue);					
+			}
+		}
+		for (String key : params.keySet()) {
+			System.out.print(key);
+			System.out.print(" - ");
+			System.out.println(params.get(key));
+		}
+		
+		String blogName = params.get("blogName");
+		int exposure = Integer.parseInt(params.get("exposure"));
+		int postingType = Integer.parseInt(params.get("postingType"));
+		int reblogOption = Integer.parseInt(params.get("reblogOption"));
+		String title = params.get("title");
+		String writer = params.get("writer");
+		String contents = params.get("contents");
+		String tags = params.get("tags");
+		int contentType = 0;
+		String conType = "video";
+		
+		if (conType != null) {
+			if (conType.equals("image")) {
+				if (contents != null && contents.trim().length() != 0) {
+					contentType = PostingContent.MIXED_IMAGE_FILE_CONTENT;
+				}
+				contentType = PostingContent.SINGLE_IMAGE_FILE_CONTENT;
+			} else if (conType.equals("video")) {
+				if (contents != null && contents.trim().length() != 0) {
+					contentType = PostingContent.MIXED_VIDEO_FILE_CONTENT;
+				}
+				contentType = PostingContent.SINGLE_VIDEO_FILE_CONTENT;
+			} else if (conType.equals("audio")) {
+				if (contents != null && contents.trim().length() != 0) {
+					contentType = PostingContent.MIXED_AUDIO_FILE_CONTENT;
+				}
+				contentType = PostingContent.SINGLE_AUDIO_FILE_CONTENT;
+			}
+		}
+		
+		PostingContent pContent = new PostingContent();
+		if (contentType == PostingContent.TEXT_CONTENT) {
+			pContent.setTextContent(contents);
+		} else if (contentType / 100 == PostingContent.MIXED_TYPE_CONTENT) {
+			pContent.setFilePaths(filePaths);
+			pContent.setTextContent(contents);
+		} else if (contentType / 100 == PostingContent.SINGLE_TYPE_CONTENT) {
+			pContent.setFilePaths(filePaths);
+		}
+		
+		Posting newPosting = new Posting(title, writer, pContent, contentType, exposure, tags,  postingType, reblogOption);
+		
+		this.getPostingServiceImplement().writePosting(blogName, newPosting);
+				
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/index.jsp");
+		dispatcher.forward(request, response);
 	}
-	/*
+	
 	private void writePostingForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = request.getSession(false);
     	if (session == null) {
@@ -280,8 +414,8 @@ public class PostingController extends HttpServlet {
 		Posting posting = this.getPostingServiceImplement().findPosting(blogName, postingNum);
 		
 		request.setAttribute("posting", posting);
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-		dispatcher.forward(request, response);
+		/*RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		dispatcher.forward(request, response);*/
 	}
 	
 	private void likeList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
@@ -336,7 +470,7 @@ public class PostingController extends HttpServlet {
 		}
 		postingService.addLikes(member, blogName, postingNum);
 		
-		RequestDispatcher dispatcher = request.getRequestDispatcher(".list");
+		RequestDispatcher dispatcher = request.getRequestDispatcher("followingList.jsp");
 		dispatcher.forward(request, response);
 	}
 	
@@ -475,16 +609,16 @@ public class PostingController extends HttpServlet {
 				
 				this.getPostingServiceImplement().replyPosting(blogName, posting, postingNum);
 				
-				RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-				dispatcher.forward(request, response);
+				/*RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+				dispatcher.forward(request, response);*/
 				return;
 			}
 		}
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-		dispatcher.forward(request, response);
+		/*RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		dispatcher.forward(request, response);*/
 	}
 	
-	private void updateReply(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	private void updateReply(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
 		String blogName = request.getParameter("blogName");
 		int postingNum = Integer.parseInt(request.getParameter("postingNum"));
 		String writer = null;
@@ -518,13 +652,13 @@ public class PostingController extends HttpServlet {
 				
 				postingService.updatePosting(blogName, posting);
 				
-				RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-				dispatcher.forward(request, response);
+				/*RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+				dispatcher.forward(request, response);*/
 				return;
 			}
 		}
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-		dispatcher.forward(request, response);
+		/*RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		dispatcher.forward(request, response);*/
 	}
 	
 	private void removeReply(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
@@ -539,14 +673,14 @@ public class PostingController extends HttpServlet {
 				Posting reply = postingService.findPosting(blogName, postingNum);
 				if (reply.getWriter().equals(author.getName())) {
 					postingService.removePosting(blogName, postingNum);
-					RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-					dispatcher.forward(request, response);
+					/*RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+					dispatcher.forward(request, response);*/
 					return;
 				}
 			}
 		}
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-		dispatcher.forward(request, response);
+		/*RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		dispatcher.forward(request, response);*/
 	}
 	
 	private void updateReplyForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
@@ -560,14 +694,14 @@ public class PostingController extends HttpServlet {
 				Posting reply = this.getPostingServiceImplement().findPosting(blogName, postingNum);
 				if (reply.getWriter().equals(member.getName())) {
 					request.setAttribute("reply", reply);
-					RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-					dispatcher.forward(request, response);
+					/*RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+					dispatcher.forward(request, response);*/
 					return;
 				}
 			}
 		}
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-		dispatcher.forward(request, response);
+		/*RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		dispatcher.forward(request, response);*/
 	}
 	
 	private void readPosting(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
@@ -592,10 +726,11 @@ public class PostingController extends HttpServlet {
 		searchInfo.put("target", "posting");
 		searchInfo.put("searchType", "writer");
 		searchInfo.put("searchText", "");
-		searchInfo.put("startRow", value);
-		searchInfo.put("endRow", value);
+		/*searchInfo.put("startRow", value);
+		searchInfo.put("endRow", value);*/
 		
 	}
+	/*
 	*/
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)

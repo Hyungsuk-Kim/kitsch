@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>Home | Kitsch</title>
+    <title>Home | Corlate</title>
 	
 	<!-- core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -23,61 +23,32 @@
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/ico/apple-touch-icon-114-precomposed.png">
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="images/ico/apple-touch-icon-57-precomposed.png">
-    
-    <script src="<c:url value='/js/kitsch.js' />"></script>
+    <script src="<c:url value='/js/kitsch.js' />" ></script>
 </head><!--/head-->
 
-<body class="homepage">
+<body class="homepage cb_align">
 
     <header id="header">
-        <jsp:include page="/include/top.jsp"></jsp:include>
+        <c:import url="/include/top.jsp" />
     </header><!--/header-->
 
-   <section class="main_contents">
-   <%--
-   <div class="container-fluid" >
-   	<img src="images/main_img.png">
-   </div>
-   --%>
-   	<img src="images/logo2.png"><br>
-   			
-	<form id="slick-login" action="member?action=register" method="POST">
-			<c:if test="${not empty errorMsgs}">
-				<div class="error">
-					<c:forEach items="${errorMsgs}" var="msgs">
-						<li>${msgs}</li>
-					</c:forEach>
-				</div>
-			</c:if>
-			
-			<table class="table_padding">
-				<tr>
-					<td class="table_label3"><label>E-mail : </label></td>
-					<td>
-					<input type="email" placeholder="E-mail" name="email">
-					</td>
-				</tr>
-				<tr>
-					<td class="table_label3"><label>닉네임 : </label></td>
-					<td><input type="text" placeholder="닉네임" name="name"></td>
-				</tr>
-				<tr>
-					<td class="table_label3"><label>비밀번호 : </label></td>
-					<td><input type="password" placeholder="비밀번호" name="password"></td>
-				</tr>
-				<tr>
-					<td class="table_label3"><label>비밀번호 확인 : </label></td>
-					<td><input type="password" placeholder="비밀번호 확인" name="confirmPassword"></td>
-				</tr>
-				<tr>
-					<td colspan="2" class="table_label2"><input type="submit" class="btn btn-default" value="회원가입"></td>
-				</tr>
-			</table>
-		</form>
-</section>
-
+   <section class="create_blog">
+   <h2 class="cb_align">블로그 만들기</h2>
+<h4>자신의 블로그를 만들 수 있습니다.
+		공개,비공개 여부를 설정 할 수 있으며, 여러개의 블로그를 관리 할 수 있습니다.
+</h4>
+<hr>
+	<form action="blog?action=create" method="POST">
+		<label> 블로그 명 : 
+		<input type="text" class="form-control" name="newBlogName" placeholder="블로그 명을 적어주세요.">
+		</label><br>
+		<input type="submit" value="블로그 만들기" >
+		<input type="button" value="이전" onclick="">
+   	</form>
+   	</section>
+   	
     <footer id="footer" class="midnight-blue">
-        <jsp:include page="/include/footer.jsp"></jsp:include>
+        <c:import url="/include/footer.jsp" />
     </footer><!--/#footer-->
 
     <script src="js/jquery.js"></script>

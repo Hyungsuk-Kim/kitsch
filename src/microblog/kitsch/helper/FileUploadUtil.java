@@ -72,6 +72,10 @@ public class FileUploadUtil {
 				for (String path : fList) {
 					filePaths = KitschUtil.convertToStringArray(path, Posting.PATH_DELIMITER, false);
 				}
+			} else {
+				String partName = part.getName(); // 필드 이름
+			    String fieldValue = request.getParameter(partName); // 필드 값
+			    request.setAttribute(partName, fieldValue);
 			}
 		}
 		return filePaths;

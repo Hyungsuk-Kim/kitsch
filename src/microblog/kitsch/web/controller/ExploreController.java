@@ -103,8 +103,8 @@ public class ExploreController extends HttpServlet {
     	int postingNum = Integer.parseInt(request.getParameter("postingNum"));
     	
     	this.getPostingServiceImplementation().addLikes(member, blogName, postingNum);
-    	RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-    	dispatcher.forward(request, response);
+    	/*RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+    	dispatcher.forward(request, response);*/
 	}
 	
 	private void cancelLike(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
@@ -123,8 +123,8 @@ public class ExploreController extends HttpServlet {
 		int postingNum = Integer.parseInt(request.getParameter("postingNum"));
 		
 		this.getPostingServiceImplementation().cancelLikes(member, blogName, postingNum);
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-		dispatcher.forward(request, response);
+		/*RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		dispatcher.forward(request, response);*/
 	}
 	
 	private void following(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
@@ -143,8 +143,8 @@ public class ExploreController extends HttpServlet {
 		
 		this.getBlogServiceImplementation().following(member, blogName);
 		
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-		dispatcher.forward(request, response);
+		/*RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		dispatcher.forward(request, response);*/
 	}
 	
 	private void unfollowing(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
@@ -162,8 +162,8 @@ public class ExploreController extends HttpServlet {
 		String blogName = request.getParameter("blogName");
 		
 		this.getBlogServiceImplementation().unfollow(member, blogName);
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
-		dispatcher.forward(request, response);
+		/*RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		dispatcher.forward(request, response);*/
 	}
 	
 	private void trendPostings(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {

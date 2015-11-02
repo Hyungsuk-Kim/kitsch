@@ -12,13 +12,27 @@ License URL: http://creativecommons.org/licenses/by/3.0/
 <!DOCTYPE HTML>
 <html>
 <head>
+ <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/animate.min.css" rel="stylesheet">
+    <link href="css/prettyPhoto.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+    <link href="css/responsive.css" rel="stylesheet">
+	<link href="css/kitsch.css" rel="stylesheet">
+         
+    <link rel="shortcut icon" href="images/ico/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="images/ico/apple-touch-icon-57-precomposed.png">
+    
 <title>Tourplan an Travel Category Flat Bootstarp responsive Website Template| Portfolio :: w3layouts</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="keywords" content="Tourplan Responsive web template, Bootstrap Web Templates, Flat Web Templates, Andriod Compatible web template, 
 Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, SonyErricsson, Motorola web design" />
 <script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
-<link href="<c:url value='/css/bootstrap.css' />" rel='stylesheet' type='text/css' />
+<%--<link href="<c:url value='/css/bootstrap.css' />" rel='stylesheet' type='text/css' />--%> 
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <!-- Custom Theme files -->
 <link href="<c:url value='/css/style.css' />" rel='stylesheet' type='text/css' />
@@ -47,9 +61,11 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 		}
 	});
 </script>
-<!------ light-box-script ----->     
+<!------ light-box-script ----->
+
+
 </head>
-<body>
+<body class="homepage">
 <%
 Posting[] postings = new Posting[20];
 String[] files = {"/Users/Kimhyungsuk/Downloads/a93015green6287.jpg"};
@@ -64,50 +80,11 @@ for (int i = 0; i < 20; i++) {
 request.setAttribute("postings", postings);
 %>
 	<header id="header" class="header">
-		<jsp:include page="/include/top.jsp"></jsp:include>
+		<jsp:include page="/include/top.jsp" />
 		<%-- <c:import url="/include/top.jsp" /> --%>
 	</header>
-<div class="about">
-	<div class="container">
-		<div class="logo">
-			<h1><a href="index.html">Tourplan</a></h1>
-		</div>
-		<nav class="navbar navbar-default menu" role="navigation"><h3 class="nav_right"><a href="index.html">Tourplan</a></h3>
-		  <div class="container-fluid">
-		    <!-- Brand and toggle get grouped for better mobile display -->
-		    <div class="navbar-header">
-		      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-		        <span class="sr-only">Toggle navigation</span>
-		        <span class="icon-bar"></span>
-		        <span class="icon-bar"></span>
-		        <span class="icon-bar"></span>
-		      </button>
-		    </div>
-			<!-- Collect the nav links, forms, and other content for toggling -->
-		    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-		      <ul class="nav navbar-nav menu1">
-		      	<li><a href="index.html">Home</a></li>
-		        <li><a href="about.html">About</a></li>
-		        <li><a href="destinations.html">Destinations</a></li>
-		        <li><a href="portfolio.html">Portfolio <i class="menu-border"></i></a></li>
-		        <li><a href="typography.html">Blog</a></li>
-		        <li><a href="contact.html">Contact</a></li>
-		       </ul>
-		       <form class="navbar-form navbar-left search1" role="search">
-		        <div class="search2">
-				  <form>
-					 <input type="text" value="">
-					 <input type="submit" value="">
-				  </form>
-				</div>
-		      </form>
-		    </div><!-- /.navbar-collapse -->
-		  </div><!-- /.container-fluid -->
-		</nav>
-	    <div class="clearfix"></div>
-	 </div>
-</div>
-<div class="postlist">
+
+<div class="postlist posting_form">
    	   	<div class="container">
    	   	<div class="grid js-isotope" data-isotope-options='{ "itemSelector": ".grid-item", "masonry": { "columnWidth": ".col-sm-4"} }'>
 	   	   	    <c:if test="${not empty postings}">

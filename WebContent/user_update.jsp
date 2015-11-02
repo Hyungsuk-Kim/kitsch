@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>Home | Kitsch</title>
+    <title>Home | Corlate</title>
 	
 	<!-- core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -23,61 +23,39 @@
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/ico/apple-touch-icon-114-precomposed.png">
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="images/ico/apple-touch-icon-57-precomposed.png">
-    
-    <script src="<c:url value='/js/kitsch.js' />"></script>
 </head><!--/head-->
 
 <body class="homepage">
 
     <header id="header">
-        <jsp:include page="/include/top.jsp"></jsp:include>
+        <c:import url="/include/top.jsp" />
     </header><!--/header-->
 
-   <section class="main_contents">
-   <%--
-   <div class="container-fluid" >
-   	<img src="images/main_img.png">
-   </div>
-   --%>
-   	<img src="images/logo2.png"><br>
-   			
-	<form id="slick-login" action="member?action=register" method="POST">
-			<c:if test="${not empty errorMsgs}">
-				<div class="error">
-					<c:forEach items="${errorMsgs}" var="msgs">
-						<li>${msgs}</li>
-					</c:forEach>
-				</div>
-			</c:if>
-			
-			<table class="table_padding">
+   <section>
+  <table class="table_padding">
 				<tr>
-					<td class="table_label3"><label>E-mail : </label></td>
-					<td>
-					<input type="email" placeholder="E-mail" name="email">
-					</td>
+					<td class="table_label3"><label>현재 비밀번호 : </label></td>
+					<td><input type="text" placeholder="현재 비밀번호"></td>
 				</tr>
 				<tr>
-					<td class="table_label3"><label>닉네임 : </label></td>
-					<td><input type="text" placeholder="닉네임" name="name"></td>
+					<td class="table_label3"><label>새 비밀번호 : </label></td>
+					<td><input type="text" placeholder="새 비밀번호"></td>
 				</tr>
 				<tr>
-					<td class="table_label3"><label>비밀번호 : </label></td>
-					<td><input type="password" placeholder="비밀번호" name="password"></td>
+					<td class="table_label3"><label>새 비밀번호 확인 : </label></td>
+					<td><input type="text" placeholder="새 비밀번호 확인"></td>
 				</tr>
 				<tr>
-					<td class="table_label3"><label>비밀번호 확인 : </label></td>
-					<td><input type="password" placeholder="비밀번호 확인" name="confirmPassword"></td>
-				</tr>
-				<tr>
-					<td colspan="2" class="table_label2"><input type="submit" class="btn btn-default" value="회원가입"></td>
+					
+					<td colspan="2" class="table_label2">
+					<input type="button" value="이전">
+					<input type="button" value="수정 완료"></td>
 				</tr>
 			</table>
-		</form>
-</section>
-
+   	</section>
+   	
     <footer id="footer" class="midnight-blue">
-        <jsp:include page="/include/footer.jsp"></jsp:include>
+        <c:import url="/include/footer.jsp" />
     </footer><!--/#footer-->
 
     <script src="js/jquery.js"></script>
