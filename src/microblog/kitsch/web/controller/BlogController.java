@@ -55,6 +55,8 @@ public class BlogController extends HttpServlet {
 				this.unfollowBlog(request, response);
 			} else if (action.equals("visit")) {
 				this.visitBlog(request, response);
+			} else if (action.equals("main")) {
+				this.mainblog(request, response);
 			}
 		} catch (DataNotFoundException dne) {
 			throw new ServletException(dne);
@@ -63,6 +65,25 @@ public class BlogController extends HttpServlet {
 		} catch (IllegalDataException ide) {
 			throw new ServletException(ide);
 		}
+	}
+	
+	private void mainblog(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataDuplicatedException, DataNotFoundException {
+		HttpSession session = request.getSession(false);
+    	if (session == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	Member member = (Member) session.getAttribute("member");
+    	if (member == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	
+    	Blog[] blogs = this.getBlogServiceImplement().getMemberBlogs(member);
+    	
+    	request.setAttribute("blog", blogs[0]);
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("blog.jsp");
+    	dispatcher.forward(request, response);
 	}
 	
 	private void createBlog(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataDuplicatedException, DataNotFoundException {

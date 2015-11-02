@@ -113,7 +113,7 @@ public class MemberController extends HttpServlet {
 				return;
 			} else {
 				request.getSession(false).setAttribute("memberBlogs", memberBlogs);
-				RequestDispatcher dispatcher = request.getRequestDispatcher("dashboard?action=main");
+				RequestDispatcher dispatcher = request.getRequestDispatcher("blog?action=main");
 				dispatcher.forward(request, response);
 				return;
 			}

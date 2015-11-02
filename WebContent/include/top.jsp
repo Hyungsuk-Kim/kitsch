@@ -78,7 +78,7 @@ $('#update').on('shown.bs.modal', function () {
 								<li class="divider"></li>
 								<li class="top_dropdown">블로그</li>
 								<li class="divider"></li>
-								<li><a href="#"> <span
+								<li><a href="createblog.jsp"> <span
 										class="glyphicon glyphicon-plus top_dropdown">블로그 추가</span></a></li>
 								<li><a href="#"><div class="top_dropdown">포스트</div></a></li>
 								<li><a href="#"><div class="top_dropdown">팔로워</div></a></li>
@@ -88,7 +88,7 @@ $('#update').on('shown.bs.modal', function () {
 						</div>
 
 						<div class="btn-group">
-							<a href="#" class="nav_icons"> <i
+							<a href="postingForm.jsp" class="nav_icons"> <i
 								class="glyphicon glyphicon-pencil h2 m_padding"> </i>
 							</a>
 						</div>
