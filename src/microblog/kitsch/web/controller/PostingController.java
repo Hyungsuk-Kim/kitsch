@@ -252,7 +252,7 @@ public class PostingController extends HttpServlet {
 		String blogName = params.get("blogName");
 		int exposure = Integer.parseInt(params.get("exposure"));
 		int postingType = Integer.parseInt(params.get("postingType"));
-		int reblogOption = Integer.parseInt(params.get("reblogOption"));
+		int reblogOption = 0;
 		String title = params.get("title");
 		String writer = params.get("writer");
 		String contents = params.get("contents");
