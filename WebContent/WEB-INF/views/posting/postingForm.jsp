@@ -25,12 +25,12 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="images/ico/apple-touch-icon-57-precomposed.png">
 	<script src="<c:url value='/ckeditor/ckeditor.js' />"></script>
-	<script src="<c:url value='/js/board.js' />"></script>
+	<script src="<c:url value='/js/kitsch.js' />"></script>
 </head><!--/head-->
 <body>
 	<div class="container">
         <div class="row">
-			<form name="postingForm" action="write" method="POST" role="form" enctype="multipart/form-data">
+			<form name="postingForm" action="/kitsch/posting?action=write" method="POST" role="form" enctype="multipart/form-data">
 				<div class="form-group"><input type="hidden" value="${param.blogName}" name="blogName"></div>
 				<div class="form-group">
 					<label for="title h2 col-xs-4">제목</label>
@@ -89,8 +89,8 @@
 				</div>
 				<div class="clearfix"></div>
 				<div class="form-group">
-					<input type="button" class="btn btn-default" value="포스팅" onclick="boardWriteCheck(this.form);">
-					<input type="button" class="btn btn-default" value="취소" onclick="goUrl('list?pageNumber=${param.pageNumber}');">
+					<input type="button" class="btn btn-default" value="포스팅" onclick="postingCheck(this.form);">
+					<button type="button" class="btn btn-default" data-dismiss="modal">취소</button>
 				</div>
 			</form>
 		</div>

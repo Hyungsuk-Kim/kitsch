@@ -24,6 +24,7 @@ import microblog.kitsch.business.service.PostingService;
 import microblog.kitsch.business.service.PostingServiceImpl;
 import microblog.kitsch.helper.DataDuplicatedException;
 import microblog.kitsch.helper.DataNotFoundException;
+import microblog.kitsch.helper.FileUploadUtil;
 import microblog.kitsch.helper.IllegalDataException;
 import microblog.kitsch.helper.KitschUtil;
 
@@ -51,7 +52,7 @@ public class PostingController extends HttpServlet {
 		try {
 			if (action.equals("write")) {
 				this.writePosting(request, response);
-			} else if (action.equals("writeForm")) {
+			} /*else if (action.equals("writeForm")) {
 				this.writePostingForm(request, response);
 			} else if (action.equals("remove")) {
 				this.removePosting(request, response);
@@ -83,7 +84,7 @@ public class PostingController extends HttpServlet {
 				this.readPosting(request, response);
 			} else if (action.equals("list")) {
 				this.listUpPosting(request, response);
-			}
+			}*/
 		} catch (DataNotFoundException dne) {
 			throw new ServletException(dne);
 		}
@@ -101,35 +102,67 @@ public class PostingController extends HttpServlet {
     		return;
     	}
     	
+    	String fileType = request.getParameter("fileType");
+    	if (fileType != null) {
+	    	if (fileType.equals("profile")) {
+	    		fileType = "profileImage";
+	    	} else if (fileType.equals("header")) {
+	    		fileType = "headerImage";
+	    	} else {
+	    		fileType = "";
+	    	}
+    	} else {
+    		fileType = "";
+    	}
+    	
 		String blogName = request.getParameter("blogName");
 		String title = request.getParameter("title");
 		//String writer = null;
-		int contentType = Integer.parseInt(request.getParameter("contentType"));
 		int exposure = Integer.parseInt(request.getParameter("exposure"));
 		String tags = request.getParameter("tags");
 		int postingType = Integer.parseInt(request.getParameter("postingType"));
 		int reblogOption = Integer.parseInt(request.getParameter("reblogOption"));
 		String textContent = request.getParameter("textContent");
-		String fileContents = request.getParameter("fileContents");
+		String[] fileContents = FileUploadUtil.fileUpload(request, response, member, fileType);
+		String conType = (String) request.getAttribute("contentType");
+		int contentType = 0;
+		if (conType != null) {
+			if (conType.equals("image")) {
+				if (textContent != null && textContent.trim().length() != 0) {
+					contentType = PostingContent.MIXED_IMAGE_FILE_CONTENT;
+				}
+				contentType = PostingContent.SINGLE_IMAGE_FILE_CONTENT;
+			} else if (conType.equals("video")) {
+				if (textContent != null && textContent.trim().length() != 0) {
+					contentType = PostingContent.MIXED_VIDEO_FILE_CONTENT;
+				}
+				contentType = PostingContent.SINGLE_VIDEO_FILE_CONTENT;
+			} else if (conType.equals("audio")) {
+				if (textContent != null && textContent.trim().length() != 0) {
+					contentType = PostingContent.MIXED_AUDIO_FILE_CONTENT;
+				}
+				contentType = PostingContent.SINGLE_AUDIO_FILE_CONTENT;
+			}
+		}
 		
 		PostingContent pContent = new PostingContent();
 		if (contentType == PostingContent.TEXT_CONTENT) {
 			pContent.setTextContent(textContent);
 		} else if (contentType / 100 == PostingContent.MIXED_TYPE_CONTENT) {
-			pContent.setFilePaths(KitschUtil.convertToStringArray(fileContents, Posting.PATH_DELIMITER, false));
+			pContent.setFilePaths(fileContents);
 			pContent.setTextContent(textContent);
 		} else if (contentType / 100 == PostingContent.SINGLE_TYPE_CONTENT) {
-			pContent.setFilePaths(KitschUtil.convertToStringArray(fileContents, Posting.PATH_DELIMITER, false));
+			pContent.setFilePaths(fileContents);
 		}
 		
 		Posting newPosting = new Posting(title, member.getName(), pContent, contentType, exposure, tags,  postingType, reblogOption);
 		
 		this.getPostingServiceImplement().writePosting(blogName, newPosting);
 				
-		RequestDispatcher dispatcher = request.getRequestDispatcher(".list");
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/index.jsp");
 		dispatcher.forward(request, response);
 	}
-	
+	/*
 	private void writePostingForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = request.getSession(false);
     	if (session == null) {
@@ -563,7 +596,7 @@ public class PostingController extends HttpServlet {
 		searchInfo.put("endRow", value);
 		
 	}
-	
+	*/
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */

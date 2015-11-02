@@ -29,7 +29,7 @@ function deleteCheck(url) {
 }
 
 // 작성/수정 폼의 공백을  체크하는 기능
-function boardWriteCheck(form) {
+function postingCheck(form) {
 	form.submit.disabled = true;
 	if (form.title.value.trim().length == 0) {
 		alert('제목을 입력하세요.');
@@ -51,6 +51,23 @@ function boardWriteCheck(form) {
 	if (CKEDITOR.instances.contents.getData().trim().length == 0) {
 		alert('내용을 입력하세요.');
 		CKEDITOR.instances.contents.focus();
+		return;
+	}
+	
+	form.submit();
+}
+
+//작성/수정 폼의 공백을  체크하는 기능
+function replyCheck(form) {
+	form.submit.disabled = true;
+	if (form.writer.value.trim().length == 0) {
+		alert('이름을 입력하세요.');
+		form.writer.focus();
+		return;
+	}
+	if (form.contents.value.trim().length == 0) {
+		alert('내용을 입력하세요.');
+		form.contents.focus();
 		return;
 	}
 	

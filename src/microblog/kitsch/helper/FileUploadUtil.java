@@ -2,6 +2,7 @@ package microblog.kitsch.helper;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.servlet.ServletException;
@@ -11,9 +12,12 @@ import javax.servlet.http.Part;
 
 import microblog.kitsch.KitschSystem;
 import microblog.kitsch.business.domain.Member;
+import microblog.kitsch.business.domain.Posting;
 
 public class FileUploadUtil {
-	public static void fileUpload(HttpServletRequest request, HttpServletResponse response, Member member, String fileType) throws ServletException, IOException {
+	public static String[] fileUpload(HttpServletRequest request, HttpServletResponse response, Member member, String fileType) throws ServletException, IOException {
+		ArrayList<String> fList = new ArrayList<String>();
+		String[] filePaths = null;
 		String uploadDir = KitschSystem.UPLOADED_FILES_ROOT_DIR;
 		File dir = new File(uploadDir + member.getEmail());
 		if (!dir.exists()) { dir.mkdir(); }
@@ -40,22 +44,36 @@ public class FileUploadUtil {
 				
 				// 파일 이름이 비었다면 파일 필드는 있지만 아무 파일도 업로드 하지 않은 경우에 해당
 				if (fileName != null && !fileName.isEmpty()) {
+					String fullPath = null;
 					// 파일 Part를 디스크에 저장
 					if (fileType.equals("profileImage") || fileType.equals("headerImage")) {
 						if (contentType.startsWith("image")) {
-							part.write(uploadDir + "/images/" + fileType);
+							fullPath = uploadDir + "/images/" + fileType;
+							part.write(fullPath);
+							request.setAttribute("contentType", "image");
 						}
-						return;
+					} else {
+						if (contentType.startsWith("image")) {
+							fullPath = uploadDir + "/images/" + fileName;
+							part.write(fullPath);
+							request.setAttribute("contentType", "image");
+						} else if (contentType.startsWith("video")) {
+							fullPath = uploadDir + "/videos/" + fileName;
+							part.write(fullPath);
+							request.setAttribute("contentType", "video");
+						} else if (contentType.startsWith("audio")) {
+							fullPath = uploadDir + "/audios/" + fileName;
+							part.write(fullPath);
+							request.setAttribute("contentType", "audio");
+						}
 					}
-					if (contentType.startsWith("image")) {
-						part.write(uploadDir + "/images/" + fileName);
-					} else if (contentType.startsWith("video")) {
-						part.write(uploadDir + "/videos/" + fileName);
-					} else if (contentType.startsWith("audio")) {
-						part.write(uploadDir + "/audios/" + fileName);
-					}
+					fList.add(fullPath);
+				}
+				for (String path : fList) {
+					filePaths = KitschUtil.convertToStringArray(path, Posting.PATH_DELIMITER, false);
 				}
 			}
 		}
+		return filePaths;
 	}
 }

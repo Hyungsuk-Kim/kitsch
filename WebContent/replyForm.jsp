@@ -30,7 +30,7 @@
 <body>
 	<div class="container">
         <div class="row">
-			<form name="postingForm" action="write" method="POST" role="form" enctype="multipart/form-data">
+			<form name="postingForm" action="/kitsch/posting?action=reply" method="POST" role="form" enctype="multipart/form-data">
 				<div class="form-group"><input type="hidden" value="${param.blogName}" name="blogName"></div>
 				<div class="form-group">
 					<label for="title h2">작성자 ${sessionScope.member.name}</label>
@@ -52,7 +52,7 @@
 				</div>
 				<div class="clearfix"></div>
 				<div class="form-group">
-					<input type="button" class="btn btn-default" value="댓글달기" onclick="boardWriteCheck(this.form);">
+					<input type="button" class="btn btn-default" value="댓글달기" onclick="replyCheck(this.form);">
 					<input type="button" class="btn btn-default" value="취소" onclick="goUrl('list?pageNumber=${param.pageNumber}');">
 				</div>
 			</form>
