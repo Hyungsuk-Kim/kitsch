@@ -26,7 +26,7 @@ $('#update').on('shown.bs.modal', function () {
         <span class="icon-bar"></span>
       </button>
       <c:if test="${not empty sessionScope.member}">
-      	<a class="navbar-brand" href="explore.jsp">Kitsch</a>
+      	<a class="navbar-brand" href="explore?action=trend">Kitsch</a>
       </c:if>
       <c:if test="${empty sessionScope.member}">
       	<a class="navbar-brand" href="index.jsp">Kitsch</a>
