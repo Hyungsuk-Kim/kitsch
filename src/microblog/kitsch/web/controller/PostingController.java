@@ -186,7 +186,7 @@ public class PostingController extends HttpServlet {
     		return;
     	}
     	
-    	String uploadDir = getServletContext().getRealPath(KitschSystem.UPLOADED_FILES_ROOT_DIR + member.getEmail());
+    	String uploadDir = getServletContext().getRealPath(KitschSystem.UPLOADED_FILES_ROOT_DIR);
 		File dir = new File(uploadDir);
 		if (!dir.exists()) { dir.mkdir(); }
     	

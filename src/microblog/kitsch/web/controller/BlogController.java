@@ -2,6 +2,8 @@ package microblog.kitsch.web.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -11,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.ws.RequestWrapper;
 
+import microblog.kitsch.KitschSystem;
 import microblog.kitsch.business.domain.Blog;
 import microblog.kitsch.business.domain.Member;
 import microblog.kitsch.business.domain.Posting;
@@ -56,6 +59,8 @@ public class BlogController extends HttpServlet {
 				this.removeBlog(request, response);
 			} else if (action.equals("management")) {
 				this.manageBlog(request, response);
+			} else if (action.equals("follow")) {
+				this.followList(request, response);
 			} else if (action.equals("following")) {
 				this.followBlog(request, response);
 			} else if (action.equals("unfollowing")) {
@@ -74,6 +79,26 @@ public class BlogController extends HttpServlet {
 		}
 	}
 	
+	private void followList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
+		HttpSession session = request.getSession(false);
+    	if (session == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	Member member = (Member) session.getAttribute("member");
+    	if (member == null) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+    		return;
+    	}
+    	
+    	BlogService blogService = this.getBlogServiceImplement();
+    	Blog[] followingList= blogService.getFollowingList(member);
+    	
+    	request.setAttribute("followingList", followingList);
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/blog/followingList.jsp");
+    	dispatcher.forward(request, response);
+	}
+
 	private void mainblog(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataDuplicatedException, DataNotFoundException {
 		HttpSession session = request.getSession(false);
     	if (session == null) {
@@ -124,10 +149,27 @@ public class BlogController extends HttpServlet {
 			return;
 		}
 		
-		this.getBlogServiceImplement().createBlog(member, blogName);
+		BlogService blogService = this.getBlogServiceImplement();
+		blogService.createBlog(member, blogName);
+		Blog blog = blogService.findBlogByName(blogName);
 		
-		RequestDispatcher dispatcher = request.getRequestDispatcher("dashboard?action=main");
-		//RequestDispatcher dispatcher = request.getRequestDispatcher("blog?action=visit&blogName=" + blogName);
+		request.setAttribute("blogOwner", member);
+		request.setAttribute("blog", blog);
+		
+		Blog[] memberBlogs = (Blog[]) session.getAttribute("memberBlogs");
+		if (memberBlogs != null && memberBlogs.length != 0) {
+			session.removeAttribute("memberBlogs");
+			Blog[] additionBlogs = new Blog[memberBlogs.length+1];
+			
+			for (int i = 0; i < memberBlogs.length; i++) {
+				additionBlogs[i] = memberBlogs[i];
+			}
+			additionBlogs[memberBlogs.length + 1] = blog;
+		} else {
+			memberBlogs = new Blog[] {blog};
+			session.setAttribute("memberBlogs", memberBlogs);
+		}
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/blog/blogPage.jsp");
 		dispatcher.forward(request, response);
 	}
 	
@@ -348,8 +390,25 @@ public class BlogController extends HttpServlet {
 		} else {
 			blog = blogService.visitBlog(blogName);
 		}
+		
+		Member blogOwner = this.getMemberServiceImplement().findMemberByEmail(blog.getEmail());
+		
+		Map<String, Object> searchInfo = new HashMap<String, Object>();
+		searchInfo.put("startRow", KitschSystem.DEFAULT_START_ROW);
+		searchInfo.put("endRow", KitschSystem.DEFAULT_END_ROW);
+		searchInfo.put("target", "posting");
+		searchInfo.put("searchType", "all");
+		searchInfo.put("searchText", " ");
+		searchInfo.put("blogName", blog.getBlogName());
+		searchInfo.put("sortingOption", "recently");
+		
+		Posting[] postings = this.getPostingServiceImplement().getPostingList(searchInfo);
+		
 		request.setAttribute("blog", blog);
-		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/blog/blog.jsp");
+		request.setAttribute("blogOwner", blogOwner);
+		request.setAttribute("postings", postings);
+		
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/blog/blogPage.jsp");
 		dispatcher.forward(request, response);
 	}
 	

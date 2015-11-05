@@ -13,4 +13,9 @@ public class KitschSystem {
 	public static String RESOURCES_ROOT_DIR = "/resources";
 	public static String BUILT_IN_PROFILE_IMAGES_DIR = RESOURCES_ROOT_DIR+ "/images/profile_images";
 	public static String BUILT_IN_HEADER_IMAGES_DIR = RESOURCES_ROOT_DIR+ "/images/header_images";
+	
+	public static int DEFAULT_START_ROW = 1;
+	public static int DEFAULT_END_ROW = 24;
+	
+	public static int DEFAULT_ADDITION_ROW = 12;
 }

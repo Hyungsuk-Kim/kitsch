@@ -1,6 +1,5 @@
 package microblog.kitsch.helper;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,17 +9,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
-import microblog.kitsch.KitschSystem;
 import microblog.kitsch.business.domain.Member;
 import microblog.kitsch.business.domain.Posting;
 
 public class FileUploadUtil {
-	public static String[] fileUpload(HttpServletRequest request, HttpServletResponse response, Member member, String fileType) throws ServletException, IOException {
+	public static String[] fileUpload(HttpServletRequest request, HttpServletResponse response, Member member, String fileType, String uploadDir) throws ServletException, IOException {
 		ArrayList<String> fList = new ArrayList<String>();
 		String[] filePaths = null;
-		String uploadDir = KitschSystem.UPLOADED_FILES_ROOT_DIR;
-		File dir = new File(uploadDir + member.getEmail());
-		if (!dir.exists()) { dir.mkdir(); }
+		/*String uploadDir = KitschSystem.UPLOADED_FILES_ROOT_DIR;
+		File dir = new File(uploadDir);
+		if (!dir.exists()) { dir.mkdir(); }*/
 		
 		request.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html; charset=UTF-8");
@@ -48,21 +46,21 @@ public class FileUploadUtil {
 					// 파일 Part를 디스크에 저장
 					if (fileType.equals("profileImage") || fileType.equals("headerImage")) {
 						if (contentType.startsWith("image")) {
-							fullPath = uploadDir + "/images/" + fileType;
+							fullPath = uploadDir + "/images/" + member.getEmail() + "$" + fileType;
 							part.write(fullPath);
 							request.setAttribute("contentType", "image");
 						}
 					} else {
 						if (contentType.startsWith("image")) {
-							fullPath = uploadDir + "/images/" + fileName;
+							fullPath = uploadDir + "/images/" + member.getEmail() + "$" + fileName;
 							part.write(fullPath);
 							request.setAttribute("contentType", "image");
 						} else if (contentType.startsWith("video")) {
-							fullPath = uploadDir + "/videos/" + fileName;
+							fullPath = uploadDir + "/videos/" + member.getEmail() + "$" + fileName;
 							part.write(fullPath);
 							request.setAttribute("contentType", "video");
 						} else if (contentType.startsWith("audio")) {
-							fullPath = uploadDir + "/audios/" + fileName;
+							fullPath = uploadDir + "/audios/" + member.getEmail() + "$" + fileName;
 							part.write(fullPath);
 							request.setAttribute("contentType", "audio");
 						}

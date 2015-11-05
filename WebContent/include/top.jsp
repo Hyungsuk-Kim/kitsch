@@ -62,11 +62,11 @@ $('#update').on('shown.bs.modal', function () {
 							<ul class="dropdown-menu">
 								<li class="top_dropdown">계정</li>
 								<li class="divider"></li>
-								<li><a href="like.jsp"> <span
+								<li><a href="posting?action=likes"> <span
 										class="glyphicon glyphicon-thumbs-up drop_sub top_dropdown">
 											좋아요</span>
 								</a></li>
-								<li><a href="followingList.jsp"> <span
+								<li><a href="blog?action=follow"> <span
 										class="glyphicon glyphicon-th-list top_dropdown"> 팔로잉</span>
 								</a></li>
 								<li><a href="user_update.jsp"> <span
@@ -80,8 +80,11 @@ $('#update').on('shown.bs.modal', function () {
 								<li class="divider"></li>
 								<li><a href="createblog.jsp"> <span
 										class="glyphicon glyphicon-plus top_dropdown">블로그 추가</span></a></li>
-								<li><a href="#"><div class="top_dropdown">포스트</div></a></li>
-								<li><a href="#"><div class="top_dropdown">팔로워</div></a></li>
+								<c:if test="${not empty sessionScope.memberBlogs}">
+								<c:forEach var="memberBlog" items="${sessionScope.memberBlogs}">
+									<li><a href="blog?action=visit&blogName=${memberBlog.blogName}" class="top_dropdown" >${memberBlog.blogName}</a></li>
+								</c:forEach>
+								</c:if>
 								<li><a href="#"><span
 										class="glyphicon glyphicon-wrench">블로그 수정</span> </a></li>
 							</ul>

@@ -678,14 +678,14 @@ public class PostingDaoImpl implements PostingDao {
 			sortingOption = (String) searchInfo.get("sortingOption");
 			if (sortingOption != null && sortingOption.trim().length() != 0) {
 				if (sortingOption.equals("recently")) {
-					orderBySyntax = " ORDER BY reg_date DESC, reblog DESC, likes DESC, read_count DESC";
+					orderBySyntax = " ORDER BY reg_date DESC, reblog_count DESC, likes DESC, read_count DESC";
 				} else if (sortingOption.equals("correctly")) {
 					System.out.println("#################################################################");
 					System.out.println("This function is not implimented yet. PostingDaoImpl at 600 line.");
 					System.out.println("#################################################################");
-					orderBySyntax = " ORDER BY reblog DESC, likes DESC, read_count DESC, reg_date DESC";
+					orderBySyntax = " ORDER BY reblog_count DESC, likes DESC, read_count DESC, reg_date DESC";
 				} else if (sortingOption.equals("popularity")) {
-					orderBySyntax = " ORDER BY reblog DESC, likes DESC, read_count DESC, reg_date DESC";
+					orderBySyntax = " ORDER BY reblog_count DESC, likes DESC, read_count DESC, reg_date DESC";
 				} else if (sortingOption.equals("inSpecifyBlog")) {
 					orderBySyntax = " ORDER BY reg_date DESC, num DESC";
 				}
@@ -710,7 +710,7 @@ public class PostingDaoImpl implements PostingDao {
 			specifyBlog = " AND table_name=?";
 		}
 		
-		String sql = "SELECT table_name FROM tabs WHERE table_name NOT IN ('BLOG', 'MEMBER', 'QNA', 'KITSCH', 'LIKES', 'LIKE', 'REBLOG', 'MESSAGE_BOX', 'FOLLOW', 'SEARCH_DUMP') "
+		String sql = "SELECT table_name FROM tabs WHERE table_name NOT IN ('BLOG', 'MEMBER', 'QNA', 'KITSCH', 'LIKES', 'REBLOG', 'MESSAGE_BOX', 'FOLLOW', 'SEARCH_DUMP') "
 				+ " AND table_name NOT LIKE '%_MIXED' AND table_name NOT LIKE '%_SINGLE' AND table_name NOT LIKE '%_TEXT'" + specifyBlog;
 		
 		Connection connection = null;

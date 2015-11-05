@@ -32,6 +32,8 @@
     </header><!--/header-->
 
    <section>
+   <div class="container">
+   <div class="row">
    <div class="panel panel-default following">
   <div class="panel-heading">
     <h3 class="panel-title">팔로잉 List</h3>
@@ -41,7 +43,7 @@
   	<c:forEach var="following" items="${followingList}">
 	    <div class="col-xs-12">
 	    	<span>사용자: ${following.email}</span>
-	    	<span>블로그 명: ${following.blogName}</span>
+	    	<span>블로그 명: <a href="/blog?action=visit&blogName=${following.blogName}" >${following.blogName}</a></span>
 	    	<span>팔로워: ${following.followCount}</span>
 	    	<a href="/blog?action=unfollowing&blogName=${following.blogName}">언팔로우</a>
 	    </div>
@@ -49,6 +51,8 @@
   	</c:if>
   	<c:if test="${empty followingList}"><p class="h3">팔로우한 블로그가 없습니다.</p></c:if>
   </div>
+</div>
+</div>
 </div>
    	</section>
    	
