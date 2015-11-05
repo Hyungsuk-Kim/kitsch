@@ -138,7 +138,9 @@
 							        <li>
 							        	<div class="post-info">
 							        		<div class="post-basic-info">
-							        		<p class="h5">작성자: <a href="#">${post.writer}</a></p>
+							        		<p class="h5">작성자: <a href="#">${post.writer}</a>
+							        		<i class="glyphicon glyphicon-retweet follow_style">팔로우</i>
+							        		</p>
 							        		</div>
 							        		<div class="post-basic-info">
 							        			<c:if test="${not empty post.title}">
@@ -147,19 +149,24 @@
 								        		<p class="text_content">${post.contents.textContent}</p>
 							        		</div>
 							        		<div class="post-info-rate-share">
+							        		<!-- 좋아요 아이콘 -->
 							        			<div class="rateit">
-							        			<a href="" class="like_btn">
-							        				<span class="glyphicon glyphicon-heart-empty">좋아요 </span>
+							        			<a href="#" class="like_btn">
+							        				<i class="glyphicon glyphicon-heart-empty" ></i>
 							        			</a>
-							        				<span>
-							        					${post.likes}개
-							        				</span>
-							        				<span>
-							        					조회수 : ${post.readCount}
-							        				</span>
+							        			
+							        			<c:if test="">
+							        			<a href="#" class="like_btn">
+							        				<i class="glyphicon glyphicon-heart" ></i>
+							        			</a>
+							        			</c:if>
+							        			
+							        			
+							        			
+							        				
 							        			</div>
-							        			<div class="post-share">
-							        				<span> </span>
+							        			<div class="post-share">							  
+							        					좋아요${post.likes}개							        				
 							        			</div>
 							        			<div class="clear"> </div>
 							        		</div>

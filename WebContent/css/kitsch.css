@@ -13,7 +13,7 @@ body, .homepage {
 	text-align:right;
 }
 
-.modal-title, .cb_align{
+.modal-title, .cb_align {
 	text-align: center;
 }
 
@@ -181,4 +181,22 @@ header {
 
 .like_btn:HOVER {
 	color: red;
+}
+
+.rateit {
+	margin: 7 0 0 0;
+	height: 5px;
+}
+
+#like_font {
+	padding-left: 10px;
+}
+
+#read_font {
+	text-align: right;
+	padding-right: 2px;
+}
+
+.follow_style{
+	padding-left: 10px;
 }
