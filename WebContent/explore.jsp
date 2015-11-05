@@ -8,23 +8,37 @@
 		<title>Explore | Kitsch</title>
 		<link href="css/style2.css" rel='stylesheet' type='text/css' />
 		<meta name="viewport" content="width=device-width, initial-scale=1">
+    
 		<link rel="shortcut icon" type="image/x-icon" href="images/fav-icon.png" />
-		<script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+		
+		<script type="application/x-javascript">
+		addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } 
+		</script>
+		
 		<!----webfonts---->
 		<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800' rel='stylesheet' type='text/css'>
 		<!----//webfonts---->
 		<!-- Global CSS for the page and tiles -->
   		<link rel="stylesheet" href="css/main2.css">
-  		<!-- //Global CSS for the page and tiles -->
-		<!-- Custom CSS for kitsch Web App -->
+
   		<link rel="stylesheet" href="css/kitsch.css">
-		<!-- //Custom CSS for kitsch Web App -->
-		<!-- Custom CSS for kitsch Web App -->
+
   		<link rel="stylesheet" href="css/bootstrap.min.css">
-		<!-- //Custom CSS for kitsch Web App -->
-		<!---start-click-drop-down-menu----->
+  		
+  		<link href="css/font-awesome.min.css" rel="stylesheet">
+  		    
+    	<link href="css/animate.min.css" rel="stylesheet">
+    	
+    	<link href="css/prettyPhoto.css" rel="stylesheet">
+    	
+    	<link href="css/main.css" rel="stylesheet">
+    	
+    	<link href="css/responsive.css" rel="stylesheet">
+    	
+		<link href="css/kitsch.css" rel="stylesheet">
+
 		<script src="js/jquery.min.js"></script>
-        <!----start-dropdown--->
+        
          <script type="text/javascript">
 			var $ = jQuery.noConflict();
 				$(function() {
@@ -46,8 +60,7 @@
 									
 			});
 		</script>
-        <!----//End-dropdown--->
-		<!---//End-click-drop-down-menu----->
+		
 	</head>
 	<%
 		session.setAttribute("logonMember", DomainObjectsForTest.logonMember);
@@ -106,6 +119,10 @@
 		<!---//End-header---->
 		--%>
 		<!---start-content---->
+		
+		 
+		
+		
 	<div class="container">
 		<div class="row">
 			<div class="content">
@@ -131,7 +148,15 @@
 							        		</div>
 							        		<div class="post-info-rate-share">
 							        			<div class="rateit">
-							        				<span> </span>
+							        			<a hrdf="" class="like_btn">
+							        				<span class="glyphicon glyphicon-heart-empty">좋아요 </span>
+							        			</a>
+							        				<span>
+							        					${post.likes}개
+							        				</span>
+							        				<span>
+							        					조회수 : ${post.readCount}
+							        				</span>
 							        			</div>
 							        			<div class="post-share">
 							        				<span> </span>
@@ -635,9 +660,14 @@
 		--%>
 		<!-- //Go to top button -->
 		<!----start-footer--->
-		<div class="footer">
-			<p>&copy;copyright</p>
+		<header id="header">
+        <jsp:include page="/include/top.jsp"></jsp:include>
+    </header><!--/header-->
+    
+		<div class="footer footer_style">
+			<p id="footer_font">&copy;copyright all reserved</p>
 		</div>
+		
 		<!----//End-footer--->
 		<!---//End-wrap---->
 	</body>
