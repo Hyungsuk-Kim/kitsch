@@ -17,11 +17,24 @@
   		<link rel="stylesheet" href="css/main2.css">
   		<!-- //Global CSS for the page and tiles -->
 		<!-- Custom CSS for kitsch Web App -->
-  		<link rel="stylesheet" href="css/kitsch.css">
 		<!-- //Custom CSS for kitsch Web App -->
 		<!-- Custom CSS for kitsch Web App -->
   		<link rel="stylesheet" href="css/bootstrap.min.css">
 		<!-- //Custom CSS for kitsch Web App -->
+		
+		<link href="css/font-awesome.min.css" rel="stylesheet">
+  		    
+    	<link href="css/animate.min.css" rel="stylesheet">
+    	
+    	<link href="css/prettyPhoto.css" rel="stylesheet">
+    	
+    	<link href="css/main.css" rel="stylesheet">
+    	
+    	<link href="css/responsive.css" rel="stylesheet">
+    	
+  		<link rel="stylesheet" href="css/kitsch.css">
+		
+		
 		<!---start-click-drop-down-menu----->
 		<script src="js/jquery.min.js"></script>
 		<!----start-dropdown--->
@@ -56,9 +69,9 @@
 	%>
 	<body class="homepage">
 	<!-- blog header -->
-		<div class="container-fluid">
+		<div class="container-fluid blog_header">
 			<div class="img_center" style="background-image: url(${requestScope.blog.headerImage})">
-				<h3 class="text-left">${blogOwner.name}</h3>
+				<h3 class="text-right owner">${blogOwner.name}의 블로그 입니다.</h3>
 				<p class="text-center">
 					<label class="h1 text-center">${requestScope.blog.blogName}</label>
 					<span class="text-right"><a href="/blog?action=following&blogName=${requestScope.blog.blogName}">팔로우</a></span>
@@ -75,10 +88,11 @@
 			<div class="single-page">
 				<c:if test="${not empty requestScope.postings}">
 					<c:forEach var="post" items="${requestScope.postings}">
-						<div class="col-sm-6 col-sm-offset-3">
-							<div class="single-page-artical">
+						<div class="col-sm-6 col-sm-offset-3 post-basic-info myblog_post" >
+							<div class="single-page-artical blog_contents radius_post">
 								<div class="artical-content">
-								<p class="h3">작성자: ${post.writer}</p>
+								<p class="h3 post_writer">작성자: <strong> ${post.writer} </strong></p>
+								<hr>
 								<%-- Post Media Contents --%>
 									<%-- Image post --%>
 									<c:if test="${post.contentType eq 120 || post.contentType eq 121 || post.contentType eq 220 || post.contentType eq 221}">
@@ -137,7 +151,7 @@
 									</div>
 									
 								    </div>
-								    <div class="artical-links">
+								    <div class="artical-links">							
 		  						 	<%--
 		  						 	<ul>
 		  						 		<li><a href="#"><img src="images/blog-icon2.png" title="Admin"><span>admin</span></a></li>
@@ -146,7 +160,9 @@
 		  						 	</ul>
 		  						 	--%>
 		  						 </div>
+		  						 <!-- 좋아요 foot -->
 		  						 <div class="share-artical">
+		  						 좋아요${post.likes}개
 		  						 <%--
 		  						 	<ul>
 		  						 		<li><a href="#"><img src="images/facebooks.png" title="facebook">Facebook</a></li>
@@ -164,6 +180,7 @@
 				</div>
 			 </div>
 		</div>
+		
 		<!----wookmark-scripts---->
 		  <script src="js/jquery.imagesloaded.js"></script>
 		  <script src="js/jquery.wookmark.js"></script>
@@ -228,6 +245,65 @@
 		--%>
 		<!-- //Go to top button -->
 		<!----start-footer--->
+		
+		<!----wookmark-scripts---->
+		  <script src="js/jquery.imagesloaded.js"></script>
+		  <script src="js/jquery.wookmark.js"></script>
+		  <script type="text/javascript">
+		    (function ($){
+		      var $tiles = $('#tiles'),
+		          $handler = $('li', $tiles),
+		          $main = $('#main'),
+		          $window = $(window),
+		          $document = $(document),
+		          options = {
+		            autoResize: true, // This will auto-update the layout when the browser window is resized.
+		            container: $main, // Optional, used for some extra CSS styling
+		            offset: 20, // Optional, the distance between grid items
+		            itemWidth:280 // Optional, the width of a grid item
+		          };
+		      /**
+		       * Reinitializes the wookmark handler after all images have loaded
+		       */
+		      function applyLayout() {
+		        $tiles.imagesLoaded(function() {
+		          // Destroy the old handler
+		          if ($handler.wookmarkInstance) {
+		            $handler.wookmarkInstance.clear();
+		          }
+		
+		          // Create a new layout handler.
+		          $handler = $('li', $tiles);
+		          $handler.wookmark(options);
+		        });
+		      }
+		      /**
+		       * When scrolled all the way to the bottom, add more tiles
+		       */
+		      function onScroll() {
+		        // Check if we're within 100 pixels of the bottom edge of the broser window.
+		        var winHeight = window.innerHeight ? window.innerHeight : $window.height(), // iphone fix
+		            closeToBottom = ($window.scrollTop() + winHeight > $document.height() - 100);
+		
+		        if (closeToBottom) {
+		          // Get the first then items from the grid, clone them, and add them to the bottom of the grid
+		          var $items = $('li', $tiles),
+		              $firstTen = $items.slice(0, 10);
+		          $tiles.append($firstTen.clone());
+		
+		          applyLayout();
+		        }
+		      };
+		
+		      // Call the layout function for the first time
+		      applyLayout();
+		
+		      // Capture scroll event.
+		      $window.bind('scroll.wookmark', onScroll);
+		    })(jQuery);
+		  </script>
+		<!----//wookmark-scripts---->
+		
 		<header id="header">
         <jsp:include page="/include/top.jsp"></jsp:include>
     </header><!--/header-->
