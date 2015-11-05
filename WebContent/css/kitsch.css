@@ -13,7 +13,7 @@ body, .homepage {
 	text-align:right;
 }
 
-.modal-title, .cb_align {
+.modal-title, .cb_align, .index_con2, .index_con3 {
 	text-align: center;
 }
 
@@ -24,15 +24,9 @@ body, .homepage {
 .nav_icons {
 	color: #676767;
 }
-.nav_icons:hover {
-	color: white;
-}
 
-.nav_icons:FOCUS{
-	color: white;
-}
 
-.writer_color {
+.nav_icons:FOCUS, .nav_icons:hover, .writer_color{
 	color: white;
 }
 
@@ -227,6 +221,47 @@ header {
 .sub_menu a:HOVER {
 	color: red;
 }
-.index_contents{
+.index_contents {
 	padding-top: 15%;
 }
+
+.blog_header {
+	padding-top: 7%;	
+}
+
+.owner {
+	font-family: 양재튼튼체B;
+	font-weight:bolder;
+	font-size: 20pt;
+	color: white;
+	padding-right: 30px;
+}
+
+.blog_contents {
+	background-color:white;
+	border-bottom: medium 10px black;	
+}
+
+.radius_post {
+	border-radius:0.2em;
+}
+
+.myblog_post {
+	padding: 0 0 0 0;
+}
+
+.post_writer {
+	height: 30px;
+}
+
+.index_con2 {
+
+	background-color:#51c0a2;
+}
+/*
+.index_con3 {
+	background-color: white;
+	position: absolute; left:30%; bottom:30%;
+	text-align: center;
+}
+*/

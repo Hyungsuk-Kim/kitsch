@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="microblog.kitsch.test.DomainObjectsForTest" %>
 
+
 <!DOCTYPE HTML>
 <html>
 	<head>
@@ -20,8 +21,6 @@
 		<!----//webfonts---->
 		<!-- Global CSS for the page and tiles -->
   		<link rel="stylesheet" href="css/main2.css">
-
-  		<link rel="stylesheet" href="css/kitsch.css">
 
   		<link rel="stylesheet" href="css/bootstrap.min.css">
   		
@@ -151,12 +150,14 @@
 							        		<div class="post-info-rate-share">
 							        		<!-- 좋아요 아이콘 -->
 							        			<div class="rateit">
-							        			<a href="#" class="like_btn">
-							        				<i class="glyphicon glyphicon-heart-empty" ></i>
+							        			
+							        			<a href="/posting?action=addLike" class="like_btn">
+							        				<i class="glyphicon glyphicon-heart-empty" ></i>							    
 							        			</a>
 							        			
 							        			<c:if test="">
-							        			<a href="#" class="like_btn">
+							        			
+							        			<a href="/posting?action=cancelLike" class="like_btn">
 							        				<i class="glyphicon glyphicon-heart" ></i>
 							        			</a>
 							        			</c:if>

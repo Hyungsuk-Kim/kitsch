@@ -35,8 +35,8 @@ public class DomainObjectsForTest {
 		Blog blog1 = new Blog("blog_id_1", "test@kitsch.com", "animation", 0, 0, 0, "Sample_files/images/header/4.png", 0, new Date());
 		Blog blog2 = new Blog("blog_id_2", "admin@kitsch.com", "personal", 0, 0, 0, "Sample_files/images/header/4.png", 0, new Date());
 		Blog blog3 = new Blog("blog_id_3", "admin@kitsch.com", "awsome_blog", 0, 0, 0, "Sample_files/images/header/4.png", 0, new Date());
-		Blog blog4 = new Blog("blog_id_4", "test2@kitsch.com", "fashionable", 0, 0, 0, "Sample_files/images/header/4.png", 0, new Date());
-		Blog blog5 = new Blog("blog_id_5", "test2@kitsch.com", "secondary", 0, 0, 0, "Sample_files/images/header/4.png", 0, new Date());
+		Blog blog4 = new Blog("blog_id_4", "test2@kitsch.com", "fashionable", 0, 0, 0, "Sample_files/images/header/5.png", 0, new Date());
+		Blog blog5 = new Blog("blog_id_5", "test2@kitsch.com", "secondary", 0, 0, 0, "Sample_files/images/header/5.png", 0, new Date());
 		Blog blog6 = new Blog("blog_id_6", "admin@kitsch.com", "notify", 0, 0, 0, "Sample_files/images/header/4.png", 0, new Date());
 		
 		blogs[0] = blog1;
