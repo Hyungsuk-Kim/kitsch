@@ -148,7 +148,7 @@
 							        		</div>
 							        		<div class="post-info-rate-share">
 							        			<div class="rateit">
-							        			<a hrdf="" class="like_btn">
+							        			<a href="" class="like_btn">
 							        				<span class="glyphicon glyphicon-heart-empty">좋아요 </span>
 							        			</a>
 							        				<span>
