@@ -27,7 +27,7 @@
     <script src="<c:url value='/js/kitsch.js' />"></script>
 </head><!--/head-->
 
-<body class="homepage">
+<body class="homepage index_bg">
 
     <header id="header">
         <jsp:include page="/include/top.jsp"></jsp:include>
@@ -76,7 +76,7 @@
 		</form>
 </section>
 
-    <footer id="footer" class="midnight-blue">
+    <footer id="footer" class="midnight-blue all_footer">
         <jsp:include page="/include/footer.jsp"></jsp:include>
     </footer><!--/#footer-->
 
