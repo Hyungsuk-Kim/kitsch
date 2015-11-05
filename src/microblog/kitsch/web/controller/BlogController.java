@@ -13,10 +13,13 @@ import javax.xml.ws.RequestWrapper;
 
 import microblog.kitsch.business.domain.Blog;
 import microblog.kitsch.business.domain.Member;
+import microblog.kitsch.business.domain.Posting;
 import microblog.kitsch.business.service.BlogService;
 import microblog.kitsch.business.service.BlogServiceImpl;
 import microblog.kitsch.business.service.MemberService;
 import microblog.kitsch.business.service.MemberServiceImpl;
+import microblog.kitsch.business.service.PostingService;
+import microblog.kitsch.business.service.PostingServiceImpl;
 import microblog.kitsch.helper.DataDuplicatedException;
 import microblog.kitsch.helper.DataNotFoundException;
 import microblog.kitsch.helper.IllegalDataException;
@@ -29,6 +32,10 @@ public class BlogController extends HttpServlet {
 
 	private MemberService getMemberServiceImplement() {
 		return new MemberServiceImpl();
+	}
+
+	private PostingService getPostingServiceImplement() {
+		return new PostingServiceImpl();
 	}
 	
 	private BlogService getBlogServiceImplement() {
@@ -80,8 +87,12 @@ public class BlogController extends HttpServlet {
     	}
     	
     	Blog[] blogs = this.getBlogServiceImplement().getMemberBlogs(member);
+    	Posting[] postings = this.getPostingServiceImplement().getRelativePostings(member, 1, 18);
+    	
     	
     	request.setAttribute("blog", blogs[0]);
+    	request.setAttribute("postings", postings);
+    	
     	RequestDispatcher dispatcher = request.getRequestDispatcher("blog.jsp");
     	dispatcher.forward(request, response);
 	}

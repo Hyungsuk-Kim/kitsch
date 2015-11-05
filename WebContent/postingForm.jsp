@@ -31,7 +31,16 @@
 	<div class="container">
         <div class="row">
 			<form name="postingForm" action="/kitsch/posting?action=write" method="POST" role="form" enctype="multipart/form-data">
+				<%--
 				<div class="form-group"><input type="hidden" value="${param.blogName}" name="blogName"></div>
+				--%>
+				<div class="form-group">
+				<select name="blogName">
+					<c:forEach var="blog" items="${requestScope.memberBlogs}">
+						<option value="${blog.blogName}">${blog.blogName}</option>
+					</c:forEach>
+				</select>
+				</div>
 				<div class="form-group">
 					<label for="title h2 col-xs-4">제목</label>
 					<input class="form-control h2 col-xs-8" type="text" name="title" maxlength="100" placeholder="제목">

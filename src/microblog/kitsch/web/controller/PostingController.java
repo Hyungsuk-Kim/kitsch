@@ -221,14 +221,17 @@ public class PostingController extends HttpServlet {
 						fullPath = uploadDir + "/images/" + fileName;
 						part.write(fullPath);
 						request.setAttribute("contentType", "image");
+						params.put("contentType", contentType);
 					} else if (contentType.startsWith("video")) {
 						fullPath = uploadDir + "/videos/" + fileName;
 						part.write(fullPath);
 						request.setAttribute("contentType", "video");
+						params.put("contentType", contentType);
 					} else if (contentType.startsWith("audio")) {
 						fullPath = uploadDir + "/audios/" + fileName;
 						part.write(fullPath);
 						request.setAttribute("contentType", "audio");
+						params.put("contentType", contentType);
 					}
 					fList.add(fullPath);
 				}
@@ -258,7 +261,7 @@ public class PostingController extends HttpServlet {
 		String contents = params.get("contents");
 		String tags = params.get("tags");
 		int contentType = 0;
-		String conType = "video";
+		String conType = params.get("contentType");
 		
 		if (conType != null) {
 			if (conType.equals("image")) {
@@ -276,17 +279,25 @@ public class PostingController extends HttpServlet {
 					contentType = PostingContent.MIXED_AUDIO_FILE_CONTENT;
 				}
 				contentType = PostingContent.SINGLE_AUDIO_FILE_CONTENT;
+			} else {
+				contentType = PostingContent.TEXT_CONTENT;
 			}
+		} else {
+			contentType = PostingContent.TEXT_CONTENT;
 		}
 		
 		PostingContent pContent = new PostingContent();
 		if (contentType == PostingContent.TEXT_CONTENT) {
 			pContent.setTextContent(contents);
 		} else if (contentType / 100 == PostingContent.MIXED_TYPE_CONTENT) {
-			pContent.setFilePaths(filePaths);
+			if (filePaths != null) {
+				pContent.setFilePaths(filePaths);
+			}
 			pContent.setTextContent(contents);
 		} else if (contentType / 100 == PostingContent.SINGLE_TYPE_CONTENT) {
-			pContent.setFilePaths(filePaths);
+			if (filePaths != null) {
+				pContent.setFilePaths(filePaths);
+			}
 		}
 		
 		Posting newPosting = new Posting(title, writer, pContent, contentType, exposure, tags,  postingType, reblogOption);
@@ -297,7 +308,7 @@ public class PostingController extends HttpServlet {
 		dispatcher.forward(request, response);
 	}
 	
-	private void writePostingForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	private void writePostingForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
 		HttpSession session = request.getSession(false);
     	if (session == null) {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
@@ -308,8 +319,11 @@ public class PostingController extends HttpServlet {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
     	}
-		
-		RequestDispatcher dispatcher = request.getRequestDispatcher("");
+    	
+    	Blog[] blogs = this.getBlogServiceImplement().getMemberBlogs(member);
+		request.setAttribute("memberBlogs", blogs);
+    	
+		RequestDispatcher dispatcher = request.getRequestDispatcher("postingForm.jsp");
 		dispatcher.forward(request, response);
 	}
 	

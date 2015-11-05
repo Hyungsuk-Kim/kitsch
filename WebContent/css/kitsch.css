@@ -130,3 +130,14 @@ footer {
 	border-radius:10%;
 }
 
+.text_content {
+	width: 245px;
+	word-break: break-all;
+	white-space: pre-line;
+}
+
+.btn_go_to_top {
+	position:fixed;
+	bottom: 80px;
+	right: 50px;
+}

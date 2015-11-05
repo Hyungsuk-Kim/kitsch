@@ -784,6 +784,7 @@ public class PostingDaoImpl implements PostingDao {
 				System.out.println("PostingDaoImpl getPostingList() seventh query : " + sql2);
 				pstmt2 = connection.prepareStatement(sql2);
 				
+				if (searchType != null) { // TODO temporary code if (searchType != null) {}
 				if (selectAsContentType){
 					int type = typeOfContent / 10;
 					type = type % 10;
@@ -804,6 +805,7 @@ public class PostingDaoImpl implements PostingDao {
 					pstmt2.setString(2, searchTextKeyword);
 				} else if (searchType.equals("tags")) {
 					pstmt2.setString(1, searchTextKeyword);
+				}
 				}
 				
 				rs2 = pstmt2.executeQuery();
@@ -1861,7 +1863,7 @@ public class PostingDaoImpl implements PostingDao {
 					String contentTable = this.getContentTable(contentType, blogId);
 					String sql4 = "SELECT * FROM " + contentTable + " WHERE num=?";
 					System.out.println("PostingDaoImpl selectRelativePostings() ninth query : " + sql4);
-					pstmt3 = connection.prepareStatement(sql3);
+					pstmt3 = connection.prepareStatement(sql4);
 					pstmt3.setInt(1, num);
 					rs3 = pstmt3.executeQuery();
 					

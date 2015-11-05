@@ -50,7 +50,7 @@ $('#update').on('shown.bs.modal', function () {
 								class="glyphicon glyphicon-home h2 m_padding"></i></a>
 						</div>
 						<div class="btn-group">
-							<a href="explore.jsp" class="nav_icons"><i
+							<a href="/kitsch/explore?action=trend&startRow=1&endRow=20" class="nav_icons"><i
 								class="glyphicon glyphicon-dashboard h2 m_padding"></i></a>
 						</div>
 
@@ -88,7 +88,7 @@ $('#update').on('shown.bs.modal', function () {
 						</div>
 
 						<div class="btn-group">
-							<a href="postingForm.jsp" class="nav_icons"> <i
+							<a href="posting?action=writeForm" class="nav_icons"> <i
 								class="glyphicon glyphicon-pencil h2 m_padding"> </i>
 							</a>
 						</div>

@@ -15,7 +15,8 @@ public class DomainObjectsForTest {
 	public static Posting[] images = new Posting[6];
 	
 	public static Blog[] blogs = new Blog[6];
-	public static Blog memberBlog;
+	public static Blog[] memberBlogs = new Blog[2];
+	public static Blog defaultBlog;
 	
 	public static Member[] members = new Member[4];
 	public static Member logonMember;
@@ -61,7 +62,7 @@ public class DomainObjectsForTest {
 				3, new Date(), 1, Posting.PUBLIC_ALLOW_BOTH_REPLY_AND_REBLOG, "#Naruto", 2, 0, 
 				0, 0, Posting.NORMAL_TYPE_POSTING, 0, Posting.NOTHING);
 		// 4
-		PostingContent singleImg2 = new PostingContent(1, new String[] {"Sample_files/images/character/221014BW4664Web.jpg", "Sample_files/images/character/121212Stripe5336Web.jpg", "Sample_files/images/character/91514Somerset6B9481Web.jpg"});
+		PostingContent singleImg2 = new PostingContent(1, new String[] {"Sample_files/images/fashion/221014BW4664Web.jpg", "Sample_files/images/fashion/121212Stripe5336Web.jpg", "Sample_files/images/fashion/91514Somerset6B9481Web.jpg"});
 		Posting singleImgPost2 = new Posting(2, "Women who fascinating.", "test2", singleImg2, PostingContent.SINGLE_IMAGE_FILE_CONTENT,
 				0, new Date(), 0, Posting.PUBLIC_ALLOW_BOTH_REPLY_AND_REBLOG, "#women #fashion #style #street", 2, 0, 
 				0, 0, Posting.NORMAL_TYPE_POSTING, 0, Posting.NOTHING);
@@ -192,6 +193,8 @@ public class DomainObjectsForTest {
 		images[5] = mixedImgPost2;
 		
 		logonMember = member2;
-		memberBlog = blog4;
+		memberBlogs[0] = blog4;
+		memberBlogs[1] = blog5;
+		defaultBlog = blog4;
 	}
 }

@@ -178,7 +178,7 @@ public class ExploreController extends HttpServlet {
 		
 		Posting[] postings = this.getPostingServiceImplementation().getPostingList(searchInfo);
 		request.setAttribute("postings", postings);
-		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/explore.jsp");
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/explore/explore.jsp");
 		dispatcher.forward(request, response);
 	}
 	
