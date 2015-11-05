@@ -39,6 +39,7 @@
    	<img src="images/main_img.png">
    </div>
    --%>
+   <div class="index_contents">
    	<img src="images/logo2.png"><br>
    			
 	<form id="slick-login" action="member?action=register" method="POST">
@@ -74,6 +75,7 @@
 				</tr>
 			</table>
 		</form>
+		</div>
 </section>
 
     <footer id="footer" class="midnight-blue all_footer">

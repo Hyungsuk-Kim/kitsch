@@ -105,10 +105,8 @@ $('#update').on('shown.bs.modal', function () {
 						</ul>
 				</c:if>
 					</div>
-				
     </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
-            
+           
         </nav><!--/nav-->
 <c:import url="/login_modal.jsp" />
 </body>

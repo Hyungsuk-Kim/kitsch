@@ -668,7 +668,7 @@
 		<!-- //Go to top button -->
 		<!----start-footer--->
 		<header id="header">
-        <jsp:include page="/include/top.jsp"></jsp:include>
+        <jsp:include page="/include/explore_top.jsp"></jsp:include>
     </header><!--/header-->
     
 		<div class="footer footer_style">

@@ -200,3 +200,28 @@ header {
 .follow_style{
 	padding-left: 10px;
 }
+
+.sub_all {
+	margin-left: 25%;
+	margin-bottom: 30px;
+}
+
+.sub_menu{
+	padding-left: 3%;
+	margin-bottom:30px;
+	color: white;
+	font-family: 양재튼튼체B;
+	font-weight: bolder;
+	font-size: 15pt;
+}
+
+.sub_menu a{
+	color: white;
+}
+
+.sub_menu a:HOVER {
+	color: red;
+}
+.index_contents{
+	padding-top: 15%;
+}
