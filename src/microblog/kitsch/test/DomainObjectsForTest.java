@@ -32,12 +32,12 @@ public class DomainObjectsForTest {
 		members[2] = member1;
 		members[3] = member2;
 		
-		Blog blog1 = new Blog("blog_id_1", "test@kitsch.com", "animation", 0, 0, 0, "Sample_files/images/header/", 0, new Date());
-		Blog blog2 = new Blog("blog_id_2", "admin@kitsch.com", "personal", 0, 0, 0, "Sample_files/images/header/", 0, new Date());
-		Blog blog3 = new Blog("blog_id_3", "admin@kitsch.com", "awsome_blog", 0, 0, 0, "Sample_files/images/header/", 0, new Date());
-		Blog blog4 = new Blog("blog_id_4", "test2@kitsch.com", "fashionable", 0, 0, 0, "Sample_files/images/header/", 0, new Date());
-		Blog blog5 = new Blog("blog_id_5", "test2@kitsch.com", "secondary", 0, 0, 0, "Sample_files/images/header/", 0, new Date());
-		Blog blog6 = new Blog("blog_id_6", "admin@kitsch.com", "notify", 0, 0, 0, "Sample_files/images/header/", 0, new Date());
+		Blog blog1 = new Blog("blog_id_1", "test@kitsch.com", "animation", 0, 0, 0, "Sample_files/images/header/4.png", 0, new Date());
+		Blog blog2 = new Blog("blog_id_2", "admin@kitsch.com", "personal", 0, 0, 0, "Sample_files/images/header/4.png", 0, new Date());
+		Blog blog3 = new Blog("blog_id_3", "admin@kitsch.com", "awsome_blog", 0, 0, 0, "Sample_files/images/header/4.png", 0, new Date());
+		Blog blog4 = new Blog("blog_id_4", "test2@kitsch.com", "fashionable", 0, 0, 0, "Sample_files/images/header/4.png", 0, new Date());
+		Blog blog5 = new Blog("blog_id_5", "test2@kitsch.com", "secondary", 0, 0, 0, "Sample_files/images/header/4.png", 0, new Date());
+		Blog blog6 = new Blog("blog_id_6", "admin@kitsch.com", "notify", 0, 0, 0, "Sample_files/images/header/4.png", 0, new Date());
 		
 		blogs[0] = blog1;
 		blogs[1] = blog2;
@@ -57,7 +57,7 @@ public class DomainObjectsForTest {
 				1, new Date(), 0, Posting.PUBLIC_ALLOW_BOTH_REPLY_AND_REBLOG, "#bleach", 1, 0, 
 				0, 0, Posting.NORMAL_TYPE_POSTING, 0, Posting.NOTHING);
 		// 3
-		PostingContent mixedImg1 = new PostingContent(2, "I love Naruto animation!!", new String[] {"Sample_images/character/bleach.jpg"});
+		PostingContent mixedImg1 = new PostingContent(2, "I love Naruto animation!!", new String[] {"Sample_files/images/character/naruto.jpg"});
 		Posting mixedImgPost1 = new Posting(2, "Characters of Naruto", "test1", mixedImg1, PostingContent.MIXED_IMAGE_FILE_CONTENT,
 				3, new Date(), 1, Posting.PUBLIC_ALLOW_BOTH_REPLY_AND_REBLOG, "#Naruto", 2, 0, 
 				0, 0, Posting.NORMAL_TYPE_POSTING, 0, Posting.NOTHING);

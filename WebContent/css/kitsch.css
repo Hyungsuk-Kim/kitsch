@@ -64,8 +64,8 @@ body, .homepage {
 
 .img-circle2 {
 	width : 250px;
-	width : 250px;
-	border-radius:50%;
+	/*height : 250px;*/
+	border-radius:20%;
 }
 /*
 footer {
@@ -131,7 +131,7 @@ footer {
 }
 
 .text_content {
-	width: 245px;
+	/*width: 245px;*/
 	word-break: break-all;
 	white-space: pre-line;
 }
@@ -140,4 +140,7 @@ footer {
 	position:fixed;
 	bottom: 80px;
 	right: 50px;
+}
+.img_center {
+	text-align: center;
 }
