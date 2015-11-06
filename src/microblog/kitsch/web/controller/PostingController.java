@@ -323,7 +323,7 @@ public class PostingController extends HttpServlet {
     	Blog[] blogs = this.getBlogServiceImplement().getMemberBlogs(member);
 		request.setAttribute("memberBlogs", blogs);
     	
-		RequestDispatcher dispatcher = request.getRequestDispatcher("postingForm.jsp");
+		RequestDispatcher dispatcher = request.getRequestDispatcher("postingForm_old.jsp");
 		dispatcher.forward(request, response);
 	}
 	

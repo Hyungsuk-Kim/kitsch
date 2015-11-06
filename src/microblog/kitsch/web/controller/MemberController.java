@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import microblog.kitsch.KitschSystem;
 import microblog.kitsch.business.domain.Blog;
 import microblog.kitsch.business.domain.Member;
 import microblog.kitsch.business.service.BlogService;
@@ -91,7 +92,7 @@ public class MemberController extends HttpServlet {
 		Member signedMember = memberService.findMemberByEmail(member.getEmail());
 		
 		request.getSession(true).setAttribute("member", signedMember);
-		RequestDispatcher dispatcher = request.getRequestDispatcher("explore?action=trend");
+		RequestDispatcher dispatcher = request.getRequestDispatcher("explore?action=trend&startRow=" + KitschSystem.DEFAULT_START_ROW + "&endRow="+KitschSystem.DEFAULT_END_ROW);
 		dispatcher.forward(request, response);
 	}
 	

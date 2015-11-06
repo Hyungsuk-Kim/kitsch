@@ -22,6 +22,7 @@ import microblog.kitsch.business.service.PostingServiceImpl;
 import microblog.kitsch.helper.DataDuplicatedException;
 import microblog.kitsch.helper.DataNotFoundException;
 import microblog.kitsch.helper.IllegalDataException;
+import microblog.kitsch.test.DomainObjectsForTest;
 
 /**
  * Servlet implementation class ExploreController
@@ -177,7 +178,7 @@ public class ExploreController extends HttpServlet {
 		searchInfo.put("endRow", endRow);
 		
 		Posting[] postings = this.getPostingServiceImplementation().getPostingList(searchInfo);
-		request.setAttribute("postings", postings);
+		request.setAttribute("postings", DomainObjectsForTest.postings);
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/explore/explore.jsp");
 		dispatcher.forward(request, response);
 	}
@@ -194,8 +195,8 @@ public class ExploreController extends HttpServlet {
 		searchInfo.put("contentType", PostingContent.COMMON_IMAGE_CONTENT);
 		
 		Posting[] postings = this.getPostingServiceImplementation().getPostingList(searchInfo);
-		request.setAttribute("postings", postings);
-		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/explore.jsp");
+		request.setAttribute("postings", DomainObjectsForTest.images);
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/explore/explore.jsp");
 		dispatcher.forward(request, response);
 	}
 	
@@ -211,8 +212,8 @@ public class ExploreController extends HttpServlet {
 		searchInfo.put("contentType", PostingContent.COMMON_VIDEO_CONTENT);
 		
 		Posting[] postings = this.getPostingServiceImplementation().getPostingList(searchInfo);
-		request.setAttribute("postings", postings);
-		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/explore.jsp");
+		request.setAttribute("postings", DomainObjectsForTest.videos);
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/explore/explore.jsp");
 		dispatcher.forward(request, response);
 	}
 	
@@ -228,8 +229,8 @@ public class ExploreController extends HttpServlet {
 		searchInfo.put("contentType", PostingContent.COMMON_AUDIO_CONTENT);
 		
 		Posting[] postings = this.getPostingServiceImplementation().getPostingList(searchInfo);
-		request.setAttribute("postings", postings);
-		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/explore.jsp");
+		request.setAttribute("postings", DomainObjectsForTest.audios);
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/explore/explore.jsp");
 		dispatcher.forward(request, response);
 	}
 	
@@ -245,8 +246,8 @@ public class ExploreController extends HttpServlet {
 		searchInfo.put("contentType", PostingContent.TEXT_CONTENT);
 		
 		Posting[] postings = this.getPostingServiceImplementation().getPostingList(searchInfo);
-		request.setAttribute("postings", postings);
-		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/explore.jsp");
+		request.setAttribute("postings", DomainObjectsForTest.texts);
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/explore/explore.jsp");
 		dispatcher.forward(request, response);
 	}
 	

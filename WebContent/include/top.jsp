@@ -46,11 +46,11 @@ $('#update').on('shown.bs.modal', function () {
 		<div class="menu">
       	<c:if test="${not empty sessionScope.member}">
 						<div class="btn-group">
-							<a href="blog.jsp" class="nav_icons"><i
+							<a href="blog?action=main" class="nav_icons"><i
 								class="glyphicon glyphicon-home h2 m_padding"></i></a>
 						</div>
 						<div class="btn-group">
-							<a href="/kitsch/explore?action=trend&startRow=1&endRow=20" class="nav_icons"><i
+							<a href="explore?action=trend&startRow=1&endRow=20" class="nav_icons"><i
 								class="glyphicon glyphicon-dashboard h2 m_padding"></i></a>
 						</div>
 
@@ -69,9 +69,11 @@ $('#update').on('shown.bs.modal', function () {
 								<li><a href="blog?action=follow"> <span
 										class="glyphicon glyphicon-th-list top_dropdown"> 팔로잉</span>
 								</a></li>
+								<%--
 								<li><a href="user_update.jsp"> <span
 										class="glyphicon glyphicon-cog top_dropdown"> 설정</span>
 								</a></li>
+								--%>
 								<li><a href="member?action=signOut" class="logout"> <span
 										class="glyphicon glyphicon-remove-sign top_dropdown">로그아웃</span>
 								</a></li>
