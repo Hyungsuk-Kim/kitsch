@@ -191,7 +191,6 @@
 							        			</c:if>
 							        		</div>
 							        		<div class="post-info-rate-share">
-							        		<!-- 좋아요 아이콘 -->
 							        			<div class="rateit">
 							        			
 							        			<a href="/posting?action=addLike" class="like_btn">
@@ -204,10 +203,6 @@
 							        				<i class="glyphicon glyphicon-heart" ></i>
 							        			</a>
 							        			</c:if>
-							        			
-							        			
-							        			
-							        				
 							        			</div>
 							        			<div class="post-share">							  
 							        					좋아요${post.likes}개							        				
@@ -756,7 +751,11 @@
 		<!-- //Go to top button -->
 		<!----start-footer--->
 		<header id="header">
+<<<<<<< HEAD
         <jsp:include page="/include/explore_top.jsp"></jsp:include>
+=======
+        	<jsp:include page="/include/explore_top.jsp"></jsp:include>
+>>>>>>> origin/controller
     	</header><!--/header-->
     
 		<div class="footer footer_style">

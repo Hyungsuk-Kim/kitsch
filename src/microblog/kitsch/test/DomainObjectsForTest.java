@@ -147,26 +147,26 @@ public class DomainObjectsForTest {
 				6, new Date(), 1, Posting.PUBLIC_ALLOW_BOTH_REPLY_AND_REBLOG, "", 3, 0, 
 				0, 0, Posting.NORMAL_TYPE_POSTING, 0, Posting.NOTHING);
 		
-		postings[0] = textPost1;
-		postings[1] = textPost2;
-		postings[2] = textPost3;
-		postings[3] = textPost4;
-		postings[4] = singleAudioPost2;
+		postings[0] = singleImgPost1;
+		postings[1] = singleAudioPost2;
+		postings[2] = singleAudioPost6;
+		postings[3] = textPost1;
+		postings[4] = mixedVideoPost1;
 		postings[5] = singleAudioPost3;
-		postings[6] = singleAudioPost4;
-		postings[7] = singleAudioPost5;
-		postings[8] = singleAudioPost6;
-		postings[9] = singleAudioPost7;
-		postings[10] = singleImgPost1;
+		postings[6] = mixedAudioPost3;
+		postings[7] = textPost3;
+		postings[8] = singleAudioPost7;
+		postings[9] = singleAudioPost5;
+		postings[10] = mixedImgPost1;
 		postings[11] = singleImgPost2;
-		postings[12] = singleImgPost3;
-		postings[13] = singleImgPost4;
+		postings[12] = singleVideoPost1;
+		postings[13] = textPost4;
 		postings[14] = mixedAudioPost1;
-		postings[15] = mixedAudioPost3;
-		postings[16] = mixedImgPost1;
+		postings[15] = textPost2;
+		postings[16] = singleAudioPost4;
 		postings[17] = mixedImgPost2;
-		postings[18] = mixedVideoPost1;
-		postings[19] = singleVideoPost1;
+		postings[18] = singleImgPost3;
+		postings[19] = singleImgPost4;
 		
 		texts[0] = textPost1;
 		texts[1] = textPost2;

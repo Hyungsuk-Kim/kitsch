@@ -2081,7 +2081,7 @@ public class PostingDaoImpl implements PostingDao {
 			
 			String sql4 = "SELECT * FROM ("
 							+ "SELECT ROWNUM AS row_num, temp_num, " + ALL_COLUMNS + " FROM ("
-								+ "SELECT * FROM search_dump  ORDER BY reg_date DESC, reblog DESC, likes DESC, read_count DESC"
+								+ "SELECT * FROM search_dump  ORDER BY reg_date DESC, reblog_count DESC, likes DESC, read_count DESC"
 							+ ")"
 						+ ") WHERE row_num BETWEEN ? AND ?";
 			System.out.println("PostingDaoImpl selectRelativePostings() thirteenth query : " + sql4);

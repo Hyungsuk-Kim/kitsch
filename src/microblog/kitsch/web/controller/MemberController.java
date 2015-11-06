@@ -109,7 +109,7 @@ public class MemberController extends HttpServlet {
 			
 			Blog[] memberBlogs = this.getBlogServiceImplement().getMemberBlogs(member);
 			if (memberBlogs.length == 0) {
-				RequestDispatcher dispatcher = request.getRequestDispatcher("blog?action=");
+				RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/blog/createBlog.jsp");
 				dispatcher.forward(request, response);
 				return;
 			} else {
