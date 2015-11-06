@@ -669,8 +669,8 @@
 		<!-- //Go to top button -->
 		<!----start-footer--->
 		<header id="header">
-        	<jsp:include page="/include/explore_top.jsp"></jsp:include>
-    	</header><!--/header-->
+        <jsp:include page="/include/explore_top.jsp"></jsp:include>
+    </header><!--/header-->
     
 		<div class="footer footer_style">
 			<p id="footer_font">&copy;copyright all reserved</p>

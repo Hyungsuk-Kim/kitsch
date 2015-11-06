@@ -5,7 +5,6 @@
     <welcome-file>index.html</welcome-file>
     <welcome-file>index.jsp</welcome-file>
   </welcome-file-list>
-
   <servlet>
     <description></description>
     <display-name>MemberController</display-name>
@@ -21,6 +20,11 @@
     <display-name>PostingController</display-name>
     <servlet-name>PostingController</servlet-name>
     <servlet-class>microblog.kitsch.web.controller.PostingController</servlet-class>
+    <multipart-config>
+      <max-file-size>-1</max-file-size>
+      <max-request-size>-1</max-request-size>
+      <file-size-threshold>0</file-size-threshold>
+    </multipart-config>
   </servlet>
   <servlet-mapping>
     <servlet-name>PostingController</servlet-name>
@@ -66,13 +70,21 @@
     <servlet-name>DashBoardController</servlet-name>
     <url-pattern>/dashboard</url-pattern>
   </servlet-mapping>
-  
+  <servlet>
+    <description></description>
+    <display-name>SearchController</display-name>
+    <servlet-name>SearchController</servlet-name>
+    <servlet-class>microblog.kitsch.web.controller.SearchController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SearchController</servlet-name>
+    <url-pattern>/search</url-pattern>
+  </servlet-mapping>
   <resource-ref>
     <res-ref-name>jdbc/kitsch</res-ref-name>
     <res-type>javax.sql.DataSource</res-type>
     <res-auth>Container</res-auth>
   </resource-ref>
-  
   <filter>
     <filter-name>EncodingFilter</filter-name>
     <filter-class>microblog.kitsch.web.filter.EncodingFilter</filter-class>
@@ -89,14 +101,16 @@
     <servlet-name>MessagingController</servlet-name>
     <servlet-name>ExploreController</servlet-name>
     <servlet-name>DashBoardController</servlet-name>
+    <servlet-name>SearchController</servlet-name>
   </filter-mapping>
-  
-  <error-page>
-  	<error-code>404</error-code>
-  	<location>/404.jsp</location>
-  </error-page>
-  <error-page>
-	<exception-type>java.lang.Exception</exception-type>
-	<location>/exceptionPage.jsp</location>
-  </error-page>
+  <servlet>
+    <description></description>
+    <display-name>ManagementController</display-name>
+    <servlet-name>ManagementController</servlet-name>
+    <servlet-class>microblog.kitsch.web.controller.ManagementController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ManagementController</servlet-name>
+    <url-pattern>/management</url-pattern>
+  </servlet-mapping>
 </web-app>

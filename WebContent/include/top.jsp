@@ -46,7 +46,7 @@ $('#update').on('shown.bs.modal', function () {
 		<div class="menu">
       	<c:if test="${not empty sessionScope.member}">
 						<div class="btn-group">
-							<a href="blog.jsp" class="nav_icons"><i
+							<a href="blog?action=visit&blogName=${sessionScope.defaultBlog}" class="nav_icons"><i
 								class="glyphicon glyphicon-home h2 m_padding"></i></a>
 						</div>
 						<div class="btn-group">
