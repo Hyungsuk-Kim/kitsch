@@ -19,9 +19,7 @@ import microblog.kitsch.business.service.BlogService;
 import microblog.kitsch.business.service.BlogServiceImpl;
 import microblog.kitsch.business.service.PostingService;
 import microblog.kitsch.business.service.PostingServiceImpl;
-import microblog.kitsch.helper.DataDuplicatedException;
 import microblog.kitsch.helper.DataNotFoundException;
-import microblog.kitsch.helper.IllegalDataException;
 import microblog.kitsch.test.DomainObjectsForTest;
 
 /**

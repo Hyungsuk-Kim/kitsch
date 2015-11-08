@@ -105,7 +105,7 @@ public class MemberController extends HttpServlet {
 		Member member = this.getMemberServiceImplement().loginCheck(email, password);
 		int check = member.getCheck();
 		if (check == Member.VALID_MEMBER) {
-			request.getSession(true).setAttribute("member", member);
+			request.getSession(true).setAttribute("logonMember", member);
 			
 			Blog[] memberBlogs = this.getBlogServiceImplement().getMemberBlogs(member);
 			if (memberBlogs.length == 0) {

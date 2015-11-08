@@ -62,11 +62,13 @@
 		
 	</head>
 	<%
+		/*
 		session.setAttribute("logonMember", DomainObjectsForTest.logonMember);
 		session.setAttribute("memberBlogs", DomainObjectsForTest.memberBlogs);
 		session.setAttribute("defaultBlog", DomainObjectsForTest.defaultBlog);
 		request.setAttribute("postings", DomainObjectsForTest.postings);
 		request.setAttribute("blogs", DomainObjectsForTest.blogs);
+		*/
 	%>
 	<body>
 		<!---start-wrap---->
@@ -751,11 +753,7 @@
 		<!-- //Go to top button -->
 		<!----start-footer--->
 		<header id="header">
-<<<<<<< HEAD
-        <jsp:include page="/include/explore_top.jsp"></jsp:include>
-=======
         	<jsp:include page="/include/explore_top.jsp"></jsp:include>
->>>>>>> origin/controller
     	</header><!--/header-->
     
 		<div class="footer footer_style">

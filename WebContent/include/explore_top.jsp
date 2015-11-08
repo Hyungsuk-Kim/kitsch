@@ -112,19 +112,19 @@ $('#update').on('shown.bs.modal', function () {
 					</div>
     </div><!-- /.navbar-collapse -->
 	<span class="sub_menu sub_all">
-    <a href="explore?action=">인기 포스트</a>
+    <a href="explore?action=trend&startRow=1&endRow=24">인기 포스트</a>
     </span>
 	<span class="sub_menu">
-    <a href="#">텍스트</a>
+    <a href="explore?action=text&startRow=1&endRow=24">텍스트</a>
     </span>
     <span class="sub_menu">
-    <a href="#">사진</a>
+    <a href="explore?action=images&startRow=1&endRow=24">사진</a>
     </span>
     <span class="sub_menu">
-    <a href="#">오디오</a>
+    <a href="explore?action=audios&startRow=1&endRow=24">오디오</a>
     </span>
     <span class="sub_menu">
-    <a href="#">동영상</a>
+    <a href="explore?action=videos&startRow=1&endRow=24">동영상</a>
   </span>
             
         </nav><!--/nav-->
