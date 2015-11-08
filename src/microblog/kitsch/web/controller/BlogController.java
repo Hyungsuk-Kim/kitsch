@@ -85,7 +85,7 @@ public class BlogController extends HttpServlet {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
     	}
-    	Member member = (Member) session.getAttribute("member");
+    	Member member = (Member) session.getAttribute("logonMember");
     	if (member == null) {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
@@ -105,20 +105,19 @@ public class BlogController extends HttpServlet {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
     	}
-    	Member member = (Member) session.getAttribute("member");
+    	Member member = (Member) session.getAttribute("logonMember");
     	if (member == null) {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
     	}
     	
     	Blog[] blogs = this.getBlogServiceImplement().getMemberBlogs(member);
-    	Posting[] postings = this.getPostingServiceImplement().getRelativePostings(member, 1, 18);
-    	
+    	Posting[] postings = this.getPostingServiceImplement().getRelativePostings(member, KitschSystem.DEFAULT_START_ROW, KitschSystem.DEFAULT_END_ROW);
     	
     	request.setAttribute("blog", blogs[0]);
     	request.setAttribute("postings", postings);
     	
-    	RequestDispatcher dispatcher = request.getRequestDispatcher("blog.jsp");
+    	RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/blog/blogPage.jsp");
     	dispatcher.forward(request, response);
 	}
 	
@@ -128,7 +127,7 @@ public class BlogController extends HttpServlet {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
     	}
-    	Member member = (Member) session.getAttribute("member");
+    	Member member = (Member) session.getAttribute("logonMember");
     	if (member == null) {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
@@ -179,7 +178,7 @@ public class BlogController extends HttpServlet {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
     	}
-    	Member member = (Member) session.getAttribute("member");
+    	Member member = (Member) session.getAttribute("logonMember");
     	if (member == null) {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
@@ -227,7 +226,7 @@ public class BlogController extends HttpServlet {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
     	}
-    	Member member = (Member) session.getAttribute("member");
+    	Member member = (Member) session.getAttribute("logonMember");
     	if (member == null) {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
