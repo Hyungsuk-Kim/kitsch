@@ -91,7 +91,7 @@ public class MemberController extends HttpServlet {
 		memberService.registerMember(member);
 		Member signedMember = memberService.findMemberByEmail(member.getEmail());
 		
-		request.getSession(true).setAttribute("member", signedMember);
+		request.getSession(true).setAttribute("logonMember", signedMember);
 		RequestDispatcher dispatcher = request.getRequestDispatcher("explore?action=trend&startRow=" + KitschSystem.DEFAULT_START_ROW + "&endRow="+KitschSystem.DEFAULT_END_ROW);
 		dispatcher.forward(request, response);
 	}
@@ -109,7 +109,7 @@ public class MemberController extends HttpServlet {
 			
 			Blog[] memberBlogs = this.getBlogServiceImplement().getMemberBlogs(member);
 			if (memberBlogs.length == 0) {
-				RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/blog/createBlog.jsp");
+				RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/blog/createblog.jsp");
 				dispatcher.forward(request, response);
 				return;
 			} else {

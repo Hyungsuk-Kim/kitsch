@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.xml.ws.RequestWrapper;
 
 import microblog.kitsch.KitschSystem;
 import microblog.kitsch.business.domain.Blog;
@@ -164,7 +163,7 @@ public class BlogController extends HttpServlet {
 			for (int i = 0; i < memberBlogs.length; i++) {
 				additionBlogs[i] = memberBlogs[i];
 			}
-			additionBlogs[memberBlogs.length + 1] = blog;
+			additionBlogs[memberBlogs.length] = blog;
 		} else {
 			memberBlogs = new Blog[] {blog};
 			session.setAttribute("memberBlogs", memberBlogs);
@@ -267,6 +266,11 @@ public class BlogController extends HttpServlet {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
     	}
+    	Blog[] memberBlogs = (Blog[]) session.getAttribute("memberBlogs");
+    	if (memberBlogs == null || memberBlogs.length < 2) {
+    		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "삭제할 블로그가 없습니다. 한 개 이상의 블로그가 존재해야 합니다.");
+    	}
+    	
     	
 		String blogName = request.getParameter("blogName");
 		BlogService blogService = this.getBlogServiceImplement();

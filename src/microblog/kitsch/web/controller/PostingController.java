@@ -199,7 +199,6 @@ public class PostingController extends HttpServlet {
 		Collection<Part> parts = request.getParts();
 		Map<String, String> params = new HashMap<String, String>();
 		for (Part part : parts) {
-			System.out.println("##################### PostingController - 201 #####################");
 			// Part가 파일인지 여부는 content-type 헤더의 유무로 확인 가능
 			String contentType = part.getContentType();
 			if (contentType != null) {
@@ -265,17 +264,17 @@ public class PostingController extends HttpServlet {
 		String conType = params.get("contentType");
 		
 		if (conType != null) {
-			if (conType.equals("image")) {
+			if (conType.startsWith("image/")) {
 				if (contents != null && contents.trim().length() != 0) {
 					contentType = PostingContent.MIXED_IMAGE_FILE_CONTENT;
 				}
 				contentType = PostingContent.SINGLE_IMAGE_FILE_CONTENT;
-			} else if (conType.equals("video")) {
+			} else if (conType.startsWith("video/")) {
 				if (contents != null && contents.trim().length() != 0) {
 					contentType = PostingContent.MIXED_VIDEO_FILE_CONTENT;
 				}
 				contentType = PostingContent.SINGLE_VIDEO_FILE_CONTENT;
-			} else if (conType.equals("audio")) {
+			} else if (conType.startsWith("audio/")) {
 				if (contents != null && contents.trim().length() != 0) {
 					contentType = PostingContent.MIXED_AUDIO_FILE_CONTENT;
 				}
@@ -301,11 +300,11 @@ public class PostingController extends HttpServlet {
 			}
 		}
 		
-		Posting newPosting = new Posting(title, writer, pContent, contentType, exposure, tags,  contentType, reblogOption);
+		Posting newPosting = new Posting(title, writer, pContent, contentType, exposure, tags, Posting.NORMAL_TYPE_POSTING, reblogOption);
 		
 		this.getPostingServiceImplement().writePosting(blogName, newPosting);
 				
-		RequestDispatcher dispatcher = request.getRequestDispatcher("/index.jsp");
+		RequestDispatcher dispatcher = request.getRequestDispatcher("blog?action=main&startRow="+KitschSystem.DEFAULT_START_ROW+"&endRow="+KitschSystem.DEFAULT_END_ROW);
 		dispatcher.forward(request, response);
 	}
 	

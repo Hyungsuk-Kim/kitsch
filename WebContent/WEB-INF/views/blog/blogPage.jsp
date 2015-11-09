@@ -77,6 +77,13 @@
                <c:if test="${sessionScope.logonMember.email ne blogOwner.email}">
                <span class="text-right"><a href="/blog?action=following&blogName=${requestScope.blog.blogName}">팔로우</a></span>
                </c:if>
+               <c:if test="${sessionScope.logonMember.email eq blogOwner.email}">
+	               <c:forEach var="blog" items="${sessionScope.memberBlogs}" varStatus="status">
+	               	<c:if test="${status.count > 1}">
+               			<a href="/kitsch/blog?action=remove&blogName=${requestScope.blog.blogName}">블로그 삭제</a>
+	               	</c:if>
+	               </c:forEach>
+               </c:if>
             </p>
             <span class="img_center">
                <img src="${blogOwner.profileImage}"  class="img-circle2">

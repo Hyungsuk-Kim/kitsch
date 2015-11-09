@@ -164,16 +164,16 @@ public class PostingDaoImpl implements PostingDao {
 			
 			System.out.println("PostingDaoImpl insertPosting() second query : " + sql);
 			pstmt = connection.prepareStatement(sql);
-			pstmt.setInt(1, seqNum);
-			pstmt.setString(2, posting.getTitle());
-			pstmt.setString(3, posting.getWriter());
-			pstmt.setInt(4, posting.getContentType());
+			pstmt.setInt(1, seqNum); System.out.println("PostingDaoImpl 167 Line seqNum : " + seqNum);
+			pstmt.setString(2, posting.getTitle()); System.out.println("title : " + posting.getTitle());
+			pstmt.setString(3, posting.getWriter()); System.out.println("writer : " + posting.getWriter());
+			pstmt.setInt(4, posting.getContentType()); System.out.println("contentType : " + posting.getContentType());
 			pstmt.setDate(5, KitschUtil.convertDateUtilToSql(new java.util.Date()));
-			pstmt.setInt(6, posting.getExposure());
-			pstmt.setString(7, posting.getTags());
+			pstmt.setInt(6, posting.getExposure()); System.out.println("exposure : " + posting.getExposure());
+			pstmt.setString(7, posting.getTags()); System.out.println("tags : " + posting.getTags());
 			pstmt.setInt(8, seqNum);
-			pstmt.setInt(9, posting.getPostingType());
-			pstmt.setInt(10, posting.getReblogOption());
+			pstmt.setInt(9, posting.getPostingType()); System.out.println("postingType : " + posting.getPostingType());
+			pstmt.setInt(10, posting.getReblogOption()); System.out.println("reblogOption : " + posting.getReblogOption());
 			pstmt.executeUpdate();
 			pstmt.close();
 			
