@@ -18,6 +18,16 @@
   </servlet-mapping>
   <servlet>
     <description></description>
+    <display-name>SearchController</display-name>
+    <servlet-name>SearchController</servlet-name>
+    <servlet-class>microblog.kitsch.web.controller.SearchController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SearchController</servlet-name>
+    <url-pattern>/search</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
     <display-name>PostingController</display-name>
     <servlet-name>PostingController</servlet-name>
     <servlet-class>microblog.kitsch.web.controller.PostingController</servlet-class>

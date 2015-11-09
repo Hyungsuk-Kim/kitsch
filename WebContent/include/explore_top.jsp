@@ -36,11 +36,14 @@ $('#update').on('shown.bs.modal', function () {
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       
-      <form class="navbar-form navbar-left" role="search">
+      <form action="search" class="navbar-form navbar-left" role="search">
         <div class="form-group">
-          <input type="text" class="form-control" placeholder="Search">
+        	<input type="hidden" name="action" value="searchPostings">
+        	<input type="hidden" name="startRow" value="1">
+        	<input type="hidden" name="endRow" value="24">
+          <input type="text" class="form-control" placeholder="Search" name="searchText">
         </div>
-        <button type="submit" class="btn btn-default">Search</button>
+        <input type="submit" class="btn btn-default" value="검색">
       </form>
       
 		<div class="menu">
