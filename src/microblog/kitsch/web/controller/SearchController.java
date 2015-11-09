@@ -60,21 +60,22 @@ public class SearchController extends HttpServlet {
 	}
 	
 	private void searchAll(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
-		String searchType = request.getParameter("searchType");
+		//String searchType = request.getParameter("searchType");
 		String searchText = request.getParameter("searchText");
 		int startRow = Integer.parseInt(request.getParameter("startRow"));
 		int endRow = Integer.parseInt(request.getParameter("endRow"));
-		String sortingOption = request.getParameter("sortingOption");
+		//String sortingOption = request.getParameter("sortingOption");
 		
 		Map<String, Object> searchInfo = new HashMap<String, Object>();
 		searchInfo.put("target", "all");
 		searchInfo.put("searchType", "all");
+		//searchInfo.put("searchType", searchType);
 		searchInfo.put("searchText", searchText);
 		searchInfo.put("startRow", startRow);
 		searchInfo.put("endRow", endRow);
-		if (sortingOption != null && sortingOption.trim().length() != 0) {
+		/*if (sortingOption != null && sortingOption.trim().length() != 0) {
 			searchInfo.put("sortingOption", sortingOption);
-		}
+		}*/
 		
 		Member[] members = this.getMemberServiceImplementaion().getMemberList(searchInfo);
 		Blog[] blogs = this.getBlogServiceImplementaion().getBlogList(searchInfo);
@@ -84,82 +85,85 @@ public class SearchController extends HttpServlet {
 		request.setAttribute("blogs", blogs);
 		request.setAttribute("postings", postings);
 		
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/explore/explore.jsp");
 		dispatcher.forward(request, response);
 	}
 	
 	private void searchMembers(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
-		String searchType = request.getParameter("searchType");
+		//String searchType = request.getParameter("searchType");
 		String searchText = request.getParameter("searchText");
 		int startRow = Integer.parseInt(request.getParameter("startRow"));
 		int endRow = Integer.parseInt(request.getParameter("endRow"));
-		String sortingOption = request.getParameter("sortingOption");
+		//String sortingOption = request.getParameter("sortingOption");
 		
 		Map<String, Object> searchInfo = new HashMap<String, Object>();
 		searchInfo.put("target", "member");
 		searchInfo.put("searchType", "all");
+		//searchInfo.put("searchType", searchType);
 		searchInfo.put("searchText", searchText);
 		searchInfo.put("startRow", startRow);
 		searchInfo.put("endRow", endRow);
-		if (sortingOption != null && sortingOption.trim().length() != 0) {
+		/*if (sortingOption != null && sortingOption.trim().length() != 0) {
 			searchInfo.put("sortingOption", sortingOption);
-		}
+		}*/
 		
 		Member[] members = this.getMemberServiceImplementaion().getMemberList(searchInfo);
 		
 		request.setAttribute("members", members);
 		
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/explore/explore.jsp");
 		dispatcher.forward(request, response);
 	}
 	
 	private void searchBlogs(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
-		String searchType = request.getParameter("searchType");
+		//String searchType = request.getParameter("searchType");
 		String searchText = request.getParameter("searchText");
 		int startRow = Integer.parseInt(request.getParameter("startRow"));
 		int endRow = Integer.parseInt(request.getParameter("endRow"));
-		String sortingOption = request.getParameter("sortingOption");
+		//String sortingOption = request.getParameter("sortingOption");
 		
 		Map<String, Object> searchInfo = new HashMap<String, Object>();
 		searchInfo.put("target", "blog");
 		searchInfo.put("searchType", "all");
+		//searchInfo.put("searchType", searchType);
 		searchInfo.put("searchText", searchText);
 		searchInfo.put("startRow", startRow);
 		searchInfo.put("endRow", endRow);
-		if (sortingOption != null && sortingOption.trim().length() != 0) {
+		/*if (sortingOption != null && sortingOption.trim().length() != 0) {
 			searchInfo.put("sortingOption", sortingOption);
-		}
+		}*/
 		
 		Blog[] blogs = this.getBlogServiceImplementaion().getBlogList(searchInfo);
 		
 		request.setAttribute("blogs", blogs);
 		
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/explore/explore.jsp");
 		dispatcher.forward(request, response);
 	}
 	
 	private void searchPostings(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException {
-		String searchType = request.getParameter("searchType");
+		//String searchType = request.getParameter("searchType");
 		String searchText = request.getParameter("searchText");
 		int startRow = Integer.parseInt(request.getParameter("startRow"));
 		int endRow = Integer.parseInt(request.getParameter("endRow"));
-		String sortingOption = request.getParameter("sortingOption");
+		//String sortingOption = request.getParameter("sortingOption");
 		
 		Map<String, Object> searchInfo = new HashMap<String, Object>();
 		searchInfo.put("target", "posting");
 		searchInfo.put("searchType", "all");
+		//searchInfo.put("searchType", searchType);
 		searchInfo.put("searchText", searchText);
 		searchInfo.put("startRow", startRow);
 		searchInfo.put("endRow", endRow);
-		if (sortingOption != null && sortingOption.trim().length() != 0) {
+		/*if (sortingOption != null && sortingOption.trim().length() != 0) {
 			searchInfo.put("sortingOption", sortingOption);
-		}
+		}*/
 		
 		Posting[] postings = this.getPostingServiceImplementaion().getPostingList(searchInfo);
 		
 		request.setAttribute("postings", postings);
 		
-		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/explore/explore.jsp");
 		dispatcher.forward(request, response);
 	}
 

@@ -24,7 +24,7 @@ public class ManagementController extends HttpServlet {
 	private void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String action = request.getParameter("action");
 		
-		try {
+		/*try {
 			if (action.equals("privilege")) {
 				this.changeMemberRole(request, response);
 			} else if (action.equals("")) {
@@ -32,14 +32,12 @@ public class ManagementController extends HttpServlet {
 			} 
 		} catch (DataNotFoundException dne) {
 			throw new ServletException(dne);
-		} catch (DataDuplicatedException dde) {
-			throw new ServletException(dde);
 		} catch (IllegalDataException ide) {
 			throw new ServletException(ide);
-		}
+		}*/
 	}
 	
-	private void changeMemberRole(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException, IllegalDataException {
+	/*private void changeMemberRole(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, DataNotFoundException, IllegalDataException {
 		HttpSession session = request.getSession(false);
 		
 		String targetMemberName = request.getParameter("targetMemberName");
@@ -99,7 +97,7 @@ public class ManagementController extends HttpServlet {
 		}
 		RequestDispatcher dispatcher = request.getRequestDispatcher(arg0);
 		dispatcher.forward(request, response);
-	}
+	}*/
 	
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
