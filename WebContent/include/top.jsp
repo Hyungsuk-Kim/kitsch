@@ -44,7 +44,7 @@ $('#update').on('shown.bs.modal', function () {
       </form>
       
 		<div class="menu">
-      	<c:if test="${not empty sessionScope.member}">
+      	<c:if test="${not empty sessionScope.logonMember}">
 						<div class="btn-group">
 							<a href="blog?action=main" class="nav_icons"><i
 								class="glyphicon glyphicon-home h2 m_padding"></i></a>
@@ -98,7 +98,7 @@ $('#update').on('shown.bs.modal', function () {
 							</a>
 						</div>
 				</c:if>
-				<c:if test="${empty sessionScope.member}">
+				<c:if test="${empty sessionScope.logonMember}">
 						<ul class="nav navbar-nav navbar-right">
 							<li><button type="button"
 									class="btn btn-primary btn-lg top_font" data-toggle="modal"

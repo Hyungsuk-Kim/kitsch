@@ -74,7 +74,7 @@ public class ExploreController extends HttpServlet {
 		
 		HttpSession session = request.getSession(false);
 		if (session != null) {
-			Member member = (Member) session.getAttribute("member");
+			Member member = (Member) session.getAttribute("logonMember");
 			if (member != null) {
 				blog = blogService.visitBlog(member, blogName);
 			}
@@ -92,7 +92,7 @@ public class ExploreController extends HttpServlet {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
     	}
-    	Member member = (Member) session.getAttribute("member");
+    	Member member = (Member) session.getAttribute("logonMember");
     	if (member == null) {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
@@ -112,7 +112,7 @@ public class ExploreController extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
 			return;
 		}
-		Member member = (Member) session.getAttribute("member");
+		Member member = (Member) session.getAttribute("logonMember");
 		if (member == null) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
 			return;
@@ -132,7 +132,7 @@ public class ExploreController extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
 			return;
 		}
-		Member member = (Member) session.getAttribute("member");
+		Member member = (Member) session.getAttribute("logonMember");
 		if (member == null) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
 			return;
@@ -152,7 +152,7 @@ public class ExploreController extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
 			return;
 		}
-		Member member = (Member) session.getAttribute("member");
+		Member member = (Member) session.getAttribute("logonMember");
 		if (member == null) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
 			return;
@@ -176,7 +176,11 @@ public class ExploreController extends HttpServlet {
 		searchInfo.put("endRow", endRow);
 		
 		Posting[] postings = this.getPostingServiceImplementation().getPostingList(searchInfo);
-		request.setAttribute("postings", DomainObjectsForTest.postings);
+		for (Posting post : postings) {
+			System.out.print("ExploreController Line:180");
+			System.out.println(post.toString());
+		}
+		request.setAttribute("postings", postings);
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/explore/explore.jsp");
 		dispatcher.forward(request, response);
 	}
@@ -193,7 +197,11 @@ public class ExploreController extends HttpServlet {
 		searchInfo.put("contentType", PostingContent.COMMON_IMAGE_CONTENT);
 		
 		Posting[] postings = this.getPostingServiceImplementation().getPostingList(searchInfo);
-		request.setAttribute("postings", DomainObjectsForTest.images);
+		for (Posting post : postings) {
+			System.out.print("ExploreController Line:201");
+			System.out.println(post.toString());
+		}
+		request.setAttribute("postings", postings);
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/explore/explore.jsp");
 		dispatcher.forward(request, response);
 	}
@@ -210,7 +218,11 @@ public class ExploreController extends HttpServlet {
 		searchInfo.put("contentType", PostingContent.COMMON_VIDEO_CONTENT);
 		
 		Posting[] postings = this.getPostingServiceImplementation().getPostingList(searchInfo);
-		request.setAttribute("postings", DomainObjectsForTest.videos);
+		for (Posting post : postings) {
+			System.out.print("ExploreController Line:222");
+			System.out.println(post.toString());
+		}
+		request.setAttribute("postings", postings);
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/explore/explore.jsp");
 		dispatcher.forward(request, response);
 	}
@@ -227,7 +239,11 @@ public class ExploreController extends HttpServlet {
 		searchInfo.put("contentType", PostingContent.COMMON_AUDIO_CONTENT);
 		
 		Posting[] postings = this.getPostingServiceImplementation().getPostingList(searchInfo);
-		request.setAttribute("postings", DomainObjectsForTest.audios);
+		for (Posting post : postings) {
+			System.out.print("ExploreController Line:243");
+			System.out.println(post.toString());
+		}
+		request.setAttribute("postings", postings);
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/explore/explore.jsp");
 		dispatcher.forward(request, response);
 	}
@@ -244,7 +260,11 @@ public class ExploreController extends HttpServlet {
 		searchInfo.put("contentType", PostingContent.TEXT_CONTENT);
 		
 		Posting[] postings = this.getPostingServiceImplementation().getPostingList(searchInfo);
-		request.setAttribute("postings", DomainObjectsForTest.texts);
+		for (Posting post : postings) {
+			System.out.print("ExploreController Line:264");
+			System.out.println(post.toString());
+		}
+		request.setAttribute("postings", postings);
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/explore/explore.jsp");
 		dispatcher.forward(request, response);
 	}

@@ -25,10 +25,10 @@ $('#update').on('shown.bs.modal', function () {
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <c:if test="${not empty sessionScope.member}">
+      <c:if test="${not empty sessionScope.logonMember}">
       	<a class="navbar-brand" href="explore?action=trend">Kitsch</a>
       </c:if>
-      <c:if test="${empty sessionScope.member}">
+      <c:if test="${empty sessionScope.logonMember}">
       	<a class="navbar-brand" href="index.jsp">Kitsch</a>
       </c:if>
     </div>
@@ -44,7 +44,7 @@ $('#update').on('shown.bs.modal', function () {
       </form>
       
 		<div class="menu">
-      	<c:if test="${not empty sessionScope.member}">
+      	<c:if test="${not empty sessionScope.logonMember}">
 						<div class="btn-group">
 							<a href="blog?action=main" class="nav_icons"><i
 								class="glyphicon glyphicon-home h2 m_padding"></i></a>
@@ -98,14 +98,14 @@ $('#update').on('shown.bs.modal', function () {
 							</a>
 						</div>
 				</c:if>
-				<c:if test="${empty sessionScope.member}">
+				<c:if test="${empty sessionScope.logonMember}">
 						<ul class="nav navbar-nav navbar-right">
 							<li><button type="button"
 									class="btn btn-primary btn-lg top_font" data-toggle="modal"
 									data-target="#myModal">로그인</button></li>
 							<li>
 								<button type="button" class="btn btn-primary btn-lg top_font"
-									onclick="goUrl('index.jsp')">회원가입</button>
+									onclick="goUrl('/kitsch/index.jsp')">회원가입</button>
 							</li>
 						</ul>
 				</c:if>

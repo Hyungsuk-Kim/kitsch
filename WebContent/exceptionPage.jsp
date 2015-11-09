@@ -10,8 +10,9 @@
     <link rel="stylesheet" href="<c:url value='/css/dukeshop.css' />">		
 </head>
 <body>
-    <div class="main">
-        <p class="exceptionimage"><img alt="Ask duke!" src="<c:url value='/images/duke.png' />"></p>
+<div class="container">
+	<div class="row">
+        <p class="exceptionimage"><img src="<c:url value='/images/duke.png' />"></p>
         <p class="exceptionname">${pageContext.errorData.throwable.message}</p>
         <p>
             ${pageContext.errorData.throwable}<br>
@@ -20,6 +21,7 @@
             <code>${pageContext.errorData.requestURI}</code>
             <br>
         </p>
-    </div>
+	</div>
+</div>
 </body>
 </html>

@@ -76,6 +76,9 @@
 			</table>
 		</form>
 		</div>
+		<div>
+		<a href="explore?action=trend&startRow=1&endRow=24"><i class="h3">kitsch 둘러보기</i></a>
+		</div>
 </section>
 
 <section class="index_con2">

@@ -180,7 +180,7 @@ public class PostingController extends HttpServlet {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
     	}
-    	Member member = (Member) session.getAttribute("member");
+    	Member member = (Member) session.getAttribute("logonMember");
     	if (member == null) {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
@@ -198,9 +198,9 @@ public class PostingController extends HttpServlet {
 		
 		Collection<Part> parts = request.getParts();
 		Map<String, String> params = new HashMap<String, String>();
-		
 		for (Part part : parts) {
-			// Part가 파일인지 여부는 content-type 헤더의 유무로  확인 가능
+			System.out.println("##################### PostingController - 201 #####################");
+			// Part가 파일인지 여부는 content-type 헤더의 유무로 확인 가능
 			String contentType = part.getContentType();
 			if (contentType != null) {
 				// 파일 이름은 content-disposition 헤더로부터 추출 가능
@@ -238,14 +238,15 @@ public class PostingController extends HttpServlet {
 				for (String path : fList) {
 					filePaths = KitschUtil.convertToStringArray(path, Posting.PATH_DELIMITER, false);
 				}
-
-			// Part가 파일 필드가 아닐 경우 content-type 헤더가 존재하지 않음				
+				
+			// Part가 파일 필드가 아닐 경우 content-type 헤더가 존재하지 않음			
 			} else {
 			    String partName = part.getName(); // 필드 이름
 			    String fieldValue = request.getParameter(partName); // 필드 값
 			    params.put(partName, fieldValue);					
 			}
 		}
+		
 		for (String key : params.keySet()) {
 			System.out.print(key);
 			System.out.print(" - ");
@@ -254,7 +255,7 @@ public class PostingController extends HttpServlet {
 		
 		String blogName = params.get("blogName");
 		int exposure = Integer.parseInt(params.get("exposure"));
-		int postingType = Integer.parseInt(params.get("postingType"));
+		//int postingType = Integer.parseInt(params.get("postType"));
 		int reblogOption = 0;
 		String title = params.get("title");
 		String writer = params.get("writer");
@@ -300,7 +301,7 @@ public class PostingController extends HttpServlet {
 			}
 		}
 		
-		Posting newPosting = new Posting(title, writer, pContent, contentType, exposure, tags,  postingType, reblogOption);
+		Posting newPosting = new Posting(title, writer, pContent, contentType, exposure, tags,  contentType, reblogOption);
 		
 		this.getPostingServiceImplement().writePosting(blogName, newPosting);
 				
@@ -314,7 +315,7 @@ public class PostingController extends HttpServlet {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
     	}
-    	Member member = (Member) session.getAttribute("member");
+    	Member member = (Member) session.getAttribute("logonMember");
     	if (member == null) {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
@@ -323,7 +324,7 @@ public class PostingController extends HttpServlet {
     	Blog[] blogs = this.getBlogServiceImplement().getMemberBlogs(member);
 		request.setAttribute("memberBlogs", blogs);
     	
-		RequestDispatcher dispatcher = request.getRequestDispatcher("postingForm_old.jsp");
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/posting/postingForm_ckeditor.jsp");
 		dispatcher.forward(request, response);
 	}
 	
@@ -333,7 +334,7 @@ public class PostingController extends HttpServlet {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
     	}
-    	Member member = (Member) session.getAttribute("member");
+    	Member member = (Member) session.getAttribute("logonMember");
     	if (member == null) {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
@@ -364,7 +365,7 @@ public class PostingController extends HttpServlet {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
     	}
-    	Member member = (Member) session.getAttribute("member");
+    	Member member = (Member) session.getAttribute("logonMember");
     	if (member == null) {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
@@ -416,7 +417,7 @@ public class PostingController extends HttpServlet {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
     	}
-    	Member member = (Member) session.getAttribute("member");
+    	Member member = (Member) session.getAttribute("logonMember");
     	if (member == null) {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
@@ -438,7 +439,7 @@ public class PostingController extends HttpServlet {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
     	}
-    	Member member = (Member) session.getAttribute("member");
+    	Member member = (Member) session.getAttribute("logonMember");
     	if (member == null) {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
@@ -457,7 +458,7 @@ public class PostingController extends HttpServlet {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
     	}
-    	Member member = (Member) session.getAttribute("member");
+    	Member member = (Member) session.getAttribute("logonMember");
     	if (member == null) {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
@@ -494,7 +495,7 @@ public class PostingController extends HttpServlet {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
     	}
-    	Member member = (Member) session.getAttribute("member");
+    	Member member = (Member) session.getAttribute("logonMember");
     	if (member == null) {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
@@ -531,7 +532,7 @@ public class PostingController extends HttpServlet {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
     	}
-    	Member member = (Member) session.getAttribute("member");
+    	Member member = (Member) session.getAttribute("logonMember");
     	if (member == null) {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
@@ -574,7 +575,7 @@ public class PostingController extends HttpServlet {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
     	}
-    	Member member = (Member) session.getAttribute("member");
+    	Member member = (Member) session.getAttribute("logonMember");
     	if (member == null) {
     		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
     		return;
@@ -607,7 +608,7 @@ public class PostingController extends HttpServlet {
 		
 		HttpSession session = request.getSession(false);
 		if (session != null) {
-			Member member = (Member) session.getAttribute("member");
+			Member member = (Member) session.getAttribute("logonMember");
 			if (member != null) {
 				PostingContent pContent = new PostingContent();
 				if (contentType == PostingContent.TEXT_CONTENT) {
@@ -644,7 +645,7 @@ public class PostingController extends HttpServlet {
 		
 		HttpSession session = request.getSession(false);
 		if (session != null) {
-			Member member = (Member) session.getAttribute("member");
+			Member member = (Member) session.getAttribute("logonMember");
 			if (member != null) {
 				PostingService postingService = this.getPostingServiceImplement();
 				Posting posting = postingService.findPosting(blogName, postingNum);
@@ -681,7 +682,7 @@ public class PostingController extends HttpServlet {
 		
 		HttpSession session = request.getSession(false);
 		if (session != null) {
-			Member author = (Member) session.getAttribute("member");
+			Member author = (Member) session.getAttribute("logonMember");
 			if (author != null) {
 				PostingService postingService = this.getPostingServiceImplement();
 				Posting reply = postingService.findPosting(blogName, postingNum);
@@ -703,7 +704,7 @@ public class PostingController extends HttpServlet {
 		
 		HttpSession session = request.getSession(false);
 		if (session != null) {
-			Member member = (Member) session.getAttribute("member");
+			Member member = (Member) session.getAttribute("logonMember");
 			if (member != null) {
 				Posting reply = this.getPostingServiceImplement().findPosting(blogName, postingNum);
 				if (reply.getWriter().equals(member.getName())) {

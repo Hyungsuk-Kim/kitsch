@@ -21,6 +21,11 @@
     <display-name>PostingController</display-name>
     <servlet-name>PostingController</servlet-name>
     <servlet-class>microblog.kitsch.web.controller.PostingController</servlet-class>
+    <multipart-config>
+        <file-size-threshold>0</file-size-threshold>
+        <max-file-size>-1</max-file-size>
+        <max-request-size>-1</max-request-size>
+    </multipart-config>
   </servlet>
   <servlet-mapping>
     <servlet-name>PostingController</servlet-name>

@@ -65,18 +65,51 @@ public class PostingDaoImpl implements PostingDao {
 		
 		switch (typeOfContent) {
 		case PostingContent.MIXED_AUDIO_FILE_CONTENT:
+			result=true;
+			break;
 		case PostingContent.MIXED_AUDIO_LINK_CONTENT:
+			result=true;
+			break;
 		case PostingContent.MIXED_IMAGE_FILE_CONTENT:
+			result=true;
+			break;
 		case PostingContent.MIXED_IMAGE_LINK_CONTENT:
+			result=true;
+			break;
 		case PostingContent.MIXED_VIDEO_FILE_CONTENT:
+			result=true;
+			break;
 		case PostingContent.MIXED_VIDEO_LINK_CONTENT:
+			result=true;
+			break;
 		case PostingContent.SINGLE_AUDIO_FILE_CONTENT:
+			result=true;
+			break;
 		case PostingContent.SINGLE_AUDIO_LINK_CONTENT:
+			result=true;
+			break;
 		case PostingContent.SINGLE_IMAGE_FILE_CONTENT:
+			result=true;
+			break;
 		case PostingContent.SINGLE_IMAGE_LINK_CONTENT:
+			result=true;
+			break;
 		case PostingContent.SINGLE_VIDEO_FILE_CONTENT:
+			result=true;
+			break;
 		case PostingContent.SINGLE_VIDEO_LINK_CONTENT:
+			result=true;
+			break;
 		case PostingContent.TEXT_CONTENT:
+			result = true;
+			break;
+		case PostingContent.COMMON_AUDIO_CONTENT:
+			result = true;
+			break;
+		case PostingContent.COMMON_IMAGE_CONTENT:
+			result = true;
+			break;
+		case PostingContent.COMMON_VIDEO_CONTENT:
 			result = true;
 			break;
 
@@ -695,6 +728,7 @@ public class PostingDaoImpl implements PostingDao {
 		if (searchInfo.containsKey("contentType")) {
 			typeOfContent = (Integer) searchInfo.get("contentType");
 			selectAsContentType = this.checkValidContentType(typeOfContent);
+			System.err.println("PostingDaoImpl 736 : "+ typeOfContent + ", " + selectAsContentType);
 		}
 		
 		if (searchText != null) {
@@ -761,7 +795,7 @@ public class PostingDaoImpl implements PostingDao {
 				blogId = rs.getString(1);
 				
 				if (selectAsContentType) {
-					whereSyntax = " WHERE content_type LIKE ? AND posting_type=" + Posting.NORMAL_TYPE_POSTING;
+					whereSyntax = " WHERE content_type IN (?, ?, ?, ?) AND posting_type=?";
 				} else if (searchType != null && searchType.trim().length() != 0) {
 					if (searchType.equals("all")) {
 						whereSyntax = " WHERE num IN (SELECT num FROM " + blogId + "_text WHERE LOWER(text_content) LIKE LOWER(?) ESCAPE '@') OR "
@@ -784,28 +818,49 @@ public class PostingDaoImpl implements PostingDao {
 				System.out.println("PostingDaoImpl getPostingList() seventh query : " + sql2);
 				pstmt2 = connection.prepareStatement(sql2);
 				
-				if (searchType != null) { // TODO temporary code if (searchType != null) {}
 				if (selectAsContentType){
-					int type = typeOfContent / 10;
-					type = type % 10;
-					String content = "_" + type + "_";
-					pstmt2.setString(1, content);
-				} else if (searchType.equals("all")) {
+					if (typeOfContent == PostingContent.TEXT_CONTENT) {
+						pstmt2.setInt(1, typeOfContent);
+						pstmt2.setInt(2, typeOfContent);
+						pstmt2.setInt(3, typeOfContent);
+						pstmt2.setInt(4, typeOfContent);
+						pstmt2.setInt(5, Posting.NORMAL_TYPE_POSTING);
+					} else if (typeOfContent == PostingContent.COMMON_AUDIO_CONTENT) {
+						pstmt2.setInt(1, PostingContent.MIXED_AUDIO_FILE_CONTENT);
+						pstmt2.setInt(2, PostingContent.SINGLE_AUDIO_FILE_CONTENT);
+						pstmt2.setInt(3, PostingContent.MIXED_AUDIO_LINK_CONTENT);
+						pstmt2.setInt(4, PostingContent.SINGLE_AUDIO_LINK_CONTENT);
+						pstmt2.setInt(5, Posting.NORMAL_TYPE_POSTING);
+					} else if (typeOfContent == PostingContent.COMMON_VIDEO_CONTENT) {
+						pstmt2.setInt(1, PostingContent.MIXED_VIDEO_FILE_CONTENT);
+						pstmt2.setInt(2, PostingContent.SINGLE_VIDEO_FILE_CONTENT);
+						pstmt2.setInt(3, PostingContent.MIXED_VIDEO_LINK_CONTENT);
+						pstmt2.setInt(4, PostingContent.SINGLE_VIDEO_LINK_CONTENT);
+						pstmt2.setInt(5, Posting.NORMAL_TYPE_POSTING);
+					} else if (typeOfContent == PostingContent.COMMON_IMAGE_CONTENT) {
+						pstmt2.setInt(1, PostingContent.MIXED_IMAGE_FILE_CONTENT);
+						pstmt2.setInt(2, PostingContent.SINGLE_IMAGE_FILE_CONTENT);
+						pstmt2.setInt(3, PostingContent.MIXED_IMAGE_LINK_CONTENT);
+						pstmt2.setInt(4, PostingContent.SINGLE_IMAGE_LINK_CONTENT);
+						pstmt2.setInt(5, Posting.NORMAL_TYPE_POSTING);
+					}
+				} else if (searchType != null && searchType.trim().length() != 0) {
+					if (searchType.equals("all")) {
+							pstmt2.setString(1, searchTextKeyword);
+							pstmt2.setString(2, searchTextKeyword);
+							pstmt2.setString(3, searchTextKeyword);
+							pstmt2.setString(4, searchTextKeyword);
+							pstmt2.setString(5, searchTextKeyword);
+					} else if (searchType.equals("title")) {
+						pstmt2.setString(1, searchTextKeyword);
+					} else if (searchType.equals("writer")) {
+						pstmt2.setString(1, searchTextKeyword);
+					} else if (searchType.equals("contents")) {
 						pstmt2.setString(1, searchTextKeyword);
 						pstmt2.setString(2, searchTextKeyword);
-						pstmt2.setString(3, searchTextKeyword);
-						pstmt2.setString(4, searchTextKeyword);
-						pstmt2.setString(5, searchTextKeyword);
-				} else if (searchType.equals("title")) {
-					pstmt2.setString(1, searchTextKeyword);
-				} else if (searchType.equals("writer")) {
-					pstmt2.setString(1, searchTextKeyword);
-				} else if (searchType.equals("contents")) {
-					pstmt2.setString(1, searchTextKeyword);
-					pstmt2.setString(2, searchTextKeyword);
-				} else if (searchType.equals("tags")) {
-					pstmt2.setString(1, searchTextKeyword);
-				}
+					} else if (searchType.equals("tags")) {
+						pstmt2.setString(1, searchTextKeyword);
+					}
 				}
 				
 				rs2 = pstmt2.executeQuery();

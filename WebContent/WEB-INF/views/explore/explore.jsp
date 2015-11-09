@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page import="microblog.kitsch.test.DomainObjectsForTest" %>
+<%@ page import="microblog.kitsch.business.service.PostingService" %>
+<%@ page import="microblog.kitsch.business.service.PostingServiceImpl" %>
 
 
 <!DOCTYPE HTML>
@@ -59,71 +60,17 @@
 									
 			});
 		</script>
-		
+	<script src="js/jquery.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/jquery.prettyPhoto.js"></script>
+	<script src="js/jquery.isotope.min.js"></script>
+	<script src="js/main.js"></script>
+	<script src="js/wow.min.js"></script>
 	</head>
 	<%
-		/*
-		session.setAttribute("logonMember", DomainObjectsForTest.logonMember);
-		session.setAttribute("memberBlogs", DomainObjectsForTest.memberBlogs);
-		session.setAttribute("defaultBlog", DomainObjectsForTest.defaultBlog);
-		request.setAttribute("postings", DomainObjectsForTest.postings);
-		request.setAttribute("blogs", DomainObjectsForTest.blogs);
-		*/
+		PostingService postingService = new PostingServiceImpl();
 	%>
 	<body>
-		<!---start-wrap---->
-		<%--
-			<!---start-header---->
-			<div class="header">
-				<div class="wrap">
-				<div class="logo">
-					<a href="index.html"><img src="images/logo.png" title="pinbal" /></a>
-				</div>
-				<div class="nav-icon">
-					 <a href="#" class="right_bt" id="activator"><span> </span> </a>
-				</div>
-				 <div class="box" id="box">
-					 <div class="box_content">        					                         
-						<div class="box_content_center">
-						 	<div class="form_content">
-								<div class="menu_box_list">
-									<ul>
-										<li><a href="#"><span>home</span></a></li>
-										<li><a href="#"><span>About</span></a></li>
-										<li><a href="#"><span>Works</span></a></li>
-										<li><a href="#"><span>Clients</span></a></li>
-										<li><a href="#"><span>Blog</span></a></li>
-										<li><a href="contact.html"><span>Contact</span></a></li>
-										<div class="clear"> </div>
-									</ul>
-								</div>
-								<a class="boxclose" id="boxclose"> <span> </span></a>
-							</div>                                  
-						</div> 	
-					</div> 
-				</div>       	  
-				<div class="top-searchbar">
-					<form>
-						<input type="text" /><input type="submit" value="" />
-					</form>
-				</div>
-				<div class="userinfo">
-					<div class="user">
-						<ul>
-							<li><a href="#"><img src="images/user-pic.png" title="user-name" /><span>Ipsum</span></a></li>
-						</ul>
-					</div>
-				</div>
-				<div class="clear"> </div>
-			</div>
-		</div>
-		<!---//End-header---->
-		--%>
-		<!---start-content---->
-		
-		 
-		
-		
 	<div class="container">
 		<div class="row">
 			<div class="content">
@@ -131,7 +78,9 @@
 					 <div id="main" role="main">
 					      <ul id="tiles">
 					        <!-- These are our grid blocks -->
-					        
+					        <c:if test="${empty requestScope.postings}">
+					        	<li><div class="post-info"><p class="h3 text-center">포스트가 없습니다.</p></div></li>
+					        </c:if>
 					        <c:forEach var="post" items="${requestScope.postings}">
 					        
 					        	<!-- Text Post -->
@@ -140,7 +89,7 @@
 							        	<div class="post-info">
 							        		<div class="post-basic-info">
 							        		<p class="h5">작성자: <a href="#">${post.writer}</a>
-							        		<i class="glyphicon glyphicon-retweet follow_style">팔로우</i>
+							        		<a href="#"><i class="follow_style">팔로우</i></a>
 							        		</p>
 							        		</div>
 							        		<div class="post-basic-info">
@@ -153,23 +102,28 @@
 							        		<!-- 좋아요 아이콘 -->
 							        			<div class="rateit">
 							        			
-							        			<a href="/posting?action=addLike" class="like_btn">
-							        				<i class="glyphicon glyphicon-heart-empty" ></i>							    
-							        			</a>
-							        			
-							        			<c:if test="">
-							        			
-							        			<a href="/posting?action=cancelLike" class="like_btn">
-							        				<i class="glyphicon glyphicon-heart" ></i>
-							        			</a>
+							        			<c:if test="${sessionScope.logonMember.name ne post.writer}">
+								        			<c:if test="">
+									        			<a href="/posting?action=addLike" class="like_btn">
+									        				<i class="glyphicon glyphicon-heart-empty" ></i>							    
+									        			</a>
+								        			</c:if>
+							        				<c:if test="">
+									        			<a href="/posting?action=cancelLike" class="like_btn">
+									        				<i class="glyphicon glyphicon-heart" ></i>
+									        			</a>
+							        				</c:if>
 							        			</c:if>
 							        			
-							        			
-							        			
-							        				
 							        			</div>
 							        			<div class="post-share">							  
 							        					좋아요${post.likes}개							        				
+							        			</div>
+							        			<div class="post-share">
+							        			<c:if test="${sessionScope.logonMember.name eq post.writer}">
+							        				<a href="#">삭제</a>
+							        				<a href="#">수정</a>
+							        			</c:if>
 							        			</div>
 							        			<div class="clear"> </div>
 							        		</div>
@@ -183,6 +137,7 @@
 							        	<div class="post-info">
 							        		<div class="post-basic-info">
 							        		<p class="h5">작성자: <a href="#">${post.writer}</a></p>
+							        		<a href="#"><i class="follow_style">팔로우</i></a>
 							        		</div>
 							        		<c:forEach var="image" items="${post.contents.filePaths}">
 							        			<img src="${image}" width="282">
@@ -193,21 +148,31 @@
 							        			</c:if>
 							        		</div>
 							        		<div class="post-info-rate-share">
+							        		<!-- 좋아요 아이콘 -->
 							        			<div class="rateit">
 							        			
-							        			<a href="/posting?action=addLike" class="like_btn">
-							        				<i class="glyphicon glyphicon-heart-empty" ></i>							    
-							        			</a>
-							        			
-							        			<c:if test="">
-							        			
-							        			<a href="/posting?action=cancelLike" class="like_btn">
-							        				<i class="glyphicon glyphicon-heart" ></i>
-							        			</a>
+							        			<c:if test="${sessionScope.logonMember.name ne post.writer}">
+								        			<c:if test="">
+									        			<a href="/posting?action=addLike" class="like_btn">
+									        				<i class="glyphicon glyphicon-heart-empty" ></i>							    
+									        			</a>
+								        			</c:if>
+							        				<c:if test="">
+									        			<a href="/posting?action=cancelLike" class="like_btn">
+									        				<i class="glyphicon glyphicon-heart" ></i>
+									        			</a>
+							        				</c:if>
 							        			</c:if>
+							        			
 							        			</div>
 							        			<div class="post-share">							  
 							        					좋아요${post.likes}개							        				
+							        			</div>
+							        			<div class="post-share">
+							        			<c:if test="${sessionScope.logonMember.name eq post.writer}">
+							        				<a href="#">삭제</a>
+							        				<a href="#">수정</a>
+							        			</c:if>
 							        			</div>
 							        			<div class="clear"> </div>
 							        		</div>
@@ -221,6 +186,7 @@
 							        	<div class="post-info">
 							        		<div class="post-basic-info">
 							        		<p class="h5">작성자: <a href="#">${post.writer}</a></p>
+							        		<a href="#"><i class="follow_style">팔로우</i></a>
 							        		</div>
 							        		<c:forEach var="image" items="${post.contents.filePaths}">
 							        			<img src="${image}" width="282">
@@ -235,20 +201,28 @@
 							        		<!-- 좋아요 아이콘 -->
 							        			<div class="rateit">
 							        			
-							        			<a href="/posting?action=addLike" class="like_btn">
-							        				<i class="glyphicon glyphicon-heart-empty" ></i>							    
-							        			</a>
-							        			
-							        			<c:if test="">
-							        			
-							        			<a href="/posting?action=cancelLike" class="like_btn">
-							        				<i class="glyphicon glyphicon-heart" ></i>
-							        			</a>
+							        			<c:if test="${sessionScope.logonMember.name ne post.writer}">
+								        			<c:if test="">
+									        			<a href="/posting?action=addLike" class="like_btn">
+									        				<i class="glyphicon glyphicon-heart-empty" ></i>							    
+									        			</a>
+								        			</c:if>
+							        				<c:if test="">
+									        			<a href="/posting?action=cancelLike" class="like_btn">
+									        				<i class="glyphicon glyphicon-heart" ></i>
+									        			</a>
+							        				</c:if>
 							        			</c:if>
 							        			
 							        			</div>
 							        			<div class="post-share">							  
 							        					좋아요${post.likes}개							        				
+							        			</div>
+							        			<div class="post-share">
+							        			<c:if test="${sessionScope.logonMember.name eq post.writer}">
+							        				<a href="#">삭제</a>
+							        				<a href="#">수정</a>
+							        			</c:if>
 							        			</div>
 							        			<div class="clear"> </div>
 							        		</div>
@@ -262,6 +236,7 @@
 							        	<div class="post-info">
 							        		<div class="post-basic-info">
 							        		<p class="h5">작성자: <a href="#">${post.writer}</a></p>
+							        		<a href="#"><i class="follow_style">팔로우</i></a>
 							        		</div>
 							        		<c:forEach var="audio" items="${post.contents.filePaths}">
 							        			<audio class="col-xs-10 col-xs-offset-1" controls>
@@ -280,23 +255,28 @@
 							        		<!-- 좋아요 아이콘 -->
 							        			<div class="rateit">
 							        			
-							        			<a href="/posting?action=addLike" class="like_btn">
-							        				<i class="glyphicon glyphicon-heart-empty" ></i>							    
-							        			</a>
-							        			
-							        			<c:if test="">
-							        			
-							        			<a href="/posting?action=cancelLike" class="like_btn">
-							        				<i class="glyphicon glyphicon-heart" ></i>
-							        			</a>
+							        			<c:if test="${sessionScope.logonMember.name ne post.writer}">
+								        			<c:if test="">
+									        			<a href="/posting?action=addLike" class="like_btn">
+									        				<i class="glyphicon glyphicon-heart-empty" ></i>							    
+									        			</a>
+								        			</c:if>
+							        				<c:if test="">
+									        			<a href="/posting?action=cancelLike" class="like_btn">
+									        				<i class="glyphicon glyphicon-heart" ></i>
+									        			</a>
+							        				</c:if>
 							        			</c:if>
 							        			
-							        			
-							        			
-							        				
 							        			</div>
 							        			<div class="post-share">							  
 							        					좋아요${post.likes}개							        				
+							        			</div>
+							        			<div class="post-share">
+							        			<c:if test="${sessionScope.logonMember.name eq post.writer}">
+							        				<a href="#">삭제</a>
+							        				<a href="#">수정</a>
+							        			</c:if>
 							        			</div>
 							        			<div class="clear"> </div>
 							        		</div>
@@ -310,6 +290,7 @@
 							        	<div class="post-info">
 							        		<div class="post-basic-info">
 							        		<p class="h5">작성자: <a href="#">${post.writer}</a></p>
+							        		<a href="#"><i class="follow_style">팔로우</i></a>
 							        		</div>
 							        		<c:forEach var="audio" items="${post.contents.filePaths}">
 							        			<audio class="col-xs-10 col-xs-offset-1" controls>
@@ -329,23 +310,28 @@
 							        		<!-- 좋아요 아이콘 -->
 							        			<div class="rateit">
 							        			
-							        			<a href="/posting?action=addLike" class="like_btn">
-							        				<i class="glyphicon glyphicon-heart-empty" ></i>							    
-							        			</a>
-							        			
-							        			<c:if test="">
-							        			
-							        			<a href="/posting?action=cancelLike" class="like_btn">
-							        				<i class="glyphicon glyphicon-heart" ></i>
-							        			</a>
+							        			<c:if test="${sessionScope.logonMember.name ne post.writer}">
+								        			<c:if test="">
+									        			<a href="/posting?action=addLike" class="like_btn">
+									        				<i class="glyphicon glyphicon-heart-empty" ></i>							    
+									        			</a>
+								        			</c:if>
+							        				<c:if test="">
+									        			<a href="/posting?action=cancelLike" class="like_btn">
+									        				<i class="glyphicon glyphicon-heart" ></i>
+									        			</a>
+							        				</c:if>
 							        			</c:if>
 							        			
-							        			
-							        			
-							        				
 							        			</div>
 							        			<div class="post-share">							  
 							        					좋아요${post.likes}개							        				
+							        			</div>
+							        			<div class="post-share">
+							        			<c:if test="${sessionScope.logonMember.name eq post.writer}">
+							        				<a href="#">삭제</a>
+							        				<a href="#">수정</a>
+							        			</c:if>
 							        			</div>
 							        			<div class="clear"> </div>
 							        		</div>
@@ -359,6 +345,7 @@
 							        	<div class="post-info">
 							        		<div class="post-basic-info">
 							        		<p class="h5">작성자: <a href="#">${post.writer}</a></p>
+							        		<a href="#"><i class="follow_style">팔로우</i></a>
 							        		</div>
 							        		<c:forEach var="video" items="${post.contents.filePaths}">
 							        			<video width="281" controls>
@@ -375,23 +362,28 @@
 							        		<!-- 좋아요 아이콘 -->
 							        			<div class="rateit">
 							        			
-							        			<a href="/posting?action=addLike" class="like_btn">
-							        				<i class="glyphicon glyphicon-heart-empty" ></i>							    
-							        			</a>
-							        			
-							        			<c:if test="">
-							        			
-							        			<a href="/posting?action=cancelLike" class="like_btn">
-							        				<i class="glyphicon glyphicon-heart" ></i>
-							        			</a>
+							        			<c:if test="${sessionScope.logonMember.name ne post.writer}">
+								        			<c:if test="">
+									        			<a href="/posting?action=addLike" class="like_btn">
+									        				<i class="glyphicon glyphicon-heart-empty" ></i>							    
+									        			</a>
+								        			</c:if>
+							        				<c:if test="">
+									        			<a href="/posting?action=cancelLike" class="like_btn">
+									        				<i class="glyphicon glyphicon-heart" ></i>
+									        			</a>
+							        				</c:if>
 							        			</c:if>
 							        			
-							        			
-							        			
-							        				
 							        			</div>
 							        			<div class="post-share">							  
 							        					좋아요${post.likes}개							        				
+							        			</div>
+							        			<div class="post-share">
+							        			<c:if test="${sessionScope.logonMember.name eq post.writer}">
+							        				<a href="#">삭제</a>
+							        				<a href="#">수정</a>
+							        			</c:if>
 							        			</div>
 							        			<div class="clear"> </div>
 							        		</div>
@@ -405,6 +397,7 @@
 							        	<div class="post-info">
 							        		<div class="post-basic-info">
 							        		<p class="h5">작성자: <a href="#">${post.writer}</a></p>
+							        		<a href="#"><i class="follow_style">팔로우</i></a>
 							        		</div>
 							        		<c:forEach var="video" items="${post.contents.filePaths}">
 							        			<video width="281" controls>
@@ -422,23 +415,28 @@
 							        		<!-- 좋아요 아이콘 -->
 							        			<div class="rateit">
 							        			
-							        			<a href="/posting?action=addLike" class="like_btn">
-							        				<i class="glyphicon glyphicon-heart-empty" ></i>							    
-							        			</a>
-							        			
-							        			<c:if test="">
-							        			
-							        			<a href="/posting?action=cancelLike" class="like_btn">
-							        				<i class="glyphicon glyphicon-heart" ></i>
-							        			</a>
+							        			<c:if test="${sessionScope.logonMember.name ne post.writer}">
+								        			<c:if test="">
+									        			<a href="/posting?action=addLike" class="like_btn">
+									        				<i class="glyphicon glyphicon-heart-empty" ></i>							    
+									        			</a>
+								        			</c:if>
+							        				<c:if test="">
+									        			<a href="/posting?action=cancelLike" class="like_btn">
+									        				<i class="glyphicon glyphicon-heart" ></i>
+									        			</a>
+							        				</c:if>
 							        			</c:if>
 							        			
-							        			
-							        			
-							        				
 							        			</div>
 							        			<div class="post-share">							  
 							        					좋아요${post.likes}개							        				
+							        			</div>
+							        			<div class="post-share">
+							        			<c:if test="${sessionScope.logonMember.name eq post.writer}">
+							        				<a href="#">삭제</a>
+							        				<a href="#">수정</a>
+							        			</c:if>
 							        			</div>
 							        			<div class="clear"> </div>
 							        		</div>
@@ -448,238 +446,6 @@
 						        
 					        </c:forEach>
 					        
-					        <%--
-					        <li onclick="location.href='single-page.html';">
-					        	<img src="images/img1.jpg" width="282" height="118">
-					        	<div class="post-info">
-					        		<div class="post-basic-info">
-						        		<h3><a href="#">Animation films</a></h3>
-						        		<span><a href="#"><label> </label>Movies</a></span>
-						        		<p>Lorem Ipsum is simply dummy text of the printing & typesetting industry.</p>
-					        		</div>
-					        		<div class="post-info-rate-share">
-					        			<div class="rateit">
-					        				<span> </span>
-					        			</div>
-					        			<div class="post-share">
-					        				<span> </span>
-					        			</div>
-					        			<div class="clear"> </div>
-					        		</div>
-					        	</div>
-					        </li>
-					        <li onclick="location.href='single-page.html';">
-					        	<img src="images/img2.jpg" width="282" height="344">
-								<div class="post-info">
-					        		<div class="post-basic-info">
-						        		<h3><a href="#">Animation films</a></h3>
-						        		<span><a href="#"><label> </label>Movies</a></span>
-						        		<p>Lorem Ipsum is simply dummy text of the printing & typesetting industry.</p>
-					        		</div>
-					        		<div class="post-info-rate-share">
-					        			<div class="rateit">
-					        				<span> </span>
-					        			</div>
-					        			<div class="post-share">
-					        				<span> </span>
-					        			</div>
-					        			<div class="clear"> </div>
-					        		</div>
-					        	</div>
-							</li>
-					        <li onclick="location.href='single-page.html';">
-					        	<img src="images/img3.jpg" width="282" height="210">
-					        	<div class="post-info">
-					        		<div class="post-basic-info">
-						        		<h3><a href="#">Animation films</a></h3>
-						        		<span><a href="#"><label> </label>Movies</a></span>
-						        		<p>Lorem Ipsum is simply dummy text of the printing & typesetting industry.</p>
-					        		</div>
-					        		<div class="post-info-rate-share">
-					        			<div class="rateit">
-					        				<span> </span>
-					        			</div>
-					        			<div class="post-share">
-					        				<span> </span>
-					        			</div>
-					        			<div class="clear"> </div>
-					        		</div>
-					        	</div>
-					        </li>
-					        <li onclick="location.href='single-page.html';">
-					        	<img src="images/img4.jpg" width="282" height="385">
-					        	<div class="post-info">
-					        		<div class="post-basic-info">
-						        		<h3><a href="#">Animation films</a></h3>
-						        		<span><a href="#"><label> </label>Movies</a></span>
-						        		<p>Lorem Ipsum is simply dummy text of the printing & typesetting industry.</p>
-					        		</div>
-					        		<div class="post-info-rate-share">
-					        			<div class="rateit">
-					        				<span> </span>
-					        			</div>
-					        			<div class="post-share">
-					        				<span> </span>
-					        			</div>
-					        			<div class="clear"> </div>
-					        		</div>
-					        	</div>
-					        </li>
-					        <!----//--->
-					        <li onclick="location.href='single-page.html';">
-					        	<img src="images/img4.jpg" width="282" height="385">
-					        	<div class="post-info">
-					        		<div class="post-basic-info">
-						        		<h3><a href="#">Animation films</a></h3>
-						        		<span><a href="#"><label> </label>Movies</a></span>
-						        		<p>Lorem Ipsum is simply dummy text of the printing & typesetting industry.</p>
-					        		</div>
-					        		<div class="post-info-rate-share">
-					        			<div class="rateit">
-					        				<span> </span>
-					        			</div>
-					        			<div class="post-share">
-					        				<span> </span>
-					        			</div>
-					        			<div class="clear"> </div>
-					        		</div>
-					        	</div>
-					        </li>
-					        <li onclick="location.href='single-page.html';">
-					        	<img src="images/img3.jpg" width="282" height="210">
-					        	<div class="post-info">
-					        		<div class="post-basic-info">
-						        		<h3><a href="#">Animation films</a></h3>
-						        		<span><a href="#"><label> </label>Movies</a></span>
-						        		<p>Lorem Ipsum is simply dummy text of the printing & typesetting industry.</p>
-					        		</div>
-					        		<div class="post-info-rate-share">
-					        			<div class="rateit">
-					        				<span> </span>
-					        			</div>
-					        			<div class="post-share">
-					        				<span> </span>
-					        			</div>
-					        			<div class="clear"> </div>
-					        		</div>
-					        	</div>
-					        </li>
-					        <li onclick="location.href='single-page.html';">
-					        	<img src="images/img2.jpg" width="282" height="344">
-								<div class="post-info">
-					        		<div class="post-basic-info">
-						        		<h3><a href="#">Animation films</a></h3>
-						        		<span><a href="#"><label> </label>Movies</a></span>
-						        		<p>Lorem Ipsum is simply dummy text of the printing & typesetting industry.</p>
-					        		</div>
-					        		<div class="post-info-rate-share">
-					        			<div class="rateit">
-					        				<span> </span>
-					        			</div>
-					        			<div class="post-share">
-					        				<span> </span>
-					        			</div>
-					        			<div class="clear"> </div>
-					        		</div>
-					        	</div>
-							</li>
-							  <li onclick="location.href='single-page.html';">
-					        	<img src="images/img1.jpg" width="282" height="118">
-					        	<div class="post-info">
-					        		<div class="post-basic-info">
-						        		<h3><a href="#">Animation films</a></h3>
-						        		<span><a href="#"><label> </label>Movies</a></span>
-						        		<p>Lorem Ipsum is simply dummy text of the printing & typesetting industry.</p>
-					        		</div>
-					        		<div class="post-info-rate-share">
-					        			<div class="rateit">
-					        				<span> </span>
-					        			</div>
-					        			<div class="post-share">
-					        				<span> </span>
-					        			</div>
-					        			<div class="clear"> </div>
-					        		</div>
-					        	</div>
-					        </li>
-					        <!----//--->
-					         <li onclick="location.href='single-page.html';">
-					        	<img src="images/img1.jpg" width="282" height="118">
-					        	<div class="post-info">
-					        		<div class="post-basic-info">
-						        		<h3><a href="#">Animation films</a></h3>
-						        		<span><a href="#"><label> </label>Movies</a></span>
-						        		<p>Lorem Ipsum is simply dummy text of the printing & typesetting industry.</p>
-					        		</div>
-					        		<div class="post-info-rate-share">
-					        			<div class="rateit">
-					        				<span> </span>
-					        			</div>
-					        			<div class="post-share">
-					        				<span> </span>
-					        			</div>
-					        			<div class="clear"> </div>
-					        		</div>
-					        	</div>
-					        </li>
-					        <li onclick="location.href='single-page.html';">
-					        	<img src="images/img2.jpg" width="282" height="344">
-								<div class="post-info">
-					        		<div class="post-basic-info">
-						        		<h3><a href="#">Animation films</a></h3>
-						        		<span><a href="#"><label> </label>Movies</a></span>
-						        		<p>Lorem Ipsum is simply dummy text of the printing & typesetting industry.</p>
-					        		</div>
-					        		<div class="post-info-rate-share">
-					        			<div class="rateit">
-					        				<span> </span>
-					        			</div>
-					        			<div class="post-share">
-					        				<span> </span>
-					        			</div>
-					        			<div class="clear"> </div>
-					        		</div>
-					        	</div>
-							</li>
-					        <li onclick="location.href='single-page.html';">
-					        	<img src="images/img3.jpg" width="282" height="210">
-					        	<div class="post-info">
-					        		<div class="post-basic-info">
-						        		<h3><a href="#">Animation films</a></h3>
-						        		<span><a href="#"><label> </label>Movies</a></span>
-						        		<p>Lorem Ipsum is simply dummy text of the printing & typesetting industry.</p>
-					        		</div>
-					        		<div class="post-info-rate-share">
-					        			<div class="rateit">
-					        				<span> </span>
-					        			</div>
-					        			<div class="post-share">
-					        				<span> </span>
-					        			</div>
-					        			<div class="clear"> </div>
-					        		</div>
-					        	</div>
-					        </li>
-					        <li onclick="location.href='single-page.html';">
-					        	<img src="images/img4.jpg" width="282" height="385">
-					        	<div class="post-info">
-					        		<div class="post-basic-info">
-						        		<h3><a href="#">Animation films</a></h3>
-						        		<span><a href="#"><label> </label>Movies</a></span>
-						        		<p>Lorem Ipsum is simply dummy text of the printing & typesetting industry.</p>
-					        		</div>
-					        		<div class="post-info-rate-share">
-					        			<div class="rateit">
-					        				<span> </span>
-					        			</div>
-					        			<div class="post-share">
-					        				<span> </span>
-					        			</div>
-					        			<div class="clear"> </div>
-					        		</div>
-					        	</div>
-					        </li>
-					        --%>
 					        <!-- End of grid blocks -->
 					      </ul>
 					    </div>

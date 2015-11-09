@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ page import="microblog.kitsch.business.domain.PostingContent" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -27,21 +28,36 @@
 	<script src="<c:url value='/ckeditor/ckeditor.js' />"></script>
 	<script src="<c:url value='/js/kitsch.js' />"></script>
 </head><!--/head-->
+
 <body>
 	<div class="container">
         <div class="row">
 			<form name="postingForm" action="/kitsch/posting?action=write" method="POST" role="form" enctype="multipart/form-data">
-				<div class="form-group"><input type="hidden" value="${param.blogName}" name="blogName"></div>
 				<%--
-				<div class="form-group"><input type="hidden" value="${param.postType}" name="postType"></div>
+				<div class="form-group"><input type="hidden" value="${param.blogName}" name="blogName"></div>
 				--%>
+				<%--
+				<select name="postType">
+					<option value="<%= PostingContent.TEXT_CONTENT %>">텍스트</option>
+					<option value="<%= PostingContent.COMMON_AUDIO_CONTENT %>">오디오</option>
+					<option value="<%= PostingContent.COMMON_IMAGE_CONTENT %>">이미지</option>
+					<option value="<%= PostingContent.COMMON_VIDEO_CONTENT %>">동영상</option>
+				</select>
+				--%>
+				<div class="form-group">
+				<select name="blogName">
+					<c:forEach var="blog" items="${requestScope.memberBlogs}">
+						<option value="${blog.blogName}">${blog.blogName}</option>
+					</c:forEach>
+				</select>
+				</div>
 				<div class="form-group">
 					<label for="title h2 col-xs-4">제목</label>
 					<input class="form-control h2 col-xs-8" type="text" name="title" maxlength="100" placeholder="제목">
 				</div>
 				<div class="form-group">
-					<label for="title h2">작성자 ${sessionScope.member.name}</label>
-					<input class="form-control h2" type="hidden" name="writer" maxlength="60" value="${sessionScope.member.name}">
+					<label for="title h2">작성자 ${sessionScope.logonMember.name}</label>
+					<input class="form-control h2" type="hidden" name="writer" maxlength="60" value="${sessionScope.logonMember.name}">
 				</div>
 				<div class="form-group">
 					<textarea class="contentsinput ckeditor" name="contents"></textarea>
@@ -92,7 +108,10 @@
 				</div>
 				<div class="clearfix"></div>
 				<div class="form-group">
+					<%--
 					<input type="button" class="btn btn-default" value="포스팅" onclick="postingCheck(this.form);">
+					--%>
+					<input type="submit" class="btn btn-default" value="포스팅">
 					<button type="button" class="btn btn-default" data-dismiss="modal">취소</button>
 				</div>
 			</form>

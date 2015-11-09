@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page import="microblog.kitsch.test.DomainObjectsForTest" %>
 
 <!DOCTYPE HTML>
 <html>
@@ -59,22 +58,25 @@
                         
       });
       </script>
+      <script src="js/jquery.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/jquery.prettyPhoto.js"></script>
+	<script src="js/jquery.isotope.min.js"></script>
+	<script src="js/main.js"></script>
+	<script src="js/wow.min.js"></script>
       <!----//End-dropdown--->
    </head>
-   <%
-      //session.setAttribute("logonMember", DomainObjectsForTest.logonMember);
-      request.setAttribute("postings", DomainObjectsForTest.postings);
-      request.setAttribute("blog", DomainObjectsForTest.defaultBlog);
-      request.setAttribute("blogOwner", DomainObjectsForTest.logonMember);
-   %>
+   
    <body class="homepage">
    <!-- blog header -->
       <div class="container-fluid blog_header">
-         <div class="img_center" style="background-image: url(${requestScope.blog.headerImage})">
+         <div class="img_center" style="background-image: url('${requestScope.blog.headerImage}')">
             <h3 class="text-right owner">${blogOwner.name}의 블로그 입니다.</h3>
             <p class="text-center">
                <label class="h1 text-center">${requestScope.blog.blogName}</label>
+               <c:if test="${sessionScope.logonMember.email ne blogOwner.email}">
                <span class="text-right"><a href="/blog?action=following&blogName=${requestScope.blog.blogName}">팔로우</a></span>
+               </c:if>
             </p>
             <span class="img_center">
                <img src="${blogOwner.profileImage}"  class="img-circle2">
